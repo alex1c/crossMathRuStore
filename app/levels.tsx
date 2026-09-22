@@ -1,34 +1,6 @@
-import { Text, StyleSheet } from 'react-native'
-import { BannerSlot, Screen } from '@/src/components'
-import { useTheme } from '@/src/theme'
+import { LevelsScreen } from '@/src/screens/LevelsScreen'
 
-/** Level select placeholder — banner slot reserved for a future non-game ad. */
+/** Campaign level entry for Phase 3 gameplay. */
 export default function LevelsRoute() {
-	const theme = useTheme()
-
-	return (
-		<Screen
-			title="Уровни"
-			subtitle="Каталог уровней появится позже."
-			footer={<BannerSlot placement="levels" />}
-		>
-			<Text
-				style={[
-					styles.note,
-					{
-						color: theme.colors.textSecondary,
-						...theme.typography.caption,
-					},
-				]}
-			>
-				Placeholder — gameplay and content arrive in later phases.
-			</Text>
-		</Screen>
-	)
+	return <LevelsScreen />
 }
-
-const styles = StyleSheet.create({
-	note: {
-		marginTop: 8,
-	},
-})

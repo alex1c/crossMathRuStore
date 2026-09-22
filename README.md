@@ -47,8 +47,10 @@ Cursor budget is limited — do not spend it on Codex-owned math-core work.
 | Phase | Status |
 | --- | --- |
 | 0 Bootstrap / scaffold | PASS |
-| 1 Pure TS generator + solver + tests | not started |
-| 2 Gameplay UI / levels | not started |
+| 1 Pure TS generator + solver + tests | PASS |
+| 2 Difficulty profiles + modes | PASS |
+| 3 Playable game board UI | PASS |
+| 4 Persistence / Daily / polish | not started |
 
 ## Architecture notes
 

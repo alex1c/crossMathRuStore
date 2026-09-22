@@ -72,6 +72,11 @@ export {
 	isValueInRange,
 	operatorSymbol,
 } from './arithmetic'
+export {
+	coordinateKey,
+	coordinatesEqual,
+	getCell,
+} from './model'
 
 export function createCrossMathEngine(): CrossMathEngine {
 	return {

@@ -73,7 +73,11 @@ export const colors = {
 		border: '#D8E0E8',
 		success: '#1FA97A',
 		error: '#D64545',
+		errorSoft: '#FDECEC',
 		selectedCell: '#E8F0FE',
+		relatedCell: '#F0F4FA',
+		fixedNumber: '#0F1B2A',
+		userNumber: '#2F6FED',
 		operator: '#5A6B7C',
 		equation: '#1A2B3C',
 	},
@@ -87,7 +91,11 @@ export const colors = {
 		border: '#334155',
 		success: '#34D399',
 		error: '#F87171',
+		errorSoft: '#3A1F1F',
 		selectedCell: '#1E2F4A',
+		relatedCell: '#182230',
+		fixedNumber: '#F8FAFC',
+		userNumber: '#93C5FD',
 		operator: '#94A3B8',
 		equation: '#F1F5F9',
 	},
@@ -106,7 +114,11 @@ export type ThemeColors = {
 	border: string
 	success: string
 	error: string
+	errorSoft: string
 	selectedCell: string
+	relatedCell: string
+	fixedNumber: string
+	userNumber: string
 	operator: string
 	equation: string
 }

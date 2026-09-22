@@ -53,6 +53,10 @@ function RootNavigator() {
 				/>
 				<Stack.Screen name="levels" options={{ title: 'Уровни' }} />
 				<Stack.Screen
+					name="game"
+					options={{ title: 'Игра', headerShown: true }}
+				/>
+				<Stack.Screen
 					name="endless"
 					options={{ title: 'Бесконечная игра' }}
 				/>
