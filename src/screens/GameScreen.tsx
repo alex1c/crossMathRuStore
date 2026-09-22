@@ -200,5 +200,6 @@ const styles = StyleSheet.create({
 	controls: {
 		gap: 10,
 		paddingBottom: 4,
+		transform: [{ translateY: -32 }],
 	},
 })

@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
 		borderRadius: 16,
 		padding: 20,
 		gap: 12,
+		transform: [{ translateY: -32 }],
 	},
 	subtitle: {
 		marginTop: -4,
