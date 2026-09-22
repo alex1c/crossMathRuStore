@@ -96,6 +96,15 @@ function buildTriples(config: PuzzleGenerationConfig): {
 	for (const operator of config.allowedOperations) {
 		for (let a = config.minValue; a <= config.maxValue; a += 1) {
 			for (let b = config.minValue; b <= config.maxValue; b += 1) {
+				if (operator === 'multiply' && config.multiplicationTable !== undefined) {
+					const table = config.multiplicationTable
+					const tableOperand = typeof table === 'number'
+						? a === table || b === table
+						: (a >= 2 && a <= 9) || (b >= 2 && b <= 9)
+					if (!tableOperand) {
+						continue
+					}
+				}
 				const evaluation = evaluateArithmetic(a, operator, b, config)
 				if (!evaluation.valid) {
 					continue
@@ -283,6 +292,9 @@ function createPuzzle(
 	return {
 		schemaVersion: 1,
 		arithmetic: { minValue: config.minValue, maxValue: config.maxValue },
+		...(config.multiplicationTable === undefined
+			? {}
+			: { mode: { multiplicationTable: config.multiplicationTable } }),
 		grid: { rows: config.rows, columns: config.columns, cells },
 		equations: structure.equations,
 	}

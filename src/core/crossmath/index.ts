@@ -11,6 +11,13 @@ export type {
 	CrossMathCellKind,
 	CrossMathEngine,
 	CrossMathOperator,
+	CalibrationProfileSummary,
+	DailyMode,
+	DifficultyAnalysis,
+	DifficultyMetrics,
+	DifficultyScoreRange,
+	DifficultyTier,
+	EndlessProgress,
 	Equation,
 	EquationCellCoordinates,
 	EquationDirection,
@@ -28,6 +35,9 @@ export type {
 	PuzzleStructureRequirements,
 	PuzzleValidationOptions,
 	PuzzleValidationResult,
+	GenerationProfile,
+	MultiplicationTable,
+	ProfiledPuzzle,
 	SolutionCountResult,
 	SolverMetrics,
 	SolverResult,
@@ -40,6 +50,21 @@ export {
 	generatePuzzle,
 } from './generator'
 export { countSolutions, hasUniqueSolution, solvePuzzle } from './solver'
+export { analyzeDifficulty } from './difficulty'
+export { calibrateDifficultyProfile, calibrateDifficultyProfiles } from './calibration'
+export {
+	DifficultyGenerationError,
+	generateCampaignPuzzle,
+	generateDailyPuzzle,
+	generateEndlessPuzzle,
+	generateMultiplicationTablePuzzle,
+	generatePuzzleForProfile,
+	getCampaignGenerationProfile,
+	getDailyGenerationProfile,
+	getDifficultyProfile,
+	getEndlessGenerationProfile,
+	getMultiplicationTableGenerationProfile,
+} from './profiles'
 export { validatePuzzle } from './validator'
 export { deriveSeed } from './rng'
 export {

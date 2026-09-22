@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "test": "jest",
     "test:crossmath:stress": "jest --runInBand tests/crossmath.stress.test.ts",
+    "test:crossmath:calibrate": "jest --runInBand --testMatch **/tests/crossmath.calibration.ts --testTimeout=600000",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },

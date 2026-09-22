@@ -67,6 +67,9 @@ export type PuzzleGrid = {
 export type Puzzle = {
 	readonly schemaVersion: 1
 	readonly arithmetic: ArithmeticConfig
+	readonly mode?: {
+		readonly multiplicationTable?: MultiplicationTable
+	}
 	readonly grid: PuzzleGrid
 	readonly equations: readonly Equation[]
 }
@@ -98,6 +101,7 @@ export type PuzzleGenerationConfig = ArithmeticConfig & {
 	readonly generatorVersion: string
 	readonly requireConnected: boolean
 	readonly solverMaxNodes: number
+	readonly multiplicationTable?: MultiplicationTable
 }
 
 export type SolverMetrics = {
@@ -170,4 +174,83 @@ export type CrossMathEngine = {
 	generate: (seed: string | number, config?: Partial<PuzzleGenerationConfig>) => GeneratedPuzzle
 	solve: (puzzle: Puzzle, options?: { maxNodes?: number }) => SolverResult
 	hasUniqueSolution: (puzzle: Puzzle, options?: { maxNodes?: number }) => boolean
+}
+
+export type DifficultyTier = 'easy' | 'medium' | 'hard' | 'expert'
+
+export type DifficultyMetrics = {
+	readonly blankCount: number
+	readonly fixedClueCount: number
+	readonly clueRatio: number
+	readonly equationCount: number
+	readonly crossingCount: number
+	readonly connectedComponents: number
+	readonly structuralDensity: number
+	readonly initialForcedCells: number
+	readonly forcedCellsByWave: readonly number[]
+	readonly propagationWaves: number
+	readonly longestForcedChain: number
+	readonly unresolvedAfterLogic: number
+	readonly averageCandidatesBeforeResolution: number
+	readonly maxCandidatesBeforeResolution: number
+	readonly ambiguityMoments: number
+	readonly choiceWaves: number
+	readonly operationMix: Readonly<Partial<Record<ArithmeticOperator, number>>>
+	readonly multiplicationFrequency: number
+	readonly divisionFrequency: number
+	readonly numericRange: number
+	readonly solverBranches: number
+	readonly solverNodes: number
+	readonly solverMaxDepth: number
+}
+
+export type DifficultyAnalysis = {
+	readonly score: number
+	readonly metrics: DifficultyMetrics
+	readonly solver: SolverResult
+	readonly logicSolved: boolean
+}
+
+export type DifficultyScoreRange = {
+	readonly min: number
+	readonly max: number
+}
+
+export type GenerationProfile = {
+	readonly id: string
+	readonly difficultyTier: DifficultyTier
+	readonly scoreRange: DifficultyScoreRange
+	readonly generatorVersion: string
+	readonly config: Partial<PuzzleGenerationConfig>
+	readonly maxCandidateAttempts: number
+	readonly seed?: string | number
+}
+
+export type ProfiledPuzzle = {
+	readonly generated: GeneratedPuzzle
+	readonly analysis: DifficultyAnalysis
+	readonly profile: GenerationProfile
+	readonly candidateAttempts: number
+}
+
+export type DailyMode = 'daily' | 'daily-expert'
+export type EndlessProgress = {
+	readonly completed: number
+	readonly streak: number
+}
+export type MultiplicationTable = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 'mixed'
+
+export type CalibrationProfileSummary = {
+	readonly profile: DifficultyTier
+	readonly accepted: number
+	readonly attempts: number
+	readonly generationFailures: number
+	readonly invalid: number
+	readonly nonUnique: number
+	readonly safetyLimitHits: number
+	readonly acceptanceRate: number
+	readonly average: Readonly<Record<string, number>>
+	readonly median: Readonly<Record<string, number>>
+	readonly scoreMin: number
+	readonly scoreMax: number
 }
