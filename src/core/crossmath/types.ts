@@ -1,71 +1,173 @@
 /**
- * Pure TypeScript CrossMath engine surface.
+ * Public domain types for the pure CrossMath engine.
  *
- * CRITICAL: this module must stay free of React Native / Expo imports so
- * generator, solver, and uniqueness checks can run under Jest/Node at scale.
- *
- * Phase 0 ships only types + placeholders. Algorithms arrive in Phase 1.
+ * The persisted puzzle is deliberately made from plain objects and arrays.
+ * A coordinate that is absent from `grid.cells` is not a playable cell.
  */
 
-/** Arithmetic operators planned for intersecting equations. */
-export type CrossMathOperator = '+' | '-' | '×' | '÷'
+export type ArithmeticOperator = 'add' | 'subtract' | 'multiply' | 'divide'
+export type CrossMathOperator = ArithmeticOperator
 
-/**
- * Placeholder cell kinds for the future board model.
- * Empty value cells are filled by the player; operators/results are givens.
- */
-export type CrossMathCellKind =
-	| 'empty'
-	| 'given'
-	| 'operator'
-	| 'equals'
-	| 'result'
-	| 'blocked'
-
-/**
- * Minimal board cell shape reserved for Phase 1.
- * Not used by UI yet.
- */
-export type CrossMathCell = {
-	row: number
-	col: number
-	kind: CrossMathCellKind
-	value: number | null
-	operator?: CrossMathOperator
+export type CellCoordinate = {
+	readonly row: number
+	readonly column: number
 }
 
-/**
- * Puzzle document placeholder. Generator/solver will populate this later.
- */
-export type CrossMathPuzzle = {
-	id: string
-	width: number
-	height: number
-	cells: CrossMathCell[]
+export type EquationDirection = 'horizontal' | 'vertical'
+
+export type NumberCell = {
+	readonly kind: 'number'
+	readonly coordinate: CellCoordinate
+	readonly state: 'fixed' | 'blank'
+	readonly value: number | null
 }
 
+export type OperatorCell = {
+	readonly kind: 'operator'
+	readonly coordinate: CellCoordinate
+	readonly operator: ArithmeticOperator
+}
+
+export type EqualsCell = {
+	readonly kind: 'equals'
+	readonly coordinate: CellCoordinate
+}
+
+export type CrossMathCell = NumberCell | OperatorCell | EqualsCell
+export type CrossMathCellKind = CrossMathCell['kind']
+
+export type EquationCellCoordinates = readonly [
+	CellCoordinate,
+	CellCoordinate,
+	CellCoordinate,
+	CellCoordinate,
+	CellCoordinate,
+]
+
 /**
- * Engine API surface reserved for Phase 1 pure-TS implementation.
+ * Canonical equation representation. `cells` is ordered from left-to-right
+ * or top-to-bottom and has the fixed shape number/operator/number/equals/number.
+ * Number coordinates are derived from indexes 0, 2 and 4; they are not stored
+ * a second time, so the representation cannot disagree with itself.
  */
+export type Equation = {
+	readonly id: string
+	readonly direction: EquationDirection
+	readonly cells: EquationCellCoordinates
+	readonly operator: ArithmeticOperator
+	readonly relation: 'equals'
+}
+
+export type PuzzleGrid = {
+	readonly rows: number
+	readonly columns: number
+	readonly cells: readonly CrossMathCell[]
+}
+
+export type Puzzle = {
+	readonly schemaVersion: 1
+	readonly arithmetic: ArithmeticConfig
+	readonly grid: PuzzleGrid
+	readonly equations: readonly Equation[]
+}
+
+export type PuzzleDefinition = Puzzle
+
+export type NumberAssignment = {
+	readonly coordinate: CellCoordinate
+	readonly value: number
+}
+
+export type PuzzleSolution = {
+	readonly values: readonly NumberAssignment[]
+}
+
+export type ArithmeticConfig = {
+	readonly minValue: number
+	readonly maxValue: number
+}
+
+export type PuzzleGenerationConfig = ArithmeticConfig & {
+	readonly rows: number
+	readonly columns: number
+	readonly allowedOperations: readonly ArithmeticOperator[]
+	readonly targetEquationCount: number
+	readonly targetBlankCount?: number
+	readonly blankRatio?: number
+	readonly maxGenerationAttempts: number
+	readonly generatorVersion: string
+	readonly requireConnected: boolean
+	readonly solverMaxNodes: number
+}
+
+export type SolverMetrics = {
+	readonly nodesVisited: number
+	readonly branchCount: number
+	readonly propagationSteps: number
+	readonly maxDepth: number
+	readonly elapsedMs: number
+}
+
+export type SolverStatus =
+	| 'no-solution'
+	| 'unique'
+	| 'multiple'
+	| 'safety-limit'
+
+export type SolverResult = {
+	readonly status: SolverStatus
+	readonly solutionCount: 0 | 1 | 2
+	readonly solution?: PuzzleSolution
+	readonly metrics: SolverMetrics
+	readonly error?: string
+}
+
+export type SolutionCountResult = {
+	readonly count: 0 | 1 | 2
+	readonly status: 'complete' | 'safety-limit'
+	readonly metrics: SolverMetrics
+}
+
+export type PuzzleStructureRequirements = {
+	readonly requireHorizontalAndVertical?: boolean
+	readonly requireCrossing?: boolean
+	readonly requireConnected?: boolean
+}
+
+export type PuzzleValidationOptions = {
+	readonly solution?: PuzzleSolution
+	readonly arithmetic?: ArithmeticConfig
+	readonly requirements?: PuzzleStructureRequirements
+}
+
+export type PuzzleValidationResult = {
+	readonly valid: boolean
+	readonly errors: readonly string[]
+	readonly equationCount: number
+	readonly numberCellCount: number
+	readonly blankCount: number
+	readonly crossingCount: number
+	readonly connectedComponents: number
+}
+
+export type PuzzleMetadata = {
+	readonly seed: string | number
+	readonly generatorVersion: string
+	readonly generationAttempts: number
+	readonly equationCount: number
+	readonly numberCellCount: number
+	readonly blankCount: number
+	readonly crossingCount: number
+}
+
+export type GeneratedPuzzle = {
+	readonly puzzle: Puzzle
+	readonly solution: PuzzleSolution
+	readonly metadata: PuzzleMetadata
+}
+
 export type CrossMathEngine = {
-	generate: (seed: string) => CrossMathPuzzle
-	solve: (puzzle: CrossMathPuzzle) => CrossMathPuzzle | null
-	hasUniqueSolution: (puzzle: CrossMathPuzzle) => boolean
-}
-
-/**
- * Phase 0 stub — throws until Phase 1 lands the real engine.
- */
-export function createCrossMathEngine(): CrossMathEngine {
-	const notImplemented = (): never => {
-		throw new Error(
-			'CrossMath engine is not implemented yet (Phase 1).',
-		)
-	}
-
-	return {
-		generate: notImplemented,
-		solve: notImplemented,
-		hasUniqueSolution: notImplemented,
-	}
+	generate: (seed: string | number, config?: Partial<PuzzleGenerationConfig>) => GeneratedPuzzle
+	solve: (puzzle: Puzzle, options?: { maxNodes?: number }) => SolverResult
+	hasUniqueSolution: (puzzle: Puzzle, options?: { maxNodes?: number }) => boolean
 }

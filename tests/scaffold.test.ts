@@ -6,10 +6,16 @@ import {
 import { clamp } from '@/src/utils'
 import { getThemeColors } from '@/src/theme'
 
-describe('Phase 0 scaffold smoke', () => {
-	it('exposes a stub CrossMath engine that is not implemented yet', () => {
+describe('CrossMath application scaffold smoke', () => {
+	it('exposes the production pure-TypeScript engine facade', () => {
 		const engine = createCrossMathEngine()
-		expect(() => engine.generate('seed')).toThrow(/Phase 1/)
+		const generated = engine.generate('scaffold-seed', {
+			targetEquationCount: 2,
+			targetBlankCount: 1,
+			maxGenerationAttempts: 20,
+		})
+		expect(generated.puzzle.equations).toHaveLength(2)
+		expect(engine.hasUniqueSolution(generated.puzzle)).toBe(true)
 	})
 
 	it('keeps daily reminder domain helpers ready', () => {
