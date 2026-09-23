@@ -100,6 +100,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const [headerHeight, setHeaderHeight] = useState(HEADER_FALLBACK)
 	const stateRef = useRef(state)
 	const timerRef = useRef(timer)
+	const appStateRef = useRef<AppStateStatus>(AppState.currentState)
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const campaignLevel = source.kind === 'campaign' ? source.level : null
 
@@ -118,21 +119,6 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		const id = setInterval(() => setNow(Date.now()), 1000)
 		return () => clearInterval(id)
 	}, [state.status])
-
-	useEffect(() => {
-		const onChange = (status: AppStateStatus) => {
-			if (stateRef.current.status === 'completed') {
-				return
-			}
-			if (status === 'active') {
-				setTimer((prev) => resumeActiveTimer(prev))
-			} else {
-				setTimer((prev) => pauseActiveTimer(prev))
-			}
-		}
-		const sub = AppState.addEventListener('change', onChange)
-		return () => sub.remove()
-	}, [])
 
 	const buildPersistedSession = useCallback(
 		(game: GameState, activeTimer: ActiveTimerState): PersistedActiveSession | null => {
@@ -182,6 +168,41 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			void saveActiveSession(session)
 		}, 250)
 	}, [buildPersistedSession, saveActiveSession])
+
+	const persistTimerSnapshot = useCallback(
+		(activeTimer: ActiveTimerState) => {
+			const session = buildPersistedSession(stateRef.current, activeTimer)
+			void saveActiveSession(session)
+		},
+		[buildPersistedSession, saveActiveSession],
+	)
+
+	useEffect(() => {
+		const onChange = (status: AppStateStatus) => {
+			if (stateRef.current.status === 'completed') {
+				return
+			}
+			if (status === appStateRef.current) {
+				return
+			}
+			appStateRef.current = status
+			const previousTimer = timerRef.current
+			const nextTimer =
+				status === 'active'
+					? resumeActiveTimer(previousTimer)
+					: pauseActiveTimer(previousTimer)
+			if (nextTimer === previousTimer) {
+				return
+			}
+			// Update the ref before persisting. AppState changes can race React's
+			// render/effect commit, especially during Android backgrounding.
+			timerRef.current = nextTimer
+			setTimer(nextTimer)
+			persistTimerSnapshot(nextTimer)
+		}
+		const sub = AppState.addEventListener('change', onChange)
+		return () => sub.remove()
+	}, [persistTimerSnapshot])
 
 	useEffect(() => {
 		if (state.status === 'playing') {

@@ -50,10 +50,13 @@ export default function GameRoute() {
 		if (!progress.state.activeSession) {
 			return <Redirect href="/" />
 		}
+		const activeSource = progress.state.activeSession.source
 		return (
 			<GameScreen
-				key={`resume-${progress.state.activeSession.updatedAt}`}
-				source={progress.state.activeSession.source}
+				// The active session is updated while playing. Its updatedAt must not
+				// remount GameScreen, or every autosave resets gameplay and its timer.
+				key={`resume-${getGameSourceKey(activeSource)}`}
+				source={activeSource}
 				resume
 			/>
 		)
@@ -93,4 +96,17 @@ function parseLevel(raw: string | string[] | undefined): number {
 		return 1
 	}
 	return value
+}
+
+function getGameSourceKey(source: GameSource): string {
+	if (source.kind === 'campaign') {
+		return `campaign-${source.level}`
+	}
+	if (source.kind === 'daily') {
+		return `daily-${source.dateKey}`
+	}
+	if (source.kind === 'endless') {
+		return `endless-${source.completedCount}`
+	}
+	return `dev-${source.id}`
 }

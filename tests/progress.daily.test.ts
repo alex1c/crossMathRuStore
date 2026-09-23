@@ -2,6 +2,7 @@ import {
 	computeDailyStreak,
 	createActiveTimer,
 	getActiveElapsedMs,
+	hydrateActiveTimer,
 	pauseActiveTimer,
 	resumeActiveTimer,
 	formatLocalDateKey,
@@ -22,6 +23,15 @@ describe('active timer', () => {
 		expect(getActiveElapsedMs(timer, 5_000)).toBe(1_000)
 		timer = resumeActiveTimer(timer, 5_000)
 		expect(getActiveElapsedMs(timer, 5_400)).toBe(1_400)
+	})
+
+	it('keeps a persisted timer active-only across a background gap', () => {
+		let timer = createActiveTimer(0)
+		timer = pauseActiveTimer(timer, 10_000)
+		expect(getActiveElapsedMs(timer, 30_000)).toBe(10_000)
+
+		const restored = hydrateActiveTimer(timer.accumulatedActiveMs, 30_000)
+		expect(getActiveElapsedMs(restored, 35_000)).toBe(15_000)
 	})
 })
 
