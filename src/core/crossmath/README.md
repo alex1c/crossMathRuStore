@@ -137,3 +137,58 @@ There is no UI integration, daily scheduling, ads, analytics, notifications,
 achievements, economy, or native code. Long-expression precedence is still not
 implemented. Expert generation is deterministic and bounded but materially
 slower than Easy; the measured cost is documented by the calibration output.
+
+## Phase 5.5 experimental research surface
+
+`experimental.ts` is additive and is not used by production campaign or
+`GameScreen`. It provides four immediately addressable, language-neutral
+tracks (`easy`, `medium`, `hard`, `lobachevsky`), deterministic track and Daily
+seeds, occupied-bounding-box density/crossing metrics, ASCII rendering, and a
+bounded binary-only ceiling audit. Track progression is local to levels 1..50;
+there is no cross-track unlock rule.
+
+The prototype also contains a JSON-friendly long-expression model for three
+operands. Evaluation uses conventional precedence (`×`/`÷` before `+`/`−`),
+left associativity, integer-only division, and configured intermediate/result
+bounds. Its solver performs bounded support propagation followed by search and
+proves uniqueness independently of the generator's original solution.
+
+Number banks are pure-core artifacts. Exact banks preserve multiplicity by
+using an array of items rather than a `Set`; distractor banks derive a small
+seeded set from nearby values in the valid arithmetic range. No number-bank or
+track API is wired into production UI or persistence.
+
+Initial desktop probe: the original 9-equation/9-blank binary Lobachevsky
+hypothesis failed within bounded generation. The revised binary starting point
+(8 equations, 7 blanks) succeeded with 6 crossings, four propagation waves,
+11 ambiguity observations, and about 3.7 seconds for one accepted candidate on
+the development machine. This is a real `>1s` performance flag, not a claim
+that the binary architecture has reached the final top-end design. The next
+decision should compare this binary profile against the long-expression
+prototype using the artifacts under `docs/research/`.
+
+Phase 5.5 deliberately leaves reminder defaults, Home banner placement, four
+button production UI, persistence migration, and multiplication-table UI
+unchanged. The multiplication-table profile remains available as a regression
+surface through the existing production API.
+
+## Phase 5.5B advanced comparison
+
+The research surface now also exposes an explicit `HybridPuzzle` model. A
+hybrid combines canonical binary equations with 3-operand
+`A OP B OP C = D` equations in one connected grid. `countHybridSolutions` and
+`solveHybridPuzzle` use shared bounded domains, integer arithmetic, and the
+same standard precedence rules as the long-expression solver.
+
+`compareAdvancedCandidates` measures dense binary, pure-long, and hybrid
+Lobachevsky candidates with acceptance, p90/max generation time, density,
+crossings, blanks, waves, ambiguity, and solver nodes. The Phase 5.5B sample
+accepted 20/20 for each candidate; hybrid had the best median density and
+runtime, while binary produced the deepest propagation signal at the highest
+cost.
+
+`buildPregeneratedCampaignCatalog` and
+`validatePregeneratedCampaignCatalog` are build-time research helpers only.
+They can stop on an explicit time budget and report generated levels, failures,
+JSON size, uniqueness, and safety-limit hits. They do not write persistence or
+alter the existing 250-level campaign.

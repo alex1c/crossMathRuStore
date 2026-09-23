@@ -1,0 +1,2562 @@
+{
+  "report": {
+    "generatorVersion": "phase5.5b-advanced-v1",
+    "requestedPerCandidate": 20,
+    "summaries": [
+      {
+        "kind": "binary",
+        "requested": 20,
+        "accepted": 20,
+        "failures": 0,
+        "acceptanceRate": 1,
+        "medianGenerationMs": 904,
+        "p90GenerationMs": 2094,
+        "maxGenerationMs": 4399,
+        "medianScore": 49.72,
+        "medianDensity": 0.317,
+        "medianEquationCount": 8,
+        "medianBlankCount": 7,
+        "medianPropagationWaves": 4,
+        "medianAmbiguityMoments": 9,
+        "medianCrossings": 7,
+        "medianSolverNodes": 1
+      },
+      {
+        "kind": "long",
+        "requested": 20,
+        "accepted": 20,
+        "failures": 0,
+        "acceptanceRate": 1,
+        "medianGenerationMs": 328,
+        "p90GenerationMs": 1255,
+        "maxGenerationMs": 1789,
+        "medianScore": 49.94,
+        "medianDensity": 0.293,
+        "medianEquationCount": 5,
+        "medianBlankCount": 8,
+        "medianPropagationWaves": 2,
+        "medianAmbiguityMoments": 11,
+        "medianCrossings": 5,
+        "medianSolverNodes": 1
+      },
+      {
+        "kind": "hybrid",
+        "requested": 20,
+        "accepted": 20,
+        "failures": 0,
+        "acceptanceRate": 1,
+        "medianGenerationMs": 111,
+        "p90GenerationMs": 293,
+        "maxGenerationMs": 330,
+        "medianScore": 46.09,
+        "medianDensity": 0.383,
+        "medianEquationCount": 6,
+        "medianBlankCount": 8,
+        "medianPropagationWaves": 2,
+        "medianAmbiguityMoments": 10,
+        "medianCrossings": 6,
+        "medianSolverNodes": 1
+      }
+    ]
+  },
+  "representatives": [
+    {
+      "id": "lobachevsky-hybrid-1",
+      "generationMs": 201,
+      "equationTypes": {
+        "long": 4,
+        "binary": 4
+      },
+      "metrics": {
+        "score": 50.04,
+        "density": {
+          "occupiedCellCount": 38,
+          "occupiedBoundingBoxArea": 143,
+          "occupiedDensity": 0.266,
+          "crossingCellCount": 9,
+          "crossingRatio": 1.125,
+          "numberCellCount": 18,
+          "equationCount": 8
+        },
+        "blankCount": 9,
+        "initialForcedCells": 6,
+        "forcedCellsByWave": [
+          6,
+          3
+        ],
+        "propagationWaves": 2,
+        "unresolvedAfterLogic": 0,
+        "averageCandidatesBeforeResolution": 16,
+        "maxCandidatesBeforeResolution": 18,
+        "ambiguityMoments": 12,
+        "solver": {
+          "status": "unique",
+          "solutionCount": 1,
+          "solution": {
+            "values": [
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 8
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 6
+                },
+                "value": 5
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 8
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 10
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 12
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 4
+                },
+                "value": 18
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 6
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 8
+                },
+                "value": 8
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 10
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 2
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 4
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 6
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 8
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 4
+                },
+                "value": 16
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 6
+                },
+                "value": 10
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 8
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 11,
+                  "column": 4
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 13,
+                  "column": 4
+                },
+                "value": 18
+              }
+            ]
+          },
+          "metrics": {
+            "nodesVisited": 1,
+            "branchCount": 0,
+            "propagationSteps": 24,
+            "maxDepth": 0,
+            "elapsedMs": 0
+          }
+        }
+      },
+      "ascii": "                             \n                3            \n                +            \n            5   □ ÷ 6 = 1    \n            ×   −            \n        □ ÷ 2 − □ = □        \n        −   ×   =            \n    □ ÷ □ × □ = 1            \n        =   =                \n        16 − 10 = □            \n        +                    \n        2                    \n        =                    \n        □                    \n                             ",
+      "solution": {
+        "values": [
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 2
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 4
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 6
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 8
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 8
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 8
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 8
+            },
+            "value": 8
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 4
+            },
+            "value": 18
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 6
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 10
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 6
+            },
+            "value": 5
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 6
+            },
+            "value": 10
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 10
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 12
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 4
+            },
+            "value": 16
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 8
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 11,
+              "column": 4
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 13,
+              "column": 4
+            },
+            "value": 18
+          }
+        ]
+      },
+      "exactBank": {
+        "bank": {
+          "mode": "exact",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 8,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 18,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 18,
+              "kind": "answer"
+            }
+          ],
+          "missingValues": [
+            2,
+            2,
+            1,
+            6,
+            8,
+            18,
+            1,
+            6,
+            18
+          ],
+          "duplicateValueCounts": {
+            "1": 2,
+            "2": 2,
+            "6": 2,
+            "8": 1,
+            "18": 2
+          }
+        },
+        "analysis": {
+          "bankItemCount": 9,
+          "answerItemCount": 9,
+          "distractorItemCount": 0,
+          "duplicateAnswerValues": 4,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            1,
+            1,
+            2,
+            4,
+            5,
+            2,
+            1,
+            1,
+            1
+          ],
+          "averageInitialCompatibleValuesPerBlank": 2,
+          "singleInitialCompatibleBlankCount": 5
+        }
+      },
+      "distractorBank": {
+        "bank": {
+          "mode": "distractors",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 8,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 18,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 18,
+              "kind": "answer"
+            },
+            {
+              "id": "distractor-0",
+              "value": 11,
+              "kind": "distractor"
+            },
+            {
+              "id": "distractor-1",
+              "value": 14,
+              "kind": "distractor"
+            }
+          ],
+          "missingValues": [
+            2,
+            2,
+            1,
+            6,
+            8,
+            18,
+            1,
+            6,
+            18
+          ],
+          "duplicateValueCounts": {
+            "1": 2,
+            "2": 2,
+            "6": 2,
+            "8": 1,
+            "18": 2
+          }
+        },
+        "analysis": {
+          "bankItemCount": 11,
+          "answerItemCount": 9,
+          "distractorItemCount": 2,
+          "duplicateAnswerValues": 4,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            1,
+            1,
+            2,
+            4,
+            7,
+            2,
+            1,
+            1,
+            1
+          ],
+          "averageInitialCompatibleValuesPerBlank": 2.22,
+          "singleInitialCompatibleBlankCount": 5
+        }
+      }
+    },
+    {
+      "id": "lobachevsky-hybrid-2",
+      "generationMs": 103,
+      "equationTypes": {
+        "long": 4,
+        "binary": 4
+      },
+      "metrics": {
+        "score": 56.07,
+        "density": {
+          "occupiedCellCount": 32,
+          "occupiedBoundingBoxArea": 99,
+          "occupiedDensity": 0.323,
+          "crossingCellCount": 9,
+          "crossingRatio": 1.125,
+          "numberCellCount": 16,
+          "equationCount": 8
+        },
+        "blankCount": 9,
+        "initialForcedCells": 5,
+        "forcedCellsByWave": [
+          5,
+          2,
+          2
+        ],
+        "propagationWaves": 3,
+        "unresolvedAfterLogic": 0,
+        "averageCandidatesBeforeResolution": 13.4,
+        "maxCandidatesBeforeResolution": 18,
+        "ambiguityMoments": 15,
+        "solver": {
+          "status": "unique",
+          "solutionCount": 1,
+          "solution": {
+            "values": [
+              {
+                "coordinate": {
+                  "row": 6,
+                  "column": 10
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 6,
+                  "column": 14
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 8,
+                  "column": 8
+                },
+                "value": 12
+              },
+              {
+                "coordinate": {
+                  "row": 8,
+                  "column": 10
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 8,
+                  "column": 12
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 8,
+                  "column": 14
+                },
+                "value": 12
+              },
+              {
+                "coordinate": {
+                  "row": 10,
+                  "column": 6
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 10,
+                  "column": 8
+                },
+                "value": 18
+              },
+              {
+                "coordinate": {
+                  "row": 10,
+                  "column": 10
+                },
+                "value": 5
+              },
+              {
+                "coordinate": {
+                  "row": 10,
+                  "column": 12
+                },
+                "value": 13
+              },
+              {
+                "coordinate": {
+                  "row": 10,
+                  "column": 14
+                },
+                "value": 12
+              },
+              {
+                "coordinate": {
+                  "row": 12,
+                  "column": 4
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 12,
+                  "column": 6
+                },
+                "value": 5
+              },
+              {
+                "coordinate": {
+                  "row": 12,
+                  "column": 8
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 12,
+                  "column": 10
+                },
+                "value": 16
+              },
+              {
+                "coordinate": {
+                  "row": 14,
+                  "column": 6
+                },
+                "value": 5
+              }
+            ]
+          },
+          "metrics": {
+            "nodesVisited": 1,
+            "branchCount": 0,
+            "propagationSteps": 32,
+            "maxDepth": 0,
+            "elapsedMs": 0
+          }
+        }
+      },
+      "ascii": "                             \n                             \n                             \n                             \n                             \n                             \n                    6       □\n                    +       ×\n                12 ÷ 2 + 6 = □\n                    ×       =\n            □ × 18 − □ = □   □\n            ×       =        \n        □ × □ + 1 = □        \n            =                \n            5                ",
+      "solution": {
+        "values": [
+          {
+            "coordinate": {
+              "row": 8,
+              "column": 8
+            },
+            "value": 12
+          },
+          {
+            "coordinate": {
+              "row": 8,
+              "column": 10
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 8,
+              "column": 12
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 8,
+              "column": 14
+            },
+            "value": 12
+          },
+          {
+            "coordinate": {
+              "row": 6,
+              "column": 10
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 10,
+              "column": 10
+            },
+            "value": 5
+          },
+          {
+            "coordinate": {
+              "row": 12,
+              "column": 10
+            },
+            "value": 16
+          },
+          {
+            "coordinate": {
+              "row": 10,
+              "column": 6
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 10,
+              "column": 8
+            },
+            "value": 18
+          },
+          {
+            "coordinate": {
+              "row": 10,
+              "column": 12
+            },
+            "value": 13
+          },
+          {
+            "coordinate": {
+              "row": 12,
+              "column": 4
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 12,
+              "column": 6
+            },
+            "value": 5
+          },
+          {
+            "coordinate": {
+              "row": 12,
+              "column": 8
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 6,
+              "column": 14
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 10,
+              "column": 14
+            },
+            "value": 12
+          },
+          {
+            "coordinate": {
+              "row": 14,
+              "column": 6
+            },
+            "value": 5
+          }
+        ]
+      },
+      "exactBank": {
+        "bank": {
+          "mode": "exact",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 12,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 16,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 13,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 12,
+              "kind": "answer"
+            }
+          ],
+          "missingValues": [
+            12,
+            5,
+            16,
+            1,
+            13,
+            3,
+            5,
+            1,
+            12
+          ],
+          "duplicateValueCounts": {
+            "1": 2,
+            "3": 1,
+            "5": 2,
+            "12": 2,
+            "13": 1,
+            "16": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 9,
+          "answerItemCount": 9,
+          "distractorItemCount": 0,
+          "duplicateAnswerValues": 3,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            6,
+            1,
+            1,
+            3,
+            6,
+            6,
+            6,
+            2,
+            2
+          ],
+          "averageInitialCompatibleValuesPerBlank": 3.67,
+          "singleInitialCompatibleBlankCount": 2
+        }
+      },
+      "distractorBank": {
+        "bank": {
+          "mode": "distractors",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 12,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 16,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 13,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 12,
+              "kind": "answer"
+            },
+            {
+              "id": "distractor-0",
+              "value": 10,
+              "kind": "distractor"
+            },
+            {
+              "id": "distractor-1",
+              "value": 17,
+              "kind": "distractor"
+            }
+          ],
+          "missingValues": [
+            12,
+            5,
+            16,
+            1,
+            13,
+            3,
+            5,
+            1,
+            12
+          ],
+          "duplicateValueCounts": {
+            "1": 2,
+            "3": 1,
+            "5": 2,
+            "12": 2,
+            "13": 1,
+            "16": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 11,
+          "answerItemCount": 9,
+          "distractorItemCount": 2,
+          "duplicateAnswerValues": 3,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            8,
+            1,
+            1,
+            3,
+            8,
+            8,
+            8,
+            2,
+            3
+          ],
+          "averageInitialCompatibleValuesPerBlank": 4.67,
+          "singleInitialCompatibleBlankCount": 2
+        }
+      }
+    },
+    {
+      "id": "lobachevsky-hybrid-3",
+      "generationMs": 120,
+      "equationTypes": {
+        "long": 4,
+        "binary": 4
+      },
+      "metrics": {
+        "score": 40.57,
+        "density": {
+          "occupiedCellCount": 40,
+          "occupiedBoundingBoxArea": 143,
+          "occupiedDensity": 0.28,
+          "crossingCellCount": 8,
+          "crossingRatio": 1,
+          "numberCellCount": 20,
+          "equationCount": 8
+        },
+        "blankCount": 9,
+        "initialForcedCells": 9,
+        "forcedCellsByWave": [
+          9
+        ],
+        "propagationWaves": 1,
+        "unresolvedAfterLogic": 0,
+        "averageCandidatesBeforeResolution": 18,
+        "maxCandidatesBeforeResolution": 18,
+        "ambiguityMoments": 9,
+        "solver": {
+          "status": "unique",
+          "solutionCount": 1,
+          "solution": {
+            "values": [
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 13
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 9
+                },
+                "value": 8
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 11
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 13
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 7
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 9
+                },
+                "value": 4
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 13
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 5
+                },
+                "value": 18
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 7
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 9
+                },
+                "value": 7
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 11
+                },
+                "value": 7
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 3
+                },
+                "value": 17
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 5
+                },
+                "value": 17
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 7
+                },
+                "value": 10
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 9
+                },
+                "value": 11
+              },
+              {
+                "coordinate": {
+                  "row": 11,
+                  "column": 5
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 11,
+                  "column": 7
+                },
+                "value": 10
+              },
+              {
+                "coordinate": {
+                  "row": 13,
+                  "column": 3
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 13,
+                  "column": 5
+                },
+                "value": 15
+              },
+              {
+                "coordinate": {
+                  "row": 13,
+                  "column": 7
+                },
+                "value": 15
+              }
+            ]
+          },
+          "metrics": {
+            "nodesVisited": 1,
+            "branchCount": 0,
+            "propagationSteps": 16,
+            "maxDepth": 0,
+            "elapsedMs": 0
+          }
+        }
+      },
+      "ascii": "                             \n                          1  \n                          ×  \n                  8 + 6 = □  \n                  −       =  \n              1   □       □  \n              ×   +          \n          18   1 × 7 = □      \n          −   ×   =          \n      17 ÷ □ + □ = 11          \n          +   =              \n          14   □              \n          =                  \n      1 × □ = □              \n                             ",
+      "solution": {
+        "values": [
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 3
+            },
+            "value": 17
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 5
+            },
+            "value": 17
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 7
+            },
+            "value": 10
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 9
+            },
+            "value": 11
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 9
+            },
+            "value": 8
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 9
+            },
+            "value": 4
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 9
+            },
+            "value": 7
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 7
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 7
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 11,
+              "column": 7
+            },
+            "value": 10
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 5
+            },
+            "value": 18
+          },
+          {
+            "coordinate": {
+              "row": 11,
+              "column": 5
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 13,
+              "column": 5
+            },
+            "value": 15
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 11
+            },
+            "value": 7
+          },
+          {
+            "coordinate": {
+              "row": 13,
+              "column": 3
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 13,
+              "column": 7
+            },
+            "value": 15
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 11
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 13
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 13
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 13
+            },
+            "value": 14
+          }
+        ]
+      },
+      "exactBank": {
+        "bank": {
+          "mode": "exact",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 17,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 10,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 4,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 10,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 15,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 7,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 15,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 14,
+              "kind": "answer"
+            }
+          ],
+          "missingValues": [
+            17,
+            10,
+            4,
+            10,
+            15,
+            7,
+            15,
+            14,
+            14
+          ],
+          "duplicateValueCounts": {
+            "4": 1,
+            "7": 1,
+            "10": 2,
+            "14": 2,
+            "15": 2,
+            "17": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 9,
+          "answerItemCount": 9,
+          "distractorItemCount": 0,
+          "duplicateAnswerValues": 3,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            1,
+            1,
+            6,
+            1,
+            1,
+            1,
+            6,
+            2,
+            6
+          ],
+          "averageInitialCompatibleValuesPerBlank": 2.78,
+          "singleInitialCompatibleBlankCount": 5
+        }
+      },
+      "distractorBank": {
+        "bank": {
+          "mode": "distractors",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 17,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 10,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 4,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 10,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 15,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 7,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 15,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "distractor-0",
+              "value": 13,
+              "kind": "distractor"
+            },
+            {
+              "id": "distractor-1",
+              "value": 5,
+              "kind": "distractor"
+            }
+          ],
+          "missingValues": [
+            17,
+            10,
+            4,
+            10,
+            15,
+            7,
+            15,
+            14,
+            14
+          ],
+          "duplicateValueCounts": {
+            "4": 1,
+            "7": 1,
+            "10": 2,
+            "14": 2,
+            "15": 2,
+            "17": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 11,
+          "answerItemCount": 9,
+          "distractorItemCount": 2,
+          "duplicateAnswerValues": 3,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            1,
+            1,
+            8,
+            1,
+            1,
+            1,
+            8,
+            2,
+            8
+          ],
+          "averageInitialCompatibleValuesPerBlank": 3.44,
+          "singleInitialCompatibleBlankCount": 5
+        }
+      }
+    },
+    {
+      "id": "lobachevsky-hybrid-4",
+      "generationMs": 83,
+      "equationTypes": {
+        "long": 4,
+        "binary": 4
+      },
+      "metrics": {
+        "score": 59.16,
+        "density": {
+          "occupiedCellCount": 35,
+          "occupiedBoundingBoxArea": 81,
+          "occupiedDensity": 0.432,
+          "crossingCellCount": 7,
+          "crossingRatio": 0.875,
+          "numberCellCount": 18,
+          "equationCount": 8
+        },
+        "blankCount": 9,
+        "initialForcedCells": 4,
+        "forcedCellsByWave": [
+          4,
+          2,
+          1,
+          2
+        ],
+        "propagationWaves": 4,
+        "unresolvedAfterLogic": 0,
+        "averageCandidatesBeforeResolution": 10.05,
+        "maxCandidatesBeforeResolution": 18,
+        "ambiguityMoments": 19,
+        "solver": {
+          "status": "unique",
+          "solutionCount": 1,
+          "solution": {
+            "values": [
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 6
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 8
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 10
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 8
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 10
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 12
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 8
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 10
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 12
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 6
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 8
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 10
+                },
+                "value": 7
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 12
+                },
+                "value": 12
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 4
+                },
+                "value": 18
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 6
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 8
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 10
+                },
+                "value": 14
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 12
+                },
+                "value": 12
+              }
+            ]
+          },
+          "metrics": {
+            "nodesVisited": 1,
+            "branchCount": 0,
+            "propagationSteps": 40,
+            "maxDepth": 0,
+            "elapsedMs": 0
+          }
+        }
+      },
+      "ascii": "                             \n            □ × □ = 2        \n                −            \n                □ ÷ □ = 1    \n                =   +        \n                1   6   □    \n                    +   ×    \n            14 − □ ÷ 7 = □    \n                    =   =    \n        18 − 1 − □ = □   12    \n                             \n                             \n                             \n                             \n                             ",
+      "solution": {
+        "values": [
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 6
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 8
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 10
+            },
+            "value": 7
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 12
+            },
+            "value": 12
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 10
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 10
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 10
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 4
+            },
+            "value": 18
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 6
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 8
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 8
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 12
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 12
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 12
+            },
+            "value": 12
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 8
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 8
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 6
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 10
+            },
+            "value": 2
+          }
+        ]
+      },
+      "exactBank": {
+        "bank": {
+          "mode": "exact",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 12,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 1,
+              "kind": "answer"
+            }
+          ],
+          "missingValues": [
+            14,
+            12,
+            1,
+            14,
+            3,
+            1,
+            1,
+            2,
+            1
+          ],
+          "duplicateValueCounts": {
+            "1": 4,
+            "2": 1,
+            "3": 1,
+            "12": 1,
+            "14": 2
+          }
+        },
+        "analysis": {
+          "bankItemCount": 9,
+          "answerItemCount": 9,
+          "distractorItemCount": 0,
+          "duplicateAnswerValues": 2,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            2,
+            1,
+            5,
+            3,
+            4,
+            1,
+            1,
+            5,
+            1
+          ],
+          "averageInitialCompatibleValuesPerBlank": 2.56,
+          "singleInitialCompatibleBlankCount": 4
+        }
+      },
+      "distractorBank": {
+        "bank": {
+          "mode": "distractors",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 12,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 14,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "distractor-0",
+              "value": 6,
+              "kind": "distractor"
+            },
+            {
+              "id": "distractor-1",
+              "value": 11,
+              "kind": "distractor"
+            }
+          ],
+          "missingValues": [
+            14,
+            12,
+            1,
+            14,
+            3,
+            1,
+            1,
+            2,
+            1
+          ],
+          "duplicateValueCounts": {
+            "1": 4,
+            "2": 1,
+            "3": 1,
+            "12": 1,
+            "14": 2
+          }
+        },
+        "analysis": {
+          "bankItemCount": 11,
+          "answerItemCount": 9,
+          "distractorItemCount": 2,
+          "duplicateAnswerValues": 2,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            2,
+            1,
+            7,
+            3,
+            5,
+            1,
+            1,
+            7,
+            1
+          ],
+          "averageInitialCompatibleValuesPerBlank": 3.11,
+          "singleInitialCompatibleBlankCount": 4
+        }
+      }
+    },
+    {
+      "id": "lobachevsky-hybrid-5",
+      "generationMs": 124,
+      "equationTypes": {
+        "long": 4,
+        "binary": 4
+      },
+      "metrics": {
+        "score": 60.9,
+        "density": {
+          "occupiedCellCount": 39,
+          "occupiedBoundingBoxArea": 81,
+          "occupiedDensity": 0.481,
+          "crossingCellCount": 9,
+          "crossingRatio": 1.125,
+          "numberCellCount": 19,
+          "equationCount": 8
+        },
+        "blankCount": 9,
+        "initialForcedCells": 3,
+        "forcedCellsByWave": [
+          3,
+          3,
+          3
+        ],
+        "propagationWaves": 3,
+        "unresolvedAfterLogic": 0,
+        "averageCandidatesBeforeResolution": 11.06,
+        "maxCandidatesBeforeResolution": 18,
+        "ambiguityMoments": 18,
+        "solver": {
+          "status": "unique",
+          "solutionCount": 1,
+          "solution": {
+            "values": [
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 3
+                },
+                "value": 6
+              },
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 5
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 7
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 1,
+                  "column": 9
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 1
+                },
+                "value": 8
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 3
+                },
+                "value": 5
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 5
+                },
+                "value": 9
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 7
+                },
+                "value": 4
+              },
+              {
+                "coordinate": {
+                  "row": 3,
+                  "column": 9
+                },
+                "value": 8
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 1
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 3
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 5
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 7
+                },
+                "value": 3
+              },
+              {
+                "coordinate": {
+                  "row": 5,
+                  "column": 9
+                },
+                "value": 11
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 1
+                },
+                "value": 2
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 3
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 5
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 7,
+                  "column": 7
+                },
+                "value": 1
+              },
+              {
+                "coordinate": {
+                  "row": 9,
+                  "column": 1
+                },
+                "value": 14
+              }
+            ]
+          },
+          "metrics": {
+            "nodesVisited": 1,
+            "branchCount": 0,
+            "propagationSteps": 32,
+            "maxDepth": 0,
+            "elapsedMs": 0
+          }
+        }
+      },
+      "ascii": "                             \n      □ × 1 ÷ 2 = □          \n      −           +          \n  □ + □ − 9 = 4   8          \n  ×   ÷       −   =          \n  2   □ × 3 = □   11          \n  −   =       =              \n  □   □ × 1 = □              \n  =                          \n  14                          \n                             \n                             \n                             \n                             \n                             ",
+      "solution": {
+        "values": [
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 3
+            },
+            "value": 6
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 5
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 7
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 1,
+              "column": 9
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 3
+            },
+            "value": 5
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 3
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 3
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 1
+            },
+            "value": 8
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 5
+            },
+            "value": 9
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 7
+            },
+            "value": 4
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 1
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 1
+            },
+            "value": 2
+          },
+          {
+            "coordinate": {
+              "row": 9,
+              "column": 1
+            },
+            "value": 14
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 7
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 7
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 5
+            },
+            "value": 3
+          },
+          {
+            "coordinate": {
+              "row": 7,
+              "column": 5
+            },
+            "value": 1
+          },
+          {
+            "coordinate": {
+              "row": 3,
+              "column": 9
+            },
+            "value": 8
+          },
+          {
+            "coordinate": {
+              "row": 5,
+              "column": 9
+            },
+            "value": 11
+          }
+        ]
+      },
+      "exactBank": {
+        "bank": {
+          "mode": "exact",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 8,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 1,
+              "kind": "answer"
+            }
+          ],
+          "missingValues": [
+            6,
+            3,
+            5,
+            1,
+            1,
+            8,
+            2,
+            3,
+            1
+          ],
+          "duplicateValueCounts": {
+            "1": 3,
+            "2": 1,
+            "3": 2,
+            "5": 1,
+            "6": 1,
+            "8": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 9,
+          "answerItemCount": 9,
+          "distractorItemCount": 0,
+          "duplicateAnswerValues": 2,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            3,
+            1,
+            1,
+            6,
+            5,
+            1,
+            1,
+            6,
+            3
+          ],
+          "averageInitialCompatibleValuesPerBlank": 3,
+          "singleInitialCompatibleBlankCount": 4
+        }
+      },
+      "distractorBank": {
+        "bank": {
+          "mode": "distractors",
+          "items": [
+            {
+              "id": "answer-0",
+              "value": 6,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-1",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-2",
+              "value": 5,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-3",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-4",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-5",
+              "value": 8,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-6",
+              "value": 2,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-7",
+              "value": 3,
+              "kind": "answer"
+            },
+            {
+              "id": "answer-8",
+              "value": 1,
+              "kind": "answer"
+            },
+            {
+              "id": "distractor-0",
+              "value": 9,
+              "kind": "distractor"
+            },
+            {
+              "id": "distractor-1",
+              "value": 7,
+              "kind": "distractor"
+            }
+          ],
+          "missingValues": [
+            6,
+            3,
+            5,
+            1,
+            1,
+            8,
+            2,
+            3,
+            1
+          ],
+          "duplicateValueCounts": {
+            "1": 3,
+            "2": 1,
+            "3": 2,
+            "5": 1,
+            "6": 1,
+            "8": 1
+          }
+        },
+        "analysis": {
+          "bankItemCount": 11,
+          "answerItemCount": 9,
+          "distractorItemCount": 2,
+          "duplicateAnswerValues": 2,
+          "averageCompatibleValuesPerBlank": 1,
+          "singleCompatibleBlankCount": 9,
+          "initialCompatibleValueCounts": [
+            3,
+            1,
+            2,
+            8,
+            5,
+            1,
+            1,
+            8,
+            3
+          ],
+          "averageInitialCompatibleValuesPerBlank": 3.56,
+          "singleInitialCompatibleBlankCount": 3
+        }
+      }
+    }
+  ]
+}

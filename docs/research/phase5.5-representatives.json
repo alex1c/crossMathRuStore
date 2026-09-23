@@ -1,0 +1,797 @@
+{
+  "generatorVersion": "phase5.5-binary-v1",
+  "records": [
+    {
+      "track": "easy",
+      "level": 1,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 1,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Просто",
+        "id": "phase5.5-easy-1",
+        "track": "easy",
+        "scoreRange": {
+          "min": 8,
+          "max": 40
+        },
+        "minimumDensity": 0.18,
+        "minimumCrossingRatio": 0.5,
+        "config": {
+          "rows": 9,
+          "columns": 9,
+          "minValue": 1,
+          "maxValue": 12,
+          "allowedOperations": [
+            "add",
+            "subtract"
+          ],
+          "targetEquationCount": 4,
+          "targetBlankCount": 3,
+          "maxGenerationAttempts": 60,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 24
+      },
+      "metrics": {
+        "score": 19.13,
+        "density": {
+          "occupiedCellCount": 13,
+          "occupiedBoundingBoxArea": 35,
+          "occupiedDensity": 0.371,
+          "crossingCellCount": 3,
+          "crossingRatio": 0.75,
+          "numberCellCount": 7,
+          "equationCount": 4
+        },
+        "difficulty": {
+          "blankCount": 3,
+          "fixedClueCount": 4,
+          "clueRatio": 0.5714285714285714,
+          "equationCount": 4,
+          "crossingCount": 3,
+          "connectedComponents": 1,
+          "structuralDensity": 0.16049382716049382,
+          "initialForcedCells": 2,
+          "forcedCellsByWave": [
+            2,
+            1
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 3,
+          "maxCandidatesBeforeResolution": 9,
+          "ambiguityMoments": 1,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "add": 0.5,
+            "subtract": 0.5
+          },
+          "multiplicationFrequency": 0,
+          "divisionFrequency": 0,
+          "numericRange": 11,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 1
+      },
+      "ascii": "                 \n                 \n                 \n        4 + 5 = □\n        −        \n    3 + □ = □    \n        =        \n        2        \n                 "
+    },
+    {
+      "track": "easy",
+      "level": 25,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 25,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Просто",
+        "id": "phase5.5-easy-25",
+        "track": "easy",
+        "scoreRange": {
+          "min": 8,
+          "max": 40
+        },
+        "minimumDensity": 0.18,
+        "minimumCrossingRatio": 0.5,
+        "config": {
+          "rows": 9,
+          "columns": 9,
+          "minValue": 1,
+          "maxValue": 12,
+          "allowedOperations": [
+            "add",
+            "subtract"
+          ],
+          "targetEquationCount": 4,
+          "targetBlankCount": 3,
+          "maxGenerationAttempts": 60,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 24
+      },
+      "metrics": {
+        "score": 19.13,
+        "density": {
+          "occupiedCellCount": 13,
+          "occupiedBoundingBoxArea": 35,
+          "occupiedDensity": 0.371,
+          "crossingCellCount": 3,
+          "crossingRatio": 0.75,
+          "numberCellCount": 7,
+          "equationCount": 4
+        },
+        "difficulty": {
+          "blankCount": 3,
+          "fixedClueCount": 4,
+          "clueRatio": 0.5714285714285714,
+          "equationCount": 4,
+          "crossingCount": 3,
+          "connectedComponents": 1,
+          "structuralDensity": 0.16049382716049382,
+          "initialForcedCells": 2,
+          "forcedCellsByWave": [
+            2,
+            1
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 3,
+          "maxCandidatesBeforeResolution": 9,
+          "ambiguityMoments": 1,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "subtract": 0.75,
+            "add": 0.25
+          },
+          "multiplicationFrequency": 0,
+          "divisionFrequency": 0,
+          "numericRange": 11,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 1
+      },
+      "ascii": "                 \n            10    \n            −    \n        10 − □ = □\n        +   =    \n        □   5    \n        =        \n        12        \n                 "
+    },
+    {
+      "track": "easy",
+      "level": 50,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 50,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Просто",
+        "id": "phase5.5-easy-50",
+        "track": "easy",
+        "scoreRange": {
+          "min": 8,
+          "max": 40
+        },
+        "minimumDensity": 0.18,
+        "minimumCrossingRatio": 0.5,
+        "config": {
+          "rows": 9,
+          "columns": 9,
+          "minValue": 1,
+          "maxValue": 12,
+          "allowedOperations": [
+            "add",
+            "subtract"
+          ],
+          "targetEquationCount": 5,
+          "targetBlankCount": 5,
+          "maxGenerationAttempts": 60,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 24
+      },
+      "metrics": {
+        "score": 31.78,
+        "density": {
+          "occupiedCellCount": 9,
+          "occupiedBoundingBoxArea": 25,
+          "occupiedDensity": 0.36,
+          "crossingCellCount": 3,
+          "crossingRatio": 0.6,
+          "numberCellCount": 5,
+          "equationCount": 5
+        },
+        "difficulty": {
+          "blankCount": 4,
+          "fixedClueCount": 1,
+          "clueRatio": 0.2,
+          "equationCount": 5,
+          "crossingCount": 3,
+          "connectedComponents": 1,
+          "structuralDensity": 0.1111111111111111,
+          "initialForcedCells": 1,
+          "forcedCellsByWave": [
+            1,
+            3
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 4,
+          "maxCandidatesBeforeResolution": 11,
+          "ambiguityMoments": 3,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "add": 0.2,
+            "subtract": 0.8
+          },
+          "multiplicationFrequency": 0,
+          "divisionFrequency": 0,
+          "numericRange": 11,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 1
+      },
+      "ascii": "□ + □ = 3        \n−                \n□                \n=                \n□                \n                 \n                 \n                 \n                 "
+    },
+    {
+      "track": "medium",
+      "level": 1,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 1,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Средне",
+        "id": "phase5.5-medium-1",
+        "track": "medium",
+        "scoreRange": {
+          "min": 18,
+          "max": 58
+        },
+        "minimumDensity": 0.2,
+        "minimumCrossingRatio": 0.55,
+        "config": {
+          "rows": 11,
+          "columns": 11,
+          "minValue": 1,
+          "maxValue": 18,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply"
+          ],
+          "targetEquationCount": 5,
+          "targetBlankCount": 5,
+          "maxGenerationAttempts": 70,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 30
+      },
+      "metrics": {
+        "score": 32.19,
+        "density": {
+          "occupiedCellCount": 13,
+          "occupiedBoundingBoxArea": 35,
+          "occupiedDensity": 0.371,
+          "crossingCellCount": 4,
+          "crossingRatio": 0.8,
+          "numberCellCount": 7,
+          "equationCount": 5
+        },
+        "difficulty": {
+          "blankCount": 5,
+          "fixedClueCount": 2,
+          "clueRatio": 0.2857142857142857,
+          "equationCount": 5,
+          "crossingCount": 4,
+          "connectedComponents": 1,
+          "structuralDensity": 0.10743801652892562,
+          "initialForcedCells": 3,
+          "forcedCellsByWave": [
+            3,
+            2
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 5.86,
+          "maxCandidatesBeforeResolution": 18,
+          "ambiguityMoments": 2,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "subtract": 0.2,
+            "multiply": 0.8
+          },
+          "multiplicationFrequency": 0.8,
+          "divisionFrequency": 0,
+          "numericRange": 17,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 1
+      },
+      "ascii": "                     \n              □      \n              ×      \n          14 − □ = 4  \n          ×   =      \n          □   □      \n          =          \n          □          \n                     \n                     \n                     "
+    },
+    {
+      "track": "medium",
+      "level": 25,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 25,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Средне",
+        "id": "phase5.5-medium-25",
+        "track": "medium",
+        "scoreRange": {
+          "min": 18,
+          "max": 58
+        },
+        "minimumDensity": 0.2,
+        "minimumCrossingRatio": 0.55,
+        "config": {
+          "rows": 11,
+          "columns": 11,
+          "minValue": 1,
+          "maxValue": 18,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply"
+          ],
+          "targetEquationCount": 5,
+          "targetBlankCount": 6,
+          "maxGenerationAttempts": 70,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 30
+      },
+      "metrics": {
+        "score": 21.15,
+        "density": {
+          "occupiedCellCount": 17,
+          "occupiedBoundingBoxArea": 49,
+          "occupiedDensity": 0.347,
+          "crossingCellCount": 4,
+          "crossingRatio": 0.8,
+          "numberCellCount": 9,
+          "equationCount": 5
+        },
+        "difficulty": {
+          "blankCount": 6,
+          "fixedClueCount": 3,
+          "clueRatio": 0.3333333333333333,
+          "equationCount": 5,
+          "crossingCount": 4,
+          "connectedComponents": 1,
+          "structuralDensity": 0.14049586776859505,
+          "initialForcedCells": 4,
+          "forcedCellsByWave": [
+            4,
+            2
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 1.88,
+          "maxCandidatesBeforeResolution": 7,
+          "ambiguityMoments": 2,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "multiply": 0.6,
+            "add": 0.4
+          },
+          "multiplicationFrequency": 0.6,
+          "divisionFrequency": 0,
+          "numericRange": 17,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 1
+      },
+      "ascii": "                     \n                     \n                     \n                     \n    □ + 11 = □        \n    ×                \n□ × 11 = □            \n+   =                \n16   □                \n=                    \n□                    "
+    },
+    {
+      "track": "medium",
+      "level": 50,
+      "status": "bounded-probe-not-run",
+      "profile": {
+        "levelWithinTrack": 50,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Средне",
+        "id": "phase5.5-medium-50",
+        "track": "medium",
+        "scoreRange": {
+          "min": 18,
+          "max": 58
+        },
+        "minimumDensity": 0.2,
+        "minimumCrossingRatio": 0.55,
+        "config": {
+          "rows": 11,
+          "columns": 11,
+          "minValue": 1,
+          "maxValue": 18,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply"
+          ],
+          "targetEquationCount": 7,
+          "targetBlankCount": 8,
+          "maxGenerationAttempts": 70,
+          "requireConnected": true,
+          "solverMaxNodes": 100000
+        },
+        "maxCandidateAttempts": 30
+      }
+    },
+    {
+      "track": "hard",
+      "level": 1,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 1,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Сложно",
+        "id": "phase5.5-hard-1",
+        "track": "hard",
+        "scoreRange": {
+          "min": 34,
+          "max": 78
+        },
+        "minimumDensity": 0.23,
+        "minimumCrossingRatio": 0.65,
+        "config": {
+          "rows": 13,
+          "columns": 13,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 7,
+          "targetBlankCount": 7,
+          "maxGenerationAttempts": 80,
+          "requireConnected": true,
+          "solverMaxNodes": 150000
+        },
+        "maxCandidateAttempts": 40
+      },
+      "metrics": {
+        "score": 61.29,
+        "density": {
+          "occupiedCellCount": 24,
+          "occupiedBoundingBoxArea": 81,
+          "occupiedDensity": 0.296,
+          "crossingCellCount": 6,
+          "crossingRatio": 0.857,
+          "numberCellCount": 12,
+          "equationCount": 7
+        },
+        "difficulty": {
+          "blankCount": 7,
+          "fixedClueCount": 5,
+          "clueRatio": 0.4166666666666667,
+          "equationCount": 7,
+          "crossingCount": 6,
+          "connectedComponents": 1,
+          "structuralDensity": 0.14201183431952663,
+          "initialForcedCells": 0,
+          "forcedCellsByWave": [],
+          "propagationWaves": 0,
+          "longestForcedChain": 0,
+          "unresolvedAfterLogic": 7,
+          "averageCandidatesBeforeResolution": 11.29,
+          "maxCandidatesBeforeResolution": 21,
+          "ambiguityMoments": 7,
+          "choiceWaves": 1,
+          "logicSolved": false,
+          "operationMix": {
+            "divide": 0.14285714285714285,
+            "multiply": 0.2857142857142857,
+            "add": 0.2857142857142857,
+            "subtract": 0.2857142857142857
+          },
+          "multiplicationFrequency": 0.2857142857142857,
+          "divisionFrequency": 0.14285714285714285,
+          "numericRange": 23,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 11
+      },
+      "ascii": "                □ + □ = 16\n                ×        \n            □ ÷ □ = 1    \n            +   =        \n        □ − □ = 11        \n        −   =            \n        11   22            \n        =                \n        □                \n                         \n                         \n                         \n                         "
+    },
+    {
+      "track": "hard",
+      "level": 25,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 25,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Сложно",
+        "id": "phase5.5-hard-25",
+        "track": "hard",
+        "scoreRange": {
+          "min": 34,
+          "max": 78
+        },
+        "minimumDensity": 0.23,
+        "minimumCrossingRatio": 0.65,
+        "config": {
+          "rows": 13,
+          "columns": 13,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 8,
+          "targetBlankCount": 9,
+          "maxGenerationAttempts": 80,
+          "requireConnected": true,
+          "solverMaxNodes": 150000
+        },
+        "maxCandidateAttempts": 40
+      },
+      "metrics": {
+        "score": 37.02,
+        "density": {
+          "occupiedCellCount": 13,
+          "occupiedBoundingBoxArea": 35,
+          "occupiedDensity": 0.371,
+          "crossingCellCount": 7,
+          "crossingRatio": 0.875,
+          "numberCellCount": 7,
+          "equationCount": 8
+        },
+        "difficulty": {
+          "blankCount": 6,
+          "fixedClueCount": 1,
+          "clueRatio": 0.14285714285714285,
+          "equationCount": 8,
+          "crossingCount": 7,
+          "connectedComponents": 1,
+          "structuralDensity": 0.07692307692307693,
+          "initialForcedCells": 4,
+          "forcedCellsByWave": [
+            4,
+            2
+          ],
+          "propagationWaves": 2,
+          "longestForcedChain": 2,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 6.75,
+          "maxCandidatesBeforeResolution": 24,
+          "ambiguityMoments": 2,
+          "choiceWaves": 1,
+          "logicSolved": true,
+          "operationMix": {
+            "multiply": 0.625,
+            "divide": 0.375
+          },
+          "multiplicationFrequency": 0.625,
+          "divisionFrequency": 0.375,
+          "numericRange": 23,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 37
+      },
+      "ascii": "                         \n                         \n                         \n                         \n          □              \n          ×              \n      □ × 17 = □          \n      ÷   =              \n      □   □              \n      =                  \n      □                  \n                         \n                         "
+    },
+    {
+      "track": "hard",
+      "level": 50,
+      "status": "bounded-probe-not-run",
+      "profile": {
+        "levelWithinTrack": 50,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Сложно",
+        "id": "phase5.5-hard-50",
+        "track": "hard",
+        "scoreRange": {
+          "min": 34,
+          "max": 78
+        },
+        "minimumDensity": 0.23,
+        "minimumCrossingRatio": 0.65,
+        "config": {
+          "rows": 13,
+          "columns": 13,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 10,
+          "targetBlankCount": 12,
+          "maxGenerationAttempts": 80,
+          "requireConnected": true,
+          "solverMaxNodes": 150000
+        },
+        "maxCandidateAttempts": 40
+      }
+    },
+    {
+      "track": "lobachevsky",
+      "level": 1,
+      "status": "generated",
+      "profile": {
+        "levelWithinTrack": 1,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Лобачевский",
+        "id": "phase5.5-lobachevsky-1",
+        "track": "lobachevsky",
+        "scoreRange": {
+          "min": 42,
+          "max": 100
+        },
+        "minimumDensity": 0.22,
+        "minimumCrossingRatio": 0.68,
+        "config": {
+          "rows": 15,
+          "columns": 15,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 8,
+          "targetBlankCount": 7,
+          "maxGenerationAttempts": 120,
+          "requireConnected": true,
+          "solverMaxNodes": 200000
+        },
+        "maxCandidateAttempts": 48
+      },
+      "metrics": {
+        "score": 52.34,
+        "density": {
+          "occupiedCellCount": 24,
+          "occupiedBoundingBoxArea": 81,
+          "occupiedDensity": 0.296,
+          "crossingCellCount": 6,
+          "crossingRatio": 0.75,
+          "numberCellCount": 12,
+          "equationCount": 8
+        },
+        "difficulty": {
+          "blankCount": 7,
+          "fixedClueCount": 5,
+          "clueRatio": 0.4166666666666667,
+          "equationCount": 8,
+          "crossingCount": 6,
+          "connectedComponents": 1,
+          "structuralDensity": 0.10666666666666667,
+          "initialForcedCells": 2,
+          "forcedCellsByWave": [
+            2,
+            1,
+            2,
+            2
+          ],
+          "propagationWaves": 4,
+          "longestForcedChain": 4,
+          "unresolvedAfterLogic": 0,
+          "averageCandidatesBeforeResolution": 8.11,
+          "maxCandidatesBeforeResolution": 24,
+          "ambiguityMoments": 11,
+          "choiceWaves": 3,
+          "logicSolved": true,
+          "operationMix": {
+            "add": 0.5,
+            "multiply": 0.5
+          },
+          "multiplicationFrequency": 0.5,
+          "divisionFrequency": 0,
+          "numericRange": 23,
+          "solverBranches": 0,
+          "solverNodes": 1,
+          "solverMaxDepth": 0
+        },
+        "candidateAttempts": 4
+      },
+      "ascii": "            □ + 22 = □        \n            ×                \n        3 + □ = □            \n        +   =                \n    □ × □ = □                \n    +   =                    \n    14   14                    \n    =                        \n    15                        \n                             \n                             \n                             \n                             \n                             \n                             "
+    },
+    {
+      "track": "lobachevsky",
+      "level": 25,
+      "status": "bounded-probe-not-run",
+      "profile": {
+        "levelWithinTrack": 25,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Лобачевский",
+        "id": "phase5.5-lobachevsky-25",
+        "track": "lobachevsky",
+        "scoreRange": {
+          "min": 42,
+          "max": 100
+        },
+        "minimumDensity": 0.22,
+        "minimumCrossingRatio": 0.68,
+        "config": {
+          "rows": 15,
+          "columns": 15,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 8,
+          "targetBlankCount": 8,
+          "maxGenerationAttempts": 120,
+          "requireConnected": true,
+          "solverMaxNodes": 200000
+        },
+        "maxCandidateAttempts": 48
+      }
+    },
+    {
+      "track": "lobachevsky",
+      "level": 50,
+      "status": "bounded-probe-not-run",
+      "profile": {
+        "levelWithinTrack": 50,
+        "generatorVersion": "phase5.5-binary-v1",
+        "label": "Лобачевский",
+        "id": "phase5.5-lobachevsky-50",
+        "track": "lobachevsky",
+        "scoreRange": {
+          "min": 42,
+          "max": 100
+        },
+        "minimumDensity": 0.22,
+        "minimumCrossingRatio": 0.68,
+        "config": {
+          "rows": 15,
+          "columns": 15,
+          "minValue": 1,
+          "maxValue": 24,
+          "allowedOperations": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide"
+          ],
+          "targetEquationCount": 10,
+          "targetBlankCount": 10,
+          "maxGenerationAttempts": 120,
+          "requireConnected": true,
+          "solverMaxNodes": 200000
+        },
+        "maxCandidateAttempts": 48
+      }
+    }
+  ]
+}

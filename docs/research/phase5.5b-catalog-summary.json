@@ -1,0 +1,22 @@
+{
+  "catalog": {
+    "schemaVersion": 1,
+    "track": "lobachevsky",
+    "variant": "hybrid",
+    "generatorVersion": "phase5.5b-hybrid-v1",
+    "requestedLevels": 50,
+    "generatedLevels": 50,
+    "failures": [],
+    "totalGenerationMs": 17203,
+    "averagePuzzleJsonBytes": 4754
+  },
+  "validation": {
+    "valid": true,
+    "levelsChecked": 50,
+    "unique": 50,
+    "invalid": 0,
+    "nonUnique": 0,
+    "safetyLimitHits": 0
+  },
+  "serializedBytes": 238937
+}
