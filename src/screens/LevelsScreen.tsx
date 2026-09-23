@@ -91,6 +91,34 @@ export function LevelsScreen() {
 					</Pressable>
 				))}
 			</View>
+			{__DEV__ ? (
+				<>
+					<Text style={[styles.section, { color: theme.colors.textSecondary, ...theme.typography.caption }]}>
+						DEV-only physical QA
+					</Text>
+					<View style={styles.devGrid}>
+						{[160, 220].map((level) => (
+							<Pressable
+								key={'dev-' + level}
+								accessibilityRole="button"
+								accessibilityLabel={'DEV уровень ' + level}
+								onPress={() => openLevel(level)}
+								style={({ pressed }) => [styles.chip, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, minHeight: theme.touchTarget.min, opacity: pressed ? 0.85 : 1 }]}
+							>
+								<Text style={{ color: theme.colors.text, ...theme.typography.bodyStrong }}>{level} · {getCampaignTierLabel(level)}</Text>
+							</Pressable>
+						))}
+						<Pressable
+							accessibilityRole="button"
+							accessibilityLabel="DEV multi-digit fixture"
+							onPress={() => router.push({ pathname: '/game', params: { fixture: 'multi-digit' } })}
+							style={({ pressed }) => [styles.chip, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, minHeight: theme.touchTarget.min, opacity: pressed ? 0.85 : 1 }]}
+						>
+							<Text style={{ color: theme.colors.text, ...theme.typography.bodyStrong }}>Multi-digit 12/18</Text>
+						</Pressable>
+					</View>
+				</>
+			) : null}
 		</Screen>
 	)
 }
@@ -116,6 +144,9 @@ const styles = StyleSheet.create({
 	grid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
+		gap: 8,
+	},
+	devGrid: {
 		gap: 8,
 	},
 	chip: {

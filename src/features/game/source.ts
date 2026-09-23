@@ -8,13 +8,19 @@ export type GameSourceKind =
 	| 'daily-expert'
 	| 'endless'
 	| 'multiplication'
+	| 'dev-fixture'
 
 export type CampaignGameSource = {
 	readonly kind: 'campaign'
 	readonly level: number
 }
 
-export type GameSource = CampaignGameSource
+export type DevFixtureGameSource = {
+	readonly kind: 'dev-fixture'
+	readonly id: 'multi-digit'
+}
+
+export type GameSource = CampaignGameSource | DevFixtureGameSource
 
 /** Russian display labels for campaign 1..250 tier bands (50 levels each). */
 const CAMPAIGN_TIER_LABELS = [
@@ -46,5 +52,5 @@ export function getGameSourceTitle(source: GameSource): string {
 	if (source.kind === 'campaign') {
 		return `Уровень ${source.level}`
 	}
-	return 'Игра'
+	return 'DEV multi-digit fixture'
 }

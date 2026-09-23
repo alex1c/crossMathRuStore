@@ -10,7 +10,18 @@ export default function GameRoute() {
 	const params = useLocalSearchParams<{
 		source?: string
 		level?: string
+		fixture?: string
 	}>()
+
+	const fixture = Array.isArray(params.fixture) ? params.fixture[0] : params.fixture
+	if (__DEV__ && fixture === 'multi-digit') {
+		return (
+			<GameScreen
+				key="dev-multi-digit"
+				source={{ kind: 'dev-fixture', id: 'multi-digit' }}
+			/>
+		)
+	}
 
 	const level = parseLevel(params.level)
 	const source: GameSource = {

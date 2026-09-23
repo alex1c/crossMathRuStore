@@ -8,6 +8,7 @@ import {
 import { router } from 'expo-router'
 import {
 	SafeAreaView,
+	useSafeAreaInsets,
 } from 'react-native-safe-area-context'
 import { generateCampaignPuzzle } from '@/src/core/crossmath'
 import {
@@ -23,6 +24,7 @@ import {
 	getCampaignTierLabel,
 	getFillProgress,
 	getGameSourceTitle,
+	MULTI_DIGIT_DEV_FIXTURE,
 	type GameSource,
 } from '@/src/features/game'
 import { useTheme } from '@/src/theme'
@@ -37,11 +39,21 @@ export type GameScreenProps = {
  */
 export function GameScreen({ source }: GameScreenProps) {
 	const theme = useTheme()
+	const insets = useSafeAreaInsets()
 	const { width: windowWidth, height: windowHeight } = useWindowDimensions()
 
 	const campaignLevel = source.kind === 'campaign' ? source.level : 1
 
 	const initialState = useMemo(() => {
+		if (source.kind === 'dev-fixture') {
+			return createGameState({
+				puzzle: MULTI_DIGIT_DEV_FIXTURE.puzzle,
+				solution: MULTI_DIGIT_DEV_FIXTURE.solution,
+				source,
+				title: getGameSourceTitle(source),
+				subtitle: 'DEV-only: 12 + 6 = 18',
+			})
+		}
 		if (source.kind !== 'campaign') {
 			throw new Error('Phase 3 only wires campaign gameplay')
 		}
@@ -54,7 +66,7 @@ export function GameScreen({ source }: GameScreenProps) {
 			title: getGameSourceTitle({ kind: 'campaign', level: campaignLevel }),
 			subtitle: getCampaignTierLabel(campaignLevel),
 		})
-	}, [campaignLevel, source.kind])
+	}, [campaignLevel, source])
 
 	const [state, dispatch] = useReducer(gameReducer, initialState)
 	const [now, setNow] = useState(() => Date.now())
@@ -92,9 +104,9 @@ export function GameScreen({ source }: GameScreenProps) {
 	return (
 		<SafeAreaView
 			style={[styles.safe, { backgroundColor: theme.colors.background }]}
-			edges={['left', 'right', 'bottom']}
+			edges={['left', 'right']}
 		>
-			<View style={styles.container}>
+			<View style={[styles.container, { paddingBottom: insets.bottom + 16 }]}>
 				<View style={styles.headerBlock}>
 					<Text
 						style={{
@@ -199,7 +211,5 @@ const styles = StyleSheet.create({
 	},
 	controls: {
 		gap: 10,
-		paddingBottom: 4,
-		transform: [{ translateY: -32 }],
 	},
 })

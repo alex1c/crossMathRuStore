@@ -40,3 +40,6 @@ export type {
 	UndoEntry,
 	CreateGameStateInput,
 } from './gameReducer'
+
+export type { DevFixtureGameSource } from './source'
+export { MULTI_DIGIT_DEV_FIXTURE } from './devFixture'
