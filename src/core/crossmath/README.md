@@ -70,13 +70,19 @@ The deterministic score is 0..100 and never uses elapsed time:
 Each component is normalized before weighting and the final score is rounded to
 two decimals. `elapsedMs` remains a diagnostic performance metric only.
 
-## Phase 2 profiles
+## Phase 3.2 tuned profiles
 
 `getDifficultyProfile` and `generatePuzzleForProfile` provide bounded,
 deterministic targeting:
 
-- Easy: 9x9, 3 equations, one blank, add/subtract, score 0..12.
-- Medium: 11x11, 5 equations, three blanks, add/subtract/multiply, score 14..30.
+- Easy: 9x9, 5 equations, three blanks, add/subtract, score 12..40. Campaign
+  Easy progresses from 3 blanks to 5 blanks; its campaign score ceiling grows
+  from 24 to 40 so the first level stays accessible without becoming a
+  one-cell tutorial.
+- Medium: 11x11, 5 equations, five blanks, add/subtract/multiply, score 20..46.
+  Campaign Medium keeps five blanks and relies on the existing analyzer's
+  propagation/ambiguity score for separation. The 101..150 adept tier uses
+  six equations and five blanks with score 24..40.
 - Hard: 13x13, 6 equations, four blanks, all operations, score 28..40.
 - Expert: 15x15, 8 equations, six blanks, all operations, score 36..60.
 
@@ -84,19 +90,21 @@ Profiles generate valid candidates, analyze them, and accept only candidates in
 their score range. Candidate attempts are bounded; failure throws
 `DifficultyGenerationError`.
 
-Calibration on 1,000 accepted puzzles per profile produced median scores of
-2.50 / 22.98 / 33.28 / 47.54 for Easy / Medium / Hard / Expert. All 4,000
-accepted puzzles were valid, unique, and had zero safety-limit hits. Full
-calibration is reproducible with:
+Phase 3.2 calibration on 1,000 accepted puzzles per profile produced median
+scores of 20.26 / 30.32 / 33.28 / 47.54 for Easy / Medium / Hard / Expert.
+All 4,000 accepted puzzles were valid, unique, and had zero safety-limit hits.
+The measured median generation costs were 2 ms / 25 ms / 21 ms / 226.5 ms;
+average costs were 2.96 ms / 35.85 ms / 28.11 ms / 312.04 ms. Candidate
+acceptance rates were 73.9% / 62.6% / 27.9% / 56.2%. Full calibration is
+reproducible with:
 
 ```bash
 npm run test:crossmath:calibrate
 ```
 
-The measured median generation costs are 1 ms / 3 ms / 16 ms / 172.5 ms;
-average costs are 0.57 ms / 3.60 ms / 21.63 ms / 239.11 ms. Candidate
-acceptance rates are 100% / 56.3% / 27.9% / 56.2%. These are generation
-costs on the calibration machine, not a mobile performance guarantee.
+Generation costs and acceptance rates are machine-specific diagnostics, not a
+mobile performance guarantee. Hard and Expert profile definitions are kept
+unchanged in this tuning pass.
 
 ## Deterministic modes
 

@@ -10,6 +10,8 @@ import {
 } from '@/src/features/game'
 import {
 	generateCampaignPuzzle,
+	generatePuzzleForProfile,
+	getDifficultyProfile,
 	coordinateKey,
 	type Puzzle,
 	type PuzzleSolution,
@@ -130,7 +132,25 @@ describe('gameplay reducer', () => {
 	})
 
 	it('applies hint and can complete a single-blank easy puzzle', () => {
-		const { state } = loadLevel(1)
+		const tutorialProfile = getDifficultyProfile('easy')
+		const profiled = generatePuzzleForProfile('gameplay-tutorial-fixture', {
+			...tutorialProfile,
+			id: 'test-tutorial',
+			scoreRange: { min: 0, max: 100 },
+			config: {
+				...tutorialProfile.config,
+				targetEquationCount: 3,
+				targetBlankCount: 1,
+			},
+		})
+		const state = createGameState({
+			puzzle: profiled.generated.puzzle,
+			solution: profiled.generated.solution,
+			source: { kind: 'campaign', level: 0 },
+			title: 'Tutorial fixture',
+			subtitle: 'test',
+			startedAt: 1_000_000,
+		})
 		const blank = firstBlank(state.puzzle)
 		let current = gameReducer(state, {
 			type: 'SELECT_CELL',

@@ -17,7 +17,7 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 	easy: {
 		id: 'easy',
 		difficultyTier: 'easy',
-		scoreRange: { min: 0, max: 12 },
+		scoreRange: { min: 12, max: 40 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 9,
@@ -25,8 +25,8 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			minValue: 1,
 			maxValue: 12,
 			allowedOperations: ['add', 'subtract'],
-			targetEquationCount: 3,
-			targetBlankCount: 1,
+			targetEquationCount: 5,
+			targetBlankCount: 3,
 			maxGenerationAttempts: 40,
 			requireConnected: true,
 			solverMaxNodes: 100_000,
@@ -36,7 +36,7 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 	medium: {
 		id: 'medium',
 		difficultyTier: 'medium',
-		scoreRange: { min: 14, max: 30 },
+		scoreRange: { min: 20, max: 46 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 11,
@@ -45,7 +45,7 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			maxValue: 18,
 			allowedOperations: ['add', 'subtract', 'multiply'],
 			targetEquationCount: 5,
-			targetBlankCount: 3,
+			targetBlankCount: 5,
 			maxGenerationAttempts: 50,
 			requireConnected: true,
 			solverMaxNodes: 100_000,
@@ -155,12 +155,16 @@ function withCampaignProgress(
 	level: number,
 	base: GenerationProfile,
 	progress: number,
+	withinTierGrowth = base.difficultyTier === 'expert' ? 0 : 1,
 	): GenerationProfile {
 	const baseline = base.config.targetBlankCount ?? 1
-	const withinTierGrowth = base.difficultyTier === 'expert' ? 0 : 1
+	const scoreRange = base.difficultyTier === 'easy'
+		? { min: 12, max: 24 + Math.floor(progress * 16) }
+		: base.scoreRange
 	return cloneProfile(base, {
 		id: `campaign-${level}`,
 		seed: deriveSeed('campaign', level, GENERATOR_VERSION),
+		scoreRange,
 		config: {
 			targetBlankCount: baseline + Math.floor(progress * withinTierGrowth),
 		},
@@ -174,20 +178,22 @@ export function getCampaignGenerationProfile(level: number): GenerationProfile {
 	const tierIndex = Math.floor((level - 1) / 50)
 	const progress = ((level - 1) % 50) / 49
 	if (tierIndex === 0) {
-		return withCampaignProgress(level, getDifficultyProfile('easy'), progress)
+		return withCampaignProgress(level, getDifficultyProfile('easy'), progress, 2)
 	}
 	if (tierIndex === 1) {
-		return withCampaignProgress(level, getDifficultyProfile('medium'), progress)
+		return withCampaignProgress(level, getDifficultyProfile('medium'), progress, 0)
 	}
 	if (tierIndex === 2) {
 		return withCampaignProgress(level, cloneProfile(getDifficultyProfile('medium'), {
 			id: 'campaign-adept',
-			scoreRange: { min: 20, max: 36 },
-			config: { targetEquationCount: 6, targetBlankCount: 3 },
-		}), progress)
+			scoreRange: { min: 24, max: 40 },
+			config: { targetEquationCount: 6, targetBlankCount: 5 },
+		}), progress, 0)
 	}
 	if (tierIndex === 3) {
-		return withCampaignProgress(level, getDifficultyProfile('hard'), progress)
+		return withCampaignProgress(level, cloneProfile(getDifficultyProfile('hard'), {
+			config: { targetBlankCount: 5 },
+		}), progress, 0)
 	}
 	return withCampaignProgress(level, getDifficultyProfile('expert'), progress)
 }
@@ -239,6 +245,11 @@ export function getEndlessGenerationProfile(progress: EndlessProgress): Generati
 	return cloneProfile(base, {
 		id: `endless-${completed}-${progress.streak}`,
 		seed: deriveSeed('endless', completed, progress.streak, GENERATOR_VERSION),
+		scoreRange: tier === 'easy'
+			? { min: 0, max: 40 }
+			: tier === 'medium'
+				? { min: 14, max: 46 }
+				: base.scoreRange,
 		config: { targetBlankCount },
 	})
 }
