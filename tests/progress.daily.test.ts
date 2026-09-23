@@ -8,6 +8,7 @@ import {
 	shiftLocalDateKey,
 	deriveAppStats,
 } from '@/src/features/progress'
+import { hasActiveDailySessionForDate } from '@/src/features/daily'
 import { createDefaultPersistedState } from '@/src/services/persistence'
 import { reconcileDailyReminder } from '@/src/features/reminder'
 import { getEndlessGenerationProfile } from '@/src/core/crossmath'
@@ -67,6 +68,32 @@ describe('daily streak', () => {
 				'2026-09-10',
 			),
 		).toEqual({ current: 1, best: 3 })
+	})
+})
+
+describe('daily entry session selection', () => {
+	it("resumes today's active Daily session from the Daily hub", () => {
+		const activeSession = {
+			source: { kind: 'daily', dateKey: '2026-09-23' },
+		}
+		expect(
+			hasActiveDailySessionForDate(activeSession, '2026-09-23'),
+		).toBe(true)
+	})
+
+	it('does not reuse an older Daily or campaign session for today', () => {
+		expect(
+			hasActiveDailySessionForDate(
+				{ source: { kind: 'daily', dateKey: '2026-09-22' } },
+				'2026-09-23',
+			),
+		).toBe(false)
+		expect(
+			hasActiveDailySessionForDate(
+				{ source: { kind: 'campaign', level: 1 } },
+				'2026-09-23',
+			),
+		).toBe(false)
 	})
 })
 

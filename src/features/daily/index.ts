@@ -23,6 +23,25 @@ export type DailyPuzzleState = {
 }
 
 /**
+ * Selects the persisted in-progress Daily session for the requested local
+ * date. Campaign and older Daily sessions must never be resumed as today.
+ */
+export function hasActiveDailySessionForDate(
+	activeSession: unknown,
+	dateKey: string,
+): boolean {
+	if (!activeSession || typeof activeSession !== 'object') {
+		return false
+	}
+	const source = (activeSession as { source?: unknown }).source
+	if (!source || typeof source !== 'object') {
+		return false
+	}
+	const dailySource = source as { kind?: unknown; dateKey?: unknown }
+	return dailySource.kind === 'daily' && dailySource.dateKey === dateKey
+}
+
+/**
  * Whether a future local reminder should be allowed to fire.
  * Solved days must suppress the reminder.
  */

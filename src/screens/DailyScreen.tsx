@@ -4,6 +4,7 @@ import { router } from 'expo-router'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
 import {
 	buildDailyCalendarMonth,
+	hasActiveDailySessionForDate,
 	shiftCalendarMonth,
 } from '@/src/features/daily'
 import { useAppProgress } from '@/src/features/progress'
@@ -17,6 +18,10 @@ export function DailyScreen() {
 	const progress = useAppProgress()
 	const { todayKey, streakCurrent, state } = progress
 	const todayDone = Boolean(state.daily.completions[todayKey])
+	const activeDailyToday = hasActiveDailySessionForDate(
+		state.activeSession,
+		todayKey,
+	)
 	const initial = useMemo(() => {
 		const [y, m] = todayKey.split('-').map(Number)
 		return { year: y!, monthIndex: m! - 1 }
@@ -47,10 +52,14 @@ export function DailyScreen() {
 			<HomeMenuButton
 				label={todayDone ? 'Сегодня решено ✓' : 'Играть сегодня'}
 				onPress={() => {
-					router.push({
-						pathname: '/game',
-						params: { source: 'daily', date: todayKey },
-					})
+					router.push(
+					activeDailyToday
+						? { pathname: '/game', params: { resume: '1' } }
+						: {
+								pathname: '/game',
+								params: { source: 'daily', date: todayKey },
+							},
+				)
 				}}
 			/>
 
