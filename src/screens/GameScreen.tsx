@@ -101,6 +101,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const stateRef = useRef(state)
 	const timerRef = useRef(timer)
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const campaignLevel = source.kind === 'campaign' ? source.level : null
 
 	useEffect(() => {
 		stateRef.current = state
@@ -189,10 +190,10 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	}, [state.entries, state.mistakes, state.hintsUsed, state.selected, state.status, scheduleSave])
 
 	useEffect(() => {
-		if (source.kind === 'campaign') {
-			void markCampaignPlayed(source.level)
+		if (campaignLevel !== null) {
+			void markCampaignPlayed(campaignLevel)
 		}
-	}, [source, markCampaignPlayed])
+	}, [campaignLevel, markCampaignPlayed])
 
 	const fill = getFillProgress(state)
 	const elapsedMs =
