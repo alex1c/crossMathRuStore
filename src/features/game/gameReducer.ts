@@ -67,25 +67,35 @@ export type CreateGameStateInput = {
 	readonly subtitle: string
 	readonly startedAt?: number
 	readonly showErrorsImmediately?: boolean
+	readonly entries?: Readonly<Record<string, number | null>>
+	readonly selected?: CellCoordinate | null
+	readonly mistakes?: number
+	readonly hintsUsed?: number
 }
 
 /**
  * Create a fresh playable session from a generated puzzle + known solution.
+ * Optional hydration fields restore an unfinished session.
  */
 export function createGameState(input: CreateGameStateInput): GameState {
 	const blanks = createInitialEntries(input.puzzle)
+	const entries = input.entries
+		? { ...blanks, ...input.entries }
+		: blanks
 	const blankCells = listBlankCells(input.puzzle)
 	const firstBlank = blankCells[0]?.coordinate ?? null
+	const selected =
+		input.selected === undefined ? firstBlank : input.selected
 
 	return {
 		puzzle: input.puzzle,
 		solutionByKey: buildSolutionMap(input.solution),
-		entries: blanks,
-		selected: firstBlank,
+		entries,
+		selected,
 		draft: '',
 		history: [],
-		mistakes: 0,
-		hintsUsed: 0,
+		mistakes: input.mistakes ?? 0,
+		hintsUsed: input.hintsUsed ?? 0,
 		startedAt: input.startedAt ?? Date.now(),
 		completedAt: null,
 		status: 'playing',

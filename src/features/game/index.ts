@@ -1,11 +1,15 @@
 export type {
 	GameSourceKind,
 	CampaignGameSource,
+	DailyGameSource,
+	EndlessGameSource,
+	DevFixtureGameSource,
 	GameSource,
 } from './source'
 export {
 	getCampaignTierLabel,
 	getGameSourceTitle,
+	getGameSourceSubtitle,
 } from './source'
 
 export {
@@ -23,6 +27,7 @@ export {
 	computeControlsHeight,
 	CONTROL_TOUCH,
 	CONTROL_ROW_GAP,
+	GAME_BANNER_RESERVED_HEIGHT,
 } from './gameLayout'
 export type {
 	ControlMetrics,
@@ -57,5 +62,9 @@ export type {
 	CreateGameStateInput,
 } from './gameReducer'
 
-export type { DevFixtureGameSource } from './source'
+export {
+	createSessionFromSource,
+	createSessionFromPersisted,
+} from './createSession'
+
 export { MULTI_DIGIT_DEV_FIXTURE } from './devFixture'

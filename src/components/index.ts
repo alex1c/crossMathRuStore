@@ -7,4 +7,5 @@ export {
 	NumberPad,
 	GameControls,
 	CompletionCard,
+	GameBannerSlot,
 } from './game'

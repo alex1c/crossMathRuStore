@@ -1,11 +1,18 @@
-import { PlaceholderScreen } from '@/src/screens'
+import { Redirect } from 'expo-router'
+import { useAppProgress } from '@/src/features/progress'
 
-/** Endless mode placeholder. */
+/** Endless entry redirects into the shared GameScreen. */
 export default function EndlessRoute() {
+	const progress = useAppProgress()
 	return (
-		<PlaceholderScreen
-			title="Бесконечная игра"
-			description="Процедурная генерация без лимита уровней — позже."
+		<Redirect
+			href={{
+				pathname: '/game',
+				params: {
+					source: 'endless',
+					completed: String(progress.state.endless.completedCount),
+				},
+			}}
 		/>
 	)
 }

@@ -45,6 +45,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
 			alignItems: 'center',
 			justifyContent: 'center',
 			paddingHorizontal: theme.spacing.md,
+			paddingVertical: theme.spacing.sm,
 			marginBottom: theme.spacing.sm,
 		},
 		secondary: {
@@ -58,6 +59,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
 		label: {
 			...theme.typography.bodyStrong,
 			color: theme.colors.textOnPrimary,
+			textAlign: 'center',
 		},
 		labelSecondary: {
 			color: theme.colors.text,

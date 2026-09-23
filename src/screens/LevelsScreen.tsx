@@ -1,120 +1,165 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { BannerSlot, Screen } from '@/src/components'
+import {
+	CAMPAIGN_TOTAL_LEVELS,
+	getCampaignLevelStatus,
+	useAppProgress,
+} from '@/src/features/progress'
 import { getCampaignTierLabel } from '@/src/features/game'
 import { useTheme } from '@/src/theme'
 
-/** Quick campaign entry points for Phase 3 — not a full 1..250 map. */
-const QUICK_LEVELS = [1, 2, 3, 4, 5, 10, 50, 51] as const
+const TIERS = [
+	{ start: 1, end: 50 },
+	{ start: 51, end: 100 },
+	{ start: 101, end: 150 },
+	{ start: 151, end: 200 },
+	{ start: 201, end: 250 },
+] as const
 
 /**
- * Minimal functional level picker → `/game`.
+ * Campaign 1–250 compact grid with lock / unlock / completed states.
  */
 export function LevelsScreen() {
 	const theme = useTheme()
+	const progress = useAppProgress()
+	const { highestUnlockedLevel, completedLevels } = progress.state.campaign
 
 	return (
 		<Screen
 			title="Уровни"
-			subtitle="Кампания — выберите уровень"
+			subtitle={`${completedLevels.length} / ${CAMPAIGN_TOTAL_LEVELS}`}
 			scroll
 			footer={<BannerSlot placement="levels" />}
 		>
-			<Pressable
-				accessibilityRole="button"
-				accessibilityLabel="Уровень 1"
-				onPress={() => openLevel(1)}
-				style={({ pressed }) => [
-					styles.primary,
-					{
-						backgroundColor: theme.colors.primary,
-						minHeight: theme.touchTarget.min,
-						opacity: pressed ? 0.85 : 1,
-					},
-				]}
-			>
-				<Text
-					style={{
-						color: theme.colors.textOnPrimary,
-						...theme.typography.bodyStrong,
-					}}
-				>
-					Уровень 1 · {getCampaignTierLabel(1)}
-				</Text>
-			</Pressable>
+			{TIERS.map((tier) => (
+				<View key={tier.start} style={styles.tierBlock}>
+					<Text
+						style={{
+							color: theme.colors.text,
+							...theme.typography.subtitle,
+							marginBottom: 8,
+						}}
+					>
+						{getCampaignTierLabel(tier.start)}
+					</Text>
+					<View style={styles.grid}>
+						{Array.from(
+							{ length: tier.end - tier.start + 1 },
+							(_, index) => tier.start + index,
+						).map((level) => {
+							const status = getCampaignLevelStatus(
+								level,
+								highestUnlockedLevel,
+								completedLevels,
+							)
+							const locked = status === 'locked'
+							return (
+								<Pressable
+									key={level}
+									disabled={locked}
+									accessibilityRole="button"
+									accessibilityLabel={`Уровень ${level}`}
+									onPress={() => {
+										router.push({
+											pathname: '/game',
+											params: {
+												source: 'campaign',
+												level: String(level),
+											},
+										})
+									}}
+									style={({ pressed }) => [
+										styles.cell,
+										{
+											backgroundColor:
+												status === 'completed'
+													? theme.colors.selectedCell
+													: theme.colors.surface,
+											borderColor:
+												status === 'completed'
+													? theme.colors.success
+													: theme.colors.border,
+											opacity: locked
+												? 0.35
+												: pressed
+													? 0.85
+													: 1,
+										},
+									]}
+								>
+									<Text
+										style={{
+											color: theme.colors.text,
+											...theme.typography.label,
+										}}
+									>
+										{level}
+									</Text>
+								</Pressable>
+							)
+						})}
+					</View>
+				</View>
+			))}
 
-			<Text
-				style={[
-					styles.section,
-					{
-						color: theme.colors.textSecondary,
-						...theme.typography.caption,
-					},
-				]}
-			>
-				Быстрый выбор
-			</Text>
-
-			<View style={styles.grid}>
-				{QUICK_LEVELS.map((level) => (
-					<Pressable
-						key={level}
-						accessibilityRole="button"
-						accessibilityLabel={`Уровень ${level}`}
-						onPress={() => openLevel(level)}
-						style={({ pressed }) => [
-							styles.chip,
+			{__DEV__ ? (
+				<>
+					<Text
+						style={[
+							styles.devTitle,
 							{
-								backgroundColor: theme.colors.surface,
-								borderColor: theme.colors.border,
-								minHeight: theme.touchTarget.min,
-								opacity: pressed ? 0.85 : 1,
+								color: theme.colors.textSecondary,
+								...theme.typography.caption,
 							},
 						]}
 					>
-						<Text
-							style={{
-								color: theme.colors.text,
-								...theme.typography.bodyStrong,
-							}}
-						>
-							{level}
-						</Text>
-						<Text
-							style={{
-								color: theme.colors.textSecondary,
-								...theme.typography.label,
-							}}
-						>
-							{getCampaignTierLabel(level)}
-						</Text>
-					</Pressable>
-				))}
-			</View>
-			{__DEV__ ? (
-				<>
-					<Text style={[styles.section, { color: theme.colors.textSecondary, ...theme.typography.caption }]}>
 						DEV-only physical QA
 					</Text>
-					<View style={styles.devGrid}>
+					<View style={styles.devRow}>
 						{[160, 220].map((level) => (
 							<Pressable
-								key={'dev-' + level}
-								accessibilityRole="button"
-								accessibilityLabel={'DEV уровень ' + level}
-								onPress={() => openLevel(level)}
-								style={({ pressed }) => [styles.chip, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, minHeight: theme.touchTarget.min, opacity: pressed ? 0.85 : 1 }]}
+								key={`dev-${level}`}
+								onPress={() =>
+									router.push({
+										pathname: '/game',
+										params: {
+											source: 'campaign',
+											level: String(level),
+										},
+									})
+								}
+								style={[
+									styles.devChip,
+									{
+										borderColor: theme.colors.border,
+										backgroundColor: theme.colors.surface,
+									},
+								]}
 							>
-								<Text style={{ color: theme.colors.text, ...theme.typography.bodyStrong }}>{level} · {getCampaignTierLabel(level)}</Text>
+								<Text style={{ color: theme.colors.text }}>
+									{level}
+								</Text>
 							</Pressable>
 						))}
 						<Pressable
-							accessibilityRole="button"
-							accessibilityLabel="DEV multi-digit fixture"
-							onPress={() => router.push({ pathname: '/game', params: { fixture: 'multi-digit' } })}
-							style={({ pressed }) => [styles.chip, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, minHeight: theme.touchTarget.min, opacity: pressed ? 0.85 : 1 }]}
+							onPress={() =>
+								router.push({
+									pathname: '/game',
+									params: { fixture: 'multi-digit' },
+								})
+							}
+							style={[
+								styles.devChip,
+								{
+									borderColor: theme.colors.border,
+									backgroundColor: theme.colors.surface,
+								},
+							]}
 						>
-							<Text style={{ color: theme.colors.text, ...theme.typography.bodyStrong }}>Multi-digit 12/18</Text>
+							<Text style={{ color: theme.colors.text }}>
+								12/18
+							</Text>
 						</Pressable>
 					</View>
 				</>
@@ -123,38 +168,36 @@ export function LevelsScreen() {
 	)
 }
 
-function openLevel(level: number): void {
-	router.push({
-		pathname: '/game',
-		params: { source: 'campaign', level: String(level) },
-	})
-}
-
 const styles = StyleSheet.create({
-	primary: {
-		borderRadius: 12,
-		alignItems: 'center',
-		justifyContent: 'center',
-		paddingVertical: 14,
-		marginBottom: 16,
-	},
-	section: {
-		marginBottom: 8,
+	tierBlock: {
+		marginBottom: 20,
 	},
 	grid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 8,
+		gap: 6,
 	},
-	devGrid: {
-		gap: 8,
-	},
-	chip: {
-		width: '47%',
+	cell: {
+		width: '18%',
+		minHeight: 40,
 		borderWidth: 1,
-		borderRadius: 12,
-		paddingVertical: 12,
-		paddingHorizontal: 10,
-		gap: 2,
+		borderRadius: 8,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	devTitle: {
+		marginTop: 8,
+		marginBottom: 8,
+	},
+	devRow: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 8,
+	},
+	devChip: {
+		borderWidth: 1,
+		borderRadius: 10,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
 	},
 })

@@ -1,16 +1,18 @@
 /**
- * Daily crossword domain placeholder.
- *
- * Future work:
- * - Resolve "today's" puzzle by local calendar date.
- * - Track whether today's puzzle is already solved.
- * - Local reminder copy: "Кроссворд дня ждёт"
- * - Skip notification when the daily puzzle is already completed.
- *
- * Phase 0: navigation + domain slot only — no notification scheduling SDK.
+ * Daily crossword domain — date identity, streak, reminder suppression.
  */
 
-export const DAILY_REMINDER_COPY = 'Кроссворд дня ждёт' as const
+export { DAILY_REMINDER_COPY } from './legacy'
+export {
+	buildDailyCalendarMonth,
+	shiftCalendarMonth,
+	monthFromDateKey,
+} from './calendar'
+export type {
+	DailyCalendarCell,
+	DailyCalendarCellState,
+	DailyCalendarMonth,
+} from './calendar'
 
 export type DailyPuzzleStatus = 'locked' | 'available' | 'in_progress' | 'solved'
 

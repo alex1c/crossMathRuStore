@@ -42,6 +42,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#F4F7FB"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#2F6FED",
+          "defaultChannel": "daily-reminder"
+        }
       ]
     ],
     "experiments": {

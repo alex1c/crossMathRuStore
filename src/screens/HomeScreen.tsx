@@ -1,53 +1,103 @@
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
-import { View, StyleSheet } from 'react-native'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
-
-type HomeMenuItem = {
-	label: string
-	href: string
-	secondary?: boolean
-}
-
-const MENU_ITEMS: readonly HomeMenuItem[] = [
-	{ label: 'Продолжить', href: '/continue' },
-	{ label: 'Сегодняшний кроссворд', href: '/daily' },
-	{ label: 'Уровни', href: '/levels' },
-	{ label: 'Бесконечная игра', href: '/endless' },
-	{ label: 'Таблица умножения', href: '/multiplication-table' },
-	{ label: 'Статистика', href: '/stats', secondary: true },
-	{ label: 'Настройки', href: '/settings', secondary: true },
-	{ label: 'Обучение', href: '/onboarding', secondary: true },
-]
+import { useAppProgress } from '@/src/features/progress'
+import { getGameSourceTitle } from '@/src/features/game'
+import { useTheme } from '@/src/theme'
 
 /**
- * Home screen — navigation shell only. No game grid or animations in Phase 0.
+ * Home — real progress-aware entry points for Phase 4.
  */
 export function HomeScreen() {
+	const theme = useTheme()
+	const progress = useAppProgress()
+
+	if (!progress.ready) {
+		return (
+			<View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
+				<ActivityIndicator color={theme.colors.primary} />
+			</View>
+		)
+	}
+
+	const { state, todayKey, streakCurrent } = progress
+	const active = state.activeSession
+	const todayDone = Boolean(state.daily.completions[todayKey])
+	const campaignSolved = state.campaign.completedLevels.length
+
 	return (
 		<Screen
 			title="Математический кроссворд"
-			subtitle="CrossMath — числовая головоломка"
+			subtitle="CrossMath"
 			scroll
 			footer={<BannerSlot placement="home" />}
 		>
-			<View style={styles.menu}>
-				{MENU_ITEMS.map((item) => (
-					<HomeMenuButton
-						key={item.href}
-						label={item.label}
-						secondary={item.secondary}
-						onPress={() => {
-							router.push(item.href as never)
-						}}
-					/>
-				))}
-			</View>
+			{active ? (
+				<HomeMenuButton
+					label={`Продолжить\n${getGameSourceTitle(active.source as never)}`}
+					onPress={() => {
+						router.push({
+							pathname: '/game',
+							params: { resume: '1' },
+						})
+					}}
+				/>
+			) : null}
+
+			<HomeMenuButton
+				label={
+					todayDone
+						? 'Сегодняшний кроссворд\nСегодня решено ✓'
+						: streakCurrent > 0
+							? `Сегодняшний кроссворд\n🔥 ${streakCurrent} дн.`
+							: 'Сегодняшний кроссворд'
+				}
+				onPress={() => router.push('/daily')}
+			/>
+
+			<HomeMenuButton
+				label={`Уровни\n${campaignSolved} / 250`}
+				onPress={() => router.push('/levels')}
+			/>
+
+			<HomeMenuButton
+				label="Бесконечная игра"
+				onPress={() =>
+					router.push({
+						pathname: '/game',
+						params: {
+							source: 'endless',
+							completed: String(state.endless.completedCount),
+						},
+					})
+				}
+			/>
+
+			<HomeMenuButton
+				label="Таблица умножения"
+				secondary
+				onPress={() => router.push('/multiplication-table')}
+			/>
+
+			<HomeMenuButton
+				label="Статистика"
+				secondary
+				onPress={() => router.push('/stats')}
+			/>
+
+			<HomeMenuButton
+				label="Настройки"
+				secondary
+				onPress={() => router.push('/settings')}
+			/>
 		</Screen>
 	)
 }
 
 const styles = StyleSheet.create({
-	menu: {
-		flexGrow: 1,
+	loading: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 })

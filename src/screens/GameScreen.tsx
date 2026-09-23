@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import {
+	AppState,
+	type AppStateStatus,
 	LayoutChangeEvent,
 	StyleSheet,
 	Text,
@@ -11,93 +13,184 @@ import {
 	SafeAreaView,
 	useSafeAreaInsets,
 } from 'react-native-safe-area-context'
-import { generateCampaignPuzzle } from '@/src/core/crossmath'
 import {
 	CompletionCard,
 	CrossMathBoard,
+	GameBannerSlot,
 	GameControls,
 	NumberPad,
 } from '@/src/components/game'
 import {
 	computeGameVerticalLayout,
-	createGameState,
+	createSessionFromPersisted,
+	createSessionFromSource,
 	formatElapsed,
+	GAME_BANNER_RESERVED_HEIGHT,
 	gameReducer,
-	getCampaignTierLabel,
 	getFillProgress,
-	getGameSourceTitle,
-	MULTI_DIGIT_DEV_FIXTURE,
 	type GameSource,
+	type GameState,
 } from '@/src/features/game'
+import {
+	createActiveTimer,
+	getActiveElapsedMs,
+	hydrateActiveTimer,
+	pauseActiveTimer,
+	resumeActiveTimer,
+	useAppProgress,
+	type ActiveTimerState,
+} from '@/src/features/progress'
 import { useTheme } from '@/src/theme'
+import type { PersistedActiveSession, PersistedGameSource } from '@/src/services/persistence'
 
 export type GameScreenProps = {
 	readonly source: GameSource
+	readonly resume?: boolean
 }
 
-/** Compact header estimate used until onLayout reports the real size. */
 const HEADER_FALLBACK = 58
 
 /**
- * Reusable playable CrossMath session.
- * Remount via React `key` when source/level changes so the reducer resets cleanly.
- *
- * Vertical layout is calculated explicitly so the keypad cannot overflow the
- * viewport; the board uses leftover height with occupied-bounds sizing.
+ * Reusable playable CrossMath session with progress persistence + banner slot.
  */
-export function GameScreen({ source }: GameScreenProps) {
+export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const theme = useTheme()
 	const insets = useSafeAreaInsets()
 	const { width: windowWidth, height: windowHeight } = useWindowDimensions()
-	const bottomPad = insets.bottom + 16
+	const bottomPad = insets.bottom + 8
+	const progress = useAppProgress()
 
-	const campaignLevel = source.kind === 'campaign' ? source.level : 1
-
-	const initialState = useMemo(() => {
-		if (source.kind === 'dev-fixture') {
-			return createGameState({
-				puzzle: MULTI_DIGIT_DEV_FIXTURE.puzzle,
-				solution: MULTI_DIGIT_DEV_FIXTURE.solution,
-				source,
-				title: getGameSourceTitle(source),
-				subtitle: 'DEV-only: 12 + 6 = 18',
-			})
+	const initial = useMemo(() => {
+		const showErrors = progress.state.settings.showErrorsImmediately
+		if (resume && progress.state.activeSession) {
+			return {
+				game: createSessionFromPersisted(progress.state.activeSession, {
+					showErrorsImmediately: showErrors,
+				}),
+				timer: hydrateActiveTimer(
+					progress.state.activeSession.accumulatedActiveMs,
+				),
+			}
 		}
-		if (source.kind !== 'campaign') {
-			throw new Error('Phase 3 only wires campaign gameplay')
+		return {
+			game: createSessionFromSource(source, {
+				showErrorsImmediately: showErrors,
+			}),
+			timer: createActiveTimer(),
 		}
-		// Generate once per mounted session — never inside render loops / timers.
-		const profiled = generateCampaignPuzzle(campaignLevel)
-		return createGameState({
-			puzzle: profiled.generated.puzzle,
-			solution: profiled.generated.solution,
-			source: { kind: 'campaign', level: campaignLevel },
-			title: getGameSourceTitle({ kind: 'campaign', level: campaignLevel }),
-			subtitle: getCampaignTierLabel(campaignLevel),
-		})
-	}, [campaignLevel, source])
+		// Mounted only after progress.ready; remount via route key on source change.
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount snapshot
+	}, [source, resume])
 
-	const [state, dispatch] = useReducer(gameReducer, initialState)
+	const [state, dispatch] = useReducer(gameReducer, initial.game)
+	const [timer, setTimer] = useState<ActiveTimerState>(initial.timer)
 	const [now, setNow] = useState(() => Date.now())
 	const [contentSize, setContentSize] = useState({
 		width: Math.max(280, windowWidth - 32),
-		// Stack header sits above this screen; reserve a modest estimate until layout.
 		height: Math.max(320, windowHeight - 120),
 	})
 	const [headerHeight, setHeaderHeight] = useState(HEADER_FALLBACK)
+	const stateRef = useRef(state)
+	const timerRef = useRef(timer)
+	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+	useEffect(() => {
+		stateRef.current = state
+	}, [state])
+
+	useEffect(() => {
+		timerRef.current = timer
+	}, [timer])
 
 	useEffect(() => {
 		if (state.status === 'completed') {
 			return
 		}
-		const id = setInterval(() => {
-			setNow(Date.now())
-		}, 1000)
+		const id = setInterval(() => setNow(Date.now()), 1000)
 		return () => clearInterval(id)
 	}, [state.status])
 
-	const progress = getFillProgress(state)
-	const elapsedMs = (state.completedAt ?? now) - state.startedAt
+	useEffect(() => {
+		const onChange = (status: AppStateStatus) => {
+			if (stateRef.current.status === 'completed') {
+				return
+			}
+			if (status === 'active') {
+				setTimer((prev) => resumeActiveTimer(prev))
+			} else {
+				setTimer((prev) => pauseActiveTimer(prev))
+			}
+		}
+		const sub = AppState.addEventListener('change', onChange)
+		return () => sub.remove()
+	}, [])
+
+	const buildPersistedSession = useCallback(
+		(game: GameState, activeTimer: ActiveTimerState): PersistedActiveSession | null => {
+			if (game.status !== 'playing') {
+				return null
+			}
+			if (
+				game.source.kind !== 'campaign' &&
+				game.source.kind !== 'daily' &&
+				game.source.kind !== 'endless'
+			) {
+				return null
+			}
+			const persistedSource: PersistedGameSource = game.source
+			return {
+				source: persistedSource,
+				puzzle: game.puzzle,
+				solution: {
+					values: Object.entries(game.solutionByKey).map(([key, value]) => {
+						const [row, column] = key.split(',').map(Number)
+						return {
+							coordinate: { row: row!, column: column! },
+							value,
+						}
+					}),
+				},
+				entries: game.entries,
+				selected: game.selected,
+				mistakes: game.mistakes,
+				hintsUsed: game.hintsUsed,
+				accumulatedActiveMs: getActiveElapsedMs(activeTimer),
+				status: 'playing',
+				title: game.title,
+				subtitle: game.subtitle,
+				updatedAt: Date.now(),
+			}
+		},
+		[],
+	)
+
+	const scheduleSave = useCallback(() => {
+		if (saveTimerRef.current) {
+			clearTimeout(saveTimerRef.current)
+		}
+		saveTimerRef.current = setTimeout(() => {
+			const session = buildPersistedSession(stateRef.current, timerRef.current)
+			void progress.saveActiveSession(session)
+		}, 250)
+	}, [buildPersistedSession, progress])
+
+	useEffect(() => {
+		if (state.status === 'playing') {
+			scheduleSave()
+		}
+	}, [state.entries, state.mistakes, state.hintsUsed, state.selected, state.status, scheduleSave])
+
+	useEffect(() => {
+		if (source.kind === 'campaign') {
+			void progress.markCampaignPlayed(source.level)
+		}
+	}, [source, progress])
+
+	const fill = getFillProgress(state)
+	const elapsedMs =
+		state.status === 'completed'
+			? getActiveElapsedMs(pauseActiveTimer(timer, now), now)
+			: getActiveElapsedMs(timer, now)
 
 	const vertical = useMemo(
 		() =>
@@ -106,6 +199,8 @@ export function GameScreen({ source }: GameScreenProps) {
 				availableHeight: Math.max(200, contentSize.height),
 				headerHeight,
 				sectionGap: 8,
+				bannerReservedHeight: GAME_BANNER_RESERVED_HEIGHT,
+				bannerGap: 8,
 			}),
 		[contentSize.width, contentSize.height, headerHeight],
 	)
@@ -124,16 +219,78 @@ export function GameScreen({ source }: GameScreenProps) {
 		setHeaderHeight((prev) => (prev === next ? prev : next))
 	}, [])
 
-	const handleNextLevel = useCallback(() => {
-		if (source.kind !== 'campaign') {
+	const finalizeCompletion = useCallback(async () => {
+		const frozen = pauseActiveTimer(timerRef.current)
+		setTimer(frozen)
+		const elapsed = getActiveElapsedMs(frozen)
+		const game = stateRef.current
+		await progress.saveActiveSession(null)
+		try {
+			if (game.source.kind === 'campaign') {
+				await progress.completeCampaignLevel({
+					level: game.source.level,
+					elapsedMs: elapsed,
+					mistakes: game.mistakes,
+					hintsUsed: game.hintsUsed,
+					completedAt: Date.now(),
+				})
+			} else if (game.source.kind === 'daily') {
+				await progress.completeDaily({
+					dateKey: game.source.dateKey,
+					elapsedMs: elapsed,
+					mistakes: game.mistakes,
+					hintsUsed: game.hintsUsed,
+					completedAt: Date.now(),
+				})
+			} else if (game.source.kind === 'endless') {
+				await progress.completeEndless({
+					elapsedMs: elapsed,
+					mistakes: game.mistakes,
+					hintsUsed: game.hintsUsed,
+				})
+			}
+		} catch {
+			// Persistence errors must not crash the completion UI.
+		}
+	}, [progress])
+
+	const completedOnceRef = useRef(false)
+
+	useEffect(() => {
+		if (state.status === 'completed' && !completedOnceRef.current) {
+			completedOnceRef.current = true
+			void finalizeCompletion()
+		}
+	}, [state.status, finalizeCompletion])
+
+	const handleNext = useCallback(() => {
+		if (source.kind === 'campaign' && source.level < 250) {
+			router.replace({
+				pathname: '/game',
+				params: { source: 'campaign', level: String(source.level + 1) },
+			})
 			return
 		}
-		const nextLevel = Math.min(250, source.level + 1)
-		router.replace({
-			pathname: '/game',
-			params: { source: 'campaign', level: String(nextLevel) },
-		})
-	}, [source])
+		if (source.kind === 'endless') {
+			const nextCount = progress.state.endless.completedCount
+			router.replace({
+				pathname: '/game',
+				params: {
+					source: 'endless',
+					completed: String(nextCount),
+				},
+			})
+			return
+		}
+		router.replace('/')
+	}, [source, progress.state.endless.completedCount])
+
+	const nextLabel =
+		source.kind === 'endless'
+			? 'Следующая задача'
+			: source.kind === 'campaign' && source.level < 250
+				? 'Следующий уровень'
+				: undefined
 
 	return (
 		<SafeAreaView
@@ -166,7 +323,7 @@ export function GameScreen({ source }: GameScreenProps) {
 								...theme.typography.caption,
 							}}
 						>
-							Заполнено {progress.filled} из {progress.total}
+							Заполнено {fill.filled} из {fill.total}
 							{'  ·  '}
 							{formatElapsed(elapsedMs)}
 						</Text>
@@ -193,25 +350,18 @@ export function GameScreen({ source }: GameScreenProps) {
 					</View>
 
 					{state.status === 'completed' ? (
-						<View
-							style={{
-								maxHeight: Math.max(
-									vertical.controls.totalHeight,
-									vertical.boardAreaHeight * 0.7,
-								),
-							}}
-						>
+						<View style={{ maxHeight: vertical.completionMaxHeight }}>
 							<CompletionCard
-								title={state.title}
+								title={
+									source.kind === 'endless'
+										? `Решено подряд: ${progress.state.endless.completedCount}`
+										: state.title
+								}
 								elapsedMs={elapsedMs}
 								mistakes={state.mistakes}
 								hintsUsed={state.hintsUsed}
-								onNextLevel={
-									source.kind === 'campaign' &&
-									source.level < 250
-										? handleNextLevel
-										: undefined
-								}
+								onNextLevel={nextLabel ? handleNext : undefined}
+								nextLabel={nextLabel}
 								onHome={() => {
 									router.replace('/')
 								}}
@@ -246,6 +396,9 @@ export function GameScreen({ source }: GameScreenProps) {
 							/>
 						</View>
 					)}
+
+					<View style={{ height: vertical.bannerGap }} />
+					<GameBannerSlot height={vertical.bannerReservedHeight} />
 				</View>
 			</View>
 		</SafeAreaView>
@@ -253,20 +406,14 @@ export function GameScreen({ source }: GameScreenProps) {
 }
 
 const styles = StyleSheet.create({
-	safe: {
-		flex: 1,
-	},
+	safe: { flex: 1 },
 	container: {
 		flex: 1,
 		paddingHorizontal: 16,
 		paddingTop: 4,
 	},
-	inner: {
-		flex: 1,
-	},
-	headerBlock: {
-		gap: 1,
-	},
+	inner: { flex: 1 },
+	headerBlock: { gap: 1 },
 	boardArea: {
 		alignItems: 'center',
 		justifyContent: 'center',

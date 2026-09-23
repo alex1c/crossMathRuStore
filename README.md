@@ -50,12 +50,16 @@ Cursor budget is limited — do not spend it on Codex-owned math-core work.
 | 1 Pure TS generator + solver + tests | PASS |
 | 2 Difficulty profiles + modes | PASS |
 | 3 Playable game board UI | PASS |
-| 4 Persistence / Daily / polish | not started |
+| 3.1 Responsive layout | PASS |
+| 3.2 Difficulty tuning | PASS |
+| 4 Progress / Daily / reminder / banner reservation | PASS |
+| 5 Ads / analytics / release | not started |
 
 ## Architecture notes
 
 - Pure engine lives in `src/core/crossmath/` — **no React Native imports**.
-- Daily crossword + reminder domain slot: `src/features/daily/` (reminder copy: «Кроссворд дня ждёт»). Notifications are **not** scheduled yet.
+- Daily crossword + local reminder («Кроссворд дня ждёт 🧩») with completed-today suppression.
+- GameScreen reserves a sticky bottom banner slot (no Ad SDK yet).
 - Onboarding route is mandatory architecturally (`/onboarding`) — interactive tutorial later.
 - Banner layout slots exist without Ads SDK / AppMetrica / secrets.
 - Metro: **port 8081 only** (never hop to 8082/8083).

@@ -101,16 +101,18 @@ describe('occupied board bounds', () => {
 })
 
 describe('game vertical layout fit', () => {
-	it('fits header + board + controls into a tall phone viewport', () => {
-		// ~1080x2400 class phone content area below stack header.
+	it('fits header + board + controls + banner into a tall phone viewport', () => {
 		const layout = computeGameVerticalLayout({
 			availableWidth: 360,
 			availableHeight: 700,
 			headerHeight: 58,
 			sectionGap: 8,
+			bannerReservedHeight: 50,
+			bannerGap: 8,
 		})
 
 		expect(layout.fits).toBe(true)
+		expect(layout.bannerReservedHeight).toBe(50)
 		expect(layout.totalHeight).toBeLessThanOrEqual(701)
 		expect(layout.controls.touchHeight).toBeGreaterThanOrEqual(40)
 		expect(layout.boardAreaHeight).toBeGreaterThanOrEqual(120)
@@ -121,37 +123,40 @@ describe('game vertical layout fit', () => {
 				layout.controls.sectionGap,
 			),
 		)
-
-		// Last keypad row is inside the reserved controls block by construction:
-		// action + 4 pad rows + gaps == totalHeight.
-		const lastRowBottom = layout.controls.totalHeight
-		expect(lastRowBottom).toBeLessThanOrEqual(layout.controls.totalHeight)
+		expect(
+			layout.headerHeight +
+				layout.sectionGap * 2 +
+				layout.boardAreaHeight +
+				layout.controls.totalHeight +
+				layout.bannerGap +
+				layout.bannerReservedHeight,
+		).toBe(layout.totalHeight)
 	})
 
-	it('compacts controls on a shorter viewport while keeping touch targets', () => {
+	it('compacts controls on a shorter viewport while keeping banner + touch targets', () => {
 		const layout = computeGameVerticalLayout({
 			availableWidth: 360,
 			availableHeight: 520,
 			headerHeight: 58,
 			sectionGap: 8,
+			bannerReservedHeight: 50,
+			bannerGap: 8,
 		})
 
 		expect(layout.fits).toBe(true)
+		expect(layout.bannerReservedHeight).toBe(50)
 		expect(layout.controls.touchHeight).toBeGreaterThanOrEqual(40)
 		expect(layout.controls.touchHeight).toBeLessThanOrEqual(48)
-		expect(
-			layout.headerHeight +
-				layout.sectionGap * 2 +
-				layout.boardAreaHeight +
-				layout.controls.totalHeight,
-		).toBeLessThanOrEqual(521)
+		expect(layout.totalHeight).toBeLessThanOrEqual(521)
 	})
 
-	it('keeps representative campaign boards inside allocated board area', () => {
+	it('keeps representative campaign boards inside allocated board area with banner', () => {
 		const vertical = computeGameVerticalLayout({
 			availableWidth: 360,
 			availableHeight: 700,
 			headerHeight: 58,
+			bannerReservedHeight: 50,
+			bannerGap: 8,
 		})
 
 		for (const level of [1, 51, 160, 220]) {
@@ -170,6 +175,7 @@ describe('game vertical layout fit', () => {
 			expect(board.cellSize).toBeGreaterThanOrEqual(
 				DEFAULT_BOARD_SIZING.minCellSize,
 			)
+			expect(vertical.fits).toBe(true)
 		}
 	})
 })

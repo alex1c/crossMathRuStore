@@ -2,9 +2,9 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { ThemeProvider, useTheme } from '@/src/theme'
+import { AppProgressProvider } from '@/src/features/progress'
 
 export {
-	// Catch any errors thrown by the Layout component.
 	ErrorBoundary,
 } from 'expo-router'
 
@@ -13,14 +13,15 @@ export const unstable_settings = {
 }
 
 /**
- * Root layout: SafeAreaProvider + light/dark ThemeProvider + Stack navigation.
- * Ads / AppMetrica / notifications are intentionally not wired in Phase 0.
+ * Root layout: SafeArea + theme + persisted progress provider.
  */
 export default function RootLayout() {
 	return (
 		<SafeAreaProvider>
 			<ThemeProvider>
-				<RootNavigator />
+				<AppProgressProvider>
+					<RootNavigator />
+				</AppProgressProvider>
 			</ThemeProvider>
 		</SafeAreaProvider>
 	)
