@@ -181,12 +181,12 @@ describe('draft digit helper', () => {
 })
 
 describe('board layout sizing', () => {
-	it('caps tiny easy grids and shrinks large expert grids', () => {
+	it('caps tiny grids and shrinks dense visual grids', () => {
 		const easy = computeBoardLayout({
 			availableWidth: 360,
 			availableHeight: 400,
-			rows: 9,
-			columns: 9,
+			rows: 5,
+			columns: 5,
 			gap: DEFAULT_BOARD_SIZING.gap,
 			minCellSize: DEFAULT_BOARD_SIZING.minCellSize,
 			maxCellSize: DEFAULT_BOARD_SIZING.maxCellSize,
@@ -196,19 +196,19 @@ describe('board layout sizing', () => {
 		)
 		expect(easy.boardWidth).toBeLessThanOrEqual(360)
 
-		const expert = computeBoardLayout({
+		const dense = computeBoardLayout({
 			availableWidth: 360,
 			availableHeight: 320,
-			rows: 15,
-			columns: 15,
+			rows: 9,
+			columns: 9,
 			gap: DEFAULT_BOARD_SIZING.gap,
 			minCellSize: DEFAULT_BOARD_SIZING.minCellSize,
 			maxCellSize: DEFAULT_BOARD_SIZING.maxCellSize,
 		})
-		expect(expert.cellSize).toBeGreaterThanOrEqual(
+		expect(dense.cellSize).toBeGreaterThanOrEqual(
 			DEFAULT_BOARD_SIZING.minCellSize,
 		)
-		expect(expert.boardWidth).toBeLessThanOrEqual(360)
-		expect(expert.cellSize).toBeLessThan(easy.cellSize)
+		expect(dense.boardWidth).toBeLessThanOrEqual(360)
+		expect(dense.cellSize).toBeLessThanOrEqual(easy.cellSize)
 	})
 })

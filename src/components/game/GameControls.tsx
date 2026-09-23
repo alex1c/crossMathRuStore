@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '@/src/theme'
+import { CONTROL_TOUCH } from '@/src/features/game'
 
 type GameControlsProps = {
 	readonly disabled?: boolean
@@ -7,6 +8,9 @@ type GameControlsProps = {
 	readonly onUndo: () => void
 	readonly onDelete: () => void
 	readonly onHint: () => void
+	/** Responsive action-row height from vertical layout helper. */
+	readonly touchHeight?: number
+	readonly rowGap?: number
 }
 
 /**
@@ -18,6 +22,8 @@ export function GameControls({
 	onUndo,
 	onDelete,
 	onHint,
+	touchHeight = CONTROL_TOUCH.comfortable,
+	rowGap = 8,
 }: GameControlsProps) {
 	const theme = useTheme()
 
@@ -43,7 +49,7 @@ export function GameControls({
 	] as const
 
 	return (
-		<View style={styles.row}>
+		<View style={[styles.row, { gap: rowGap }]}>
 			{buttons.map((button) => (
 				<Pressable
 					key={button.key}
@@ -56,7 +62,7 @@ export function GameControls({
 						{
 							backgroundColor: theme.colors.surface,
 							borderColor: theme.colors.border,
-							minHeight: theme.touchTarget.min,
+							height: touchHeight,
 							opacity: !button.enabled
 								? 0.4
 								: pressed
@@ -82,7 +88,6 @@ export function GameControls({
 const styles = StyleSheet.create({
 	row: {
 		flexDirection: 'row',
-		gap: 8,
 	},
 	button: {
 		flex: 1,
@@ -90,7 +95,6 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		alignItems: 'center',
 		justifyContent: 'center',
-		paddingVertical: 10,
 		paddingHorizontal: 6,
 	},
 })

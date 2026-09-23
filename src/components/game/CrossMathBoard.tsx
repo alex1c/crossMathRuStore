@@ -7,10 +7,11 @@ import {
 } from '@/src/core/crossmath'
 import {
 	DEFAULT_BOARD_SIZING,
-	computeBoardLayout,
+	computeOccupiedBoardLayout,
 	findRelatedCoordinates,
 	getBlankDisplayValue,
 	isBlankShowingError,
+	toLogicalCoordinate,
 	type GameState,
 } from '@/src/features/game'
 import { BoardCell, cellGlyph, type BoardCellVisual } from './BoardCell'
@@ -23,7 +24,8 @@ type CrossMathBoardProps = {
 }
 
 /**
- * Unified crossword grid driven by core coordinates (not separate equation strips).
+ * Unified crossword grid.
+ * Visual sizing uses the occupied bounding box; taps still emit logical coordinates.
  */
 export function CrossMathBoard({
 	state,
@@ -34,21 +36,13 @@ export function CrossMathBoard({
 	const { puzzle } = state
 	const layout = useMemo(
 		() =>
-			computeBoardLayout({
+			computeOccupiedBoardLayout(
+				puzzle,
 				availableWidth,
 				availableHeight,
-				rows: puzzle.grid.rows,
-				columns: puzzle.grid.columns,
-				gap: DEFAULT_BOARD_SIZING.gap,
-				minCellSize: DEFAULT_BOARD_SIZING.minCellSize,
-				maxCellSize: DEFAULT_BOARD_SIZING.maxCellSize,
-			}),
-		[
-			availableWidth,
-			availableHeight,
-			puzzle.grid.rows,
-			puzzle.grid.columns,
-		],
+				DEFAULT_BOARD_SIZING,
+			),
+		[availableWidth, availableHeight, puzzle],
 	)
 
 	const cellMap = useMemo(() => buildCellMap(puzzle), [puzzle])
@@ -58,11 +52,18 @@ export function CrossMathBoard({
 	)
 
 	const rows: BoardCellVisual[][] = []
-	for (let row = 0; row < puzzle.grid.rows; row += 1) {
+	for (let visualRow = 0; visualRow < layout.bounds.visualRows; visualRow += 1) {
 		const line: BoardCellVisual[] = []
-		for (let column = 0; column < puzzle.grid.columns; column += 1) {
-			const coordinate = { row, column }
-			const key = coordinateKey(coordinate)
+		for (
+			let visualColumn = 0;
+			visualColumn < layout.bounds.visualColumns;
+			visualColumn += 1
+		) {
+			const logical = toLogicalCoordinate(
+				{ row: visualRow, column: visualColumn },
+				layout.bounds,
+			)
+			const key = coordinateKey(logical)
 			const cell = cellMap.get(key)
 			if (!cell) {
 				line.push({ kind: 'absent' })
@@ -70,10 +71,10 @@ export function CrossMathBoard({
 			}
 			const selected =
 				!!state.selected &&
-				coordinatesEqual(state.selected, coordinate)
+				coordinatesEqual(state.selected, logical)
 			const blankText =
 				cell.kind === 'number' && cell.state === 'blank'
-					? getBlankDisplayValue(state, coordinate)
+					? getBlankDisplayValue(state, logical)
 					: ''
 			const interactive =
 				cell.kind === 'number' &&
@@ -88,7 +89,7 @@ export function CrossMathBoard({
 				errored:
 					cell.kind === 'number' &&
 					cell.state === 'blank' &&
-					isBlankShowingError(state, coordinate),
+					isBlankShowingError(state, logical),
 				interactive,
 				accessibilityLabel: buildAccessibilityLabel(
 					cell,
@@ -111,25 +112,25 @@ export function CrossMathBoard({
 				},
 			]}
 		>
-			{rows.map((line, rowIndex) => (
+			{rows.map((line, visualRow) => (
 				<View
-					key={`row-${rowIndex}`}
+					key={`row-${visualRow}`}
 					style={[styles.row, { gap: DEFAULT_BOARD_SIZING.gap }]}
 				>
-					{line.map((visual, columnIndex) => {
-						const coordinate = {
-							row: rowIndex,
-							column: columnIndex,
-						}
+					{line.map((visual, visualColumn) => {
+						const logical = toLogicalCoordinate(
+							{ row: visualRow, column: visualColumn },
+							layout.bounds,
+						)
 						return (
 							<BoardCell
-								key={`${rowIndex},${columnIndex}`}
+								key={`${logical.row},${logical.column}`}
 								visual={visual}
 								size={layout.cellSize}
 								onPress={
 									visual.kind === 'present' &&
 									visual.interactive
-										? () => onSelectCell(coordinate)
+										? () => onSelectCell(logical)
 										: undefined
 								}
 							/>

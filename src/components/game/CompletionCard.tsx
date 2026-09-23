@@ -140,16 +140,16 @@ const styles = StyleSheet.create({
 	card: {
 		borderWidth: 1,
 		borderRadius: 16,
-		padding: 20,
-		gap: 12,
+		padding: 16,
+		gap: 10,
 	},
 	subtitle: {
-		marginTop: -4,
+		marginTop: -2,
 	},
 	stats: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		marginVertical: 8,
+		marginVertical: 4,
 	},
 	stat: {
 		alignItems: 'center',

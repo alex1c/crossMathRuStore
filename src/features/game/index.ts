@@ -10,9 +10,25 @@ export {
 
 export {
 	computeBoardLayout,
+	computeOccupiedBoardLayout,
+	getOccupiedBounds,
+	toVisualCoordinate,
+	toLogicalCoordinate,
 	DEFAULT_BOARD_SIZING,
 } from './boardLayout'
-export type { BoardLayout, BoardLayoutInput } from './boardLayout'
+export type { BoardLayout, BoardLayoutInput, OccupiedBounds } from './boardLayout'
+
+export {
+	computeGameVerticalLayout,
+	computeControlsHeight,
+	CONTROL_TOUCH,
+	CONTROL_ROW_GAP,
+} from './gameLayout'
+export type {
+	ControlMetrics,
+	GameVerticalLayout,
+	GameVerticalLayoutInput,
+} from './gameLayout'
 
 export {
 	listBlankCells,
