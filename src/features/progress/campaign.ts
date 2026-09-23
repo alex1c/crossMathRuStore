@@ -56,3 +56,24 @@ export function applyCampaignCompletion(
 }
 
 export const CAMPAIGN_TOTAL_LEVELS = 250
+
+/**
+ * Next level the player should open from Home / Levels.
+ * Prefers the lowest unlocked incomplete level; otherwise the highest unlocked.
+ */
+export function getNextCampaignLevel(
+	highestUnlockedLevel: number,
+	completedLevels: readonly number[],
+): number {
+	const unlocked = Math.min(
+		CAMPAIGN_TOTAL_LEVELS,
+		Math.max(1, highestUnlockedLevel),
+	)
+	const completed = new Set(completedLevels)
+	for (let level = 1; level <= unlocked; level += 1) {
+		if (!completed.has(level)) {
+			return level
+		}
+	}
+	return unlocked
+}

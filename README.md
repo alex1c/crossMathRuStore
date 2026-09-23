@@ -53,15 +53,18 @@ Cursor budget is limited — do not spend it on Codex-owned math-core work.
 | 3.1 Responsive layout | PASS |
 | 3.2 Difficulty tuning | PASS |
 | 4 Progress / Daily / reminder / banner reservation | PASS |
-| 5 Ads / analytics / release | not started |
+| 5 Gameplay polish / onboarding / difficulty feel | PASS |
+| 6 Ads / analytics / release | not started |
 
 ## Architecture notes
 
 - Pure engine lives in `src/core/crossmath/` — **no React Native imports**.
 - Daily crossword + local reminder («Кроссворд дня ждёт 🧩») with completed-today suppression.
 - GameScreen reserves a sticky bottom banner slot (no Ad SDK yet).
-- Onboarding route is mandatory architecturally (`/onboarding`) — interactive tutorial later.
-- Banner layout slots exist without Ads SDK / AppMetrica / secrets.
+- Interactive onboarding tutorial (`/onboarding`) — skippable, replayable from Settings/About.
+- Banner layout slots on Home / Levels / Stats / Settings / About / training (no Ads SDK).
+- Other our apps → RuStore ForestMusic developer catalog.
+- ForestMusic DevTools baseline: **v1.0.0**
 - Metro: **port 8081 only** (never hop to 8082/8083).
 - Preferred AVD later: `ForestMusic_Fast_API35`. Prefer real device for QA. Do not launch Pixel_10 API 37 without need.
 - Production AAB is **not** built in early phases.

@@ -13,10 +13,10 @@ describe('CrossMath Phase 3.2 progression guards', () => {
 			[50, 5],
 			[51, 5],
 			[100, 5],
-			[101, 5],
-			[150, 5],
-			[151, 5],
-			[201, 6],
+			[101, 6],
+			[150, 6],
+			[151, 6],
+			[201, 7],
 		])
 		for (const [level, minimumBlanks] of levelTargets) {
 			const profile = getCampaignGenerationProfile(level)

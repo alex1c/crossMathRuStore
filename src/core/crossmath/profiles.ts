@@ -13,11 +13,15 @@ import type {
 
 const GENERATOR_VERSION = 'v1'
 
+/**
+ * Phase 5 modest difficulty-feel tuning (profile params only).
+ * Prefer fewer forced openings / higher score floors over bigger arithmetic.
+ */
 const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 	easy: {
 		id: 'easy',
 		difficultyTier: 'easy',
-		scoreRange: { min: 12, max: 40 },
+		scoreRange: { min: 14, max: 42 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 9,
@@ -31,12 +35,12 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			requireConnected: true,
 			solverMaxNodes: 100_000,
 		},
-		maxCandidateAttempts: 12,
+		maxCandidateAttempts: 16,
 	},
 	medium: {
 		id: 'medium',
 		difficultyTier: 'medium',
-		scoreRange: { min: 20, max: 46 },
+		scoreRange: { min: 24, max: 48 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 11,
@@ -44,18 +48,18 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			minValue: 1,
 			maxValue: 18,
 			allowedOperations: ['add', 'subtract', 'multiply'],
-			targetEquationCount: 5,
+			targetEquationCount: 6,
 			targetBlankCount: 5,
 			maxGenerationAttempts: 50,
 			requireConnected: true,
 			solverMaxNodes: 100_000,
 		},
-		maxCandidateAttempts: 20,
+		maxCandidateAttempts: 28,
 	},
 	hard: {
 		id: 'hard',
 		difficultyTier: 'hard',
-		scoreRange: { min: 28, max: 40 },
+		scoreRange: { min: 30, max: 46 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 13,
@@ -64,17 +68,17 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			maxValue: 24,
 			allowedOperations: ['add', 'subtract', 'multiply', 'divide'],
 			targetEquationCount: 6,
-			targetBlankCount: 4,
+			targetBlankCount: 5,
 			maxGenerationAttempts: 60,
 			requireConnected: true,
 			solverMaxNodes: 100_000,
 		},
-		maxCandidateAttempts: 30,
+		maxCandidateAttempts: 36,
 	},
 	expert: {
 		id: 'expert',
 		difficultyTier: 'expert',
-		scoreRange: { min: 36, max: 60 },
+		scoreRange: { min: 40, max: 64 },
 		generatorVersion: GENERATOR_VERSION,
 		config: {
 			rows: 15,
@@ -83,12 +87,12 @@ const PROFILE_DEFINITIONS: Record<DifficultyTier, GenerationProfile> = {
 			maxValue: 32,
 			allowedOperations: ['add', 'subtract', 'multiply', 'divide'],
 			targetEquationCount: 8,
-			targetBlankCount: 6,
+			targetBlankCount: 7,
 			maxGenerationAttempts: 80,
 			requireConnected: true,
 			solverMaxNodes: 100_000,
 		},
-		maxCandidateAttempts: 50,
+		maxCandidateAttempts: 60,
 	},
 }
 
@@ -159,7 +163,7 @@ function withCampaignProgress(
 	): GenerationProfile {
 	const baseline = base.config.targetBlankCount ?? 1
 	const scoreRange = base.difficultyTier === 'easy'
-		? { min: 12, max: 24 + Math.floor(progress * 16) }
+		? { min: 14, max: 26 + Math.floor(progress * 16) }
 		: base.scoreRange
 	return cloneProfile(base, {
 		id: `campaign-${level}`,
@@ -186,13 +190,14 @@ export function getCampaignGenerationProfile(level: number): GenerationProfile {
 	if (tierIndex === 2) {
 		return withCampaignProgress(level, cloneProfile(getDifficultyProfile('medium'), {
 			id: 'campaign-adept',
-			scoreRange: { min: 24, max: 40 },
-			config: { targetEquationCount: 6, targetBlankCount: 5 },
+			scoreRange: { min: 28, max: 46 },
+			config: { targetEquationCount: 6, targetBlankCount: 6 },
 		}), progress, 0)
 	}
 	if (tierIndex === 3) {
 		return withCampaignProgress(level, cloneProfile(getDifficultyProfile('hard'), {
-			config: { targetBlankCount: 5 },
+			scoreRange: { min: 32, max: 48 },
+			config: { targetBlankCount: 6 },
 		}), progress, 0)
 	}
 	return withCampaignProgress(level, getDifficultyProfile('expert'), progress)
@@ -210,15 +215,16 @@ export function getDailyGenerationProfile(
 		return cloneProfile(getDifficultyProfile('expert'), {
 			id: `daily-expert-${dateKey}`,
 			seed,
-			scoreRange: { min: 36, max: 60 },
-			config: { targetBlankCount: 6 },
+			scoreRange: { min: 40, max: 64 },
+			config: { targetBlankCount: 7 },
 		})
 	}
+	// Normal Daily ≈ solid Medium — thoughtful minutes, not Expert.
 	return cloneProfile(getDifficultyProfile('medium'), {
 		id: `daily-${dateKey}`,
 		seed,
-		scoreRange: { min: 14, max: 34 },
-		config: { targetBlankCount: 2 + (seed % 3) },
+		scoreRange: { min: 24, max: 44 },
+		config: { targetBlankCount: 4 + (seed % 2) },
 	})
 }
 

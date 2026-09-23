@@ -5,6 +5,7 @@ export {
 	getCampaignLevelStatus,
 	isCampaignLevelPlayable,
 	applyCampaignCompletion,
+	getNextCampaignLevel,
 	CAMPAIGN_TOTAL_LEVELS,
 } from './campaign'
 export type { CampaignLevelStatus } from './campaign'

@@ -45,6 +45,8 @@ export type PersistedSettings = {
 	readonly dailyReminderEnabled: boolean
 	/** Minutes from local midnight, e.g. 19:00 => 1140. */
 	readonly dailyReminderMinutes: number
+	/** First-launch interactive tutorial finished or skipped. */
+	readonly onboardingCompleted: boolean
 }
 
 export type PersistedGameSource =
@@ -109,6 +111,7 @@ export function createDefaultPersistedState(): PersistedAppState {
 			showErrorsImmediately: true,
 			dailyReminderEnabled: true,
 			dailyReminderMinutes: DEFAULT_REMINDER_MINUTES,
+			onboardingCompleted: false,
 		},
 		activeSession: null,
 		stats: {

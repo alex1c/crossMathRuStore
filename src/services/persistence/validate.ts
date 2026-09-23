@@ -141,6 +141,7 @@ function parseSettings(raw: unknown): PersistedSettings {
 		showErrorsImmediately: asBoolean(raw.showErrorsImmediately, true),
 		dailyReminderEnabled: asBoolean(raw.dailyReminderEnabled, true),
 		dailyReminderMinutes: Math.min(23 * 60 + 59, Math.max(0, minutes)),
+		onboardingCompleted: asBoolean(raw.onboardingCompleted, false),
 	}
 }
 

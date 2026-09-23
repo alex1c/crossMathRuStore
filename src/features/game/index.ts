@@ -4,6 +4,7 @@ export type {
 	DailyGameSource,
 	EndlessGameSource,
 	DevFixtureGameSource,
+	TutorialGameSource,
 	GameSource,
 } from './source'
 export {
@@ -52,6 +53,7 @@ export {
 	gameReducer,
 	getBlankDisplayValue,
 	isBlankShowingError,
+	isBlankHinted,
 	getFillProgress,
 } from './gameReducer'
 export type {
@@ -66,5 +68,8 @@ export {
 	createSessionFromSource,
 	createSessionFromPersisted,
 } from './createSession'
+
+export { buildCompletionPresentation } from './completion'
+export type { CompletionPresentation } from './completion'
 
 export { MULTI_DIGIT_DEV_FIXTURE } from './devFixture'

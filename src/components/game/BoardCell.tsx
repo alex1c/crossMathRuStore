@@ -13,6 +13,8 @@ export type BoardCellVisual =
 			readonly selected: boolean
 			readonly related: boolean
 			readonly errored: boolean
+			readonly hinted: boolean
+			readonly coachHighlight: boolean
 			readonly interactive: boolean
 			readonly accessibilityLabel: string
 	  }
@@ -95,17 +97,30 @@ function createStyles(
 	let backgroundColor = 'transparent'
 	let borderColor = 'transparent'
 	let textColor = colors.equation
+	let borderWidth = 0
 
 	if (isBlank) {
 		backgroundColor = colors.surface
 		borderColor = colors.border
+		borderWidth = 1.5
 		textColor = colors.userNumber
 		if (visual.related && !visual.selected) {
 			backgroundColor = colors.relatedCell
 		}
+		if (visual.hinted) {
+			backgroundColor = colors.hintedCell
+			borderColor = colors.success
+			textColor = colors.success
+		}
 		if (visual.selected) {
 			backgroundColor = colors.selectedCell
 			borderColor = colors.primary
+			borderWidth = 2.5
+		}
+		if (visual.coachHighlight && !visual.selected) {
+			borderColor = colors.primary
+			borderWidth = 2
+			backgroundColor = colors.selectedCell
 		}
 		if (visual.errored) {
 			backgroundColor = colors.errorSoft
@@ -134,7 +149,7 @@ function createStyles(
 			width: size,
 			height: size,
 			borderRadius: Math.max(4, Math.floor(size * 0.16)),
-			borderWidth: isBlank ? 1.5 : 0,
+			borderWidth,
 			borderColor,
 			backgroundColor,
 			alignItems: 'center',

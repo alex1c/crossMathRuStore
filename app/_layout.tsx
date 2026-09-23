@@ -67,7 +67,11 @@ function RootNavigator() {
 				/>
 				<Stack.Screen name="stats" options={{ title: 'Статистика' }} />
 				<Stack.Screen name="settings" options={{ title: 'Настройки' }} />
-				<Stack.Screen name="onboarding" options={{ title: 'Обучение' }} />
+				<Stack.Screen name="about" options={{ title: 'О приложении' }} />
+				<Stack.Screen
+					name="onboarding"
+					options={{ title: 'Обучение', headerShown: false }}
+				/>
 				<Stack.Screen name="+not-found" options={{ title: 'Не найдено' }} />
 			</Stack>
 		</>

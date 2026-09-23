@@ -1,18 +1,39 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
-import { useAppProgress } from '@/src/features/progress'
+import {
+	getNextCampaignLevel,
+	useAppProgress,
+} from '@/src/features/progress'
 import { getGameSourceTitle } from '@/src/features/game'
 import { useTheme } from '@/src/theme'
+import { useEffect } from 'react'
 
 /**
- * Home — real progress-aware entry points for Phase 4.
+ * Home — progress-aware entry with first-launch onboarding gate.
  */
 export function HomeScreen() {
 	const theme = useTheme()
 	const progress = useAppProgress()
 
+	useEffect(() => {
+		if (
+			progress.ready &&
+			!progress.state.settings.onboardingCompleted
+		) {
+			router.replace('/onboarding')
+		}
+	}, [progress.ready, progress.state.settings.onboardingCompleted])
+
 	if (!progress.ready) {
+		return (
+			<View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
+				<ActivityIndicator color={theme.colors.primary} />
+			</View>
+		)
+	}
+
+	if (!progress.state.settings.onboardingCompleted) {
 		return (
 			<View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
 				<ActivityIndicator color={theme.colors.primary} />
@@ -24,6 +45,10 @@ export function HomeScreen() {
 	const active = state.activeSession
 	const todayDone = Boolean(state.daily.completions[todayKey])
 	const campaignSolved = state.campaign.completedLevels.length
+	const nextLevel = getNextCampaignLevel(
+		state.campaign.highestUnlockedLevel,
+		state.campaign.completedLevels,
+	)
 
 	return (
 		<Screen
@@ -56,7 +81,7 @@ export function HomeScreen() {
 			/>
 
 			<HomeMenuButton
-				label={`Уровни\n${campaignSolved} / 250`}
+				label={`Уровни\n${campaignSolved} / 250 · далее ${nextLevel}`}
 				onPress={() => router.push('/levels')}
 			/>
 
@@ -74,12 +99,6 @@ export function HomeScreen() {
 			/>
 
 			<HomeMenuButton
-				label="Таблица умножения"
-				secondary
-				onPress={() => router.push('/multiplication-table')}
-			/>
-
-			<HomeMenuButton
 				label="Статистика"
 				secondary
 				onPress={() => router.push('/stats')}
@@ -89,6 +108,12 @@ export function HomeScreen() {
 				label="Настройки"
 				secondary
 				onPress={() => router.push('/settings')}
+			/>
+
+			<HomeMenuButton
+				label="О приложении"
+				secondary
+				onPress={() => router.push('/about')}
 			/>
 		</Screen>
 	)

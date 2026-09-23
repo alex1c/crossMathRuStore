@@ -37,12 +37,13 @@ export type GameState = {
 	readonly history: readonly UndoEntry[]
 	readonly mistakes: number
 	readonly hintsUsed: number
+	/** Coordinate keys revealed via hint (visual distinction). */
+	readonly hintedKeys: Readonly<Record<string, true>>
 	readonly startedAt: number
 	readonly completedAt: number | null
 	readonly status: GameStatus
 	/**
-	 * Future Settings: "Показывать ошибки сразу".
-	 * Phase 3 defaults to ON without persistence.
+	 * Settings: "Показывать ошибки сразу".
 	 */
 	readonly showErrorsImmediately: boolean
 	readonly source: GameSource
@@ -71,6 +72,7 @@ export type CreateGameStateInput = {
 	readonly selected?: CellCoordinate | null
 	readonly mistakes?: number
 	readonly hintsUsed?: number
+	readonly hintedKeys?: Readonly<Record<string, true>>
 }
 
 /**
@@ -96,6 +98,7 @@ export function createGameState(input: CreateGameStateInput): GameState {
 		history: [],
 		mistakes: input.mistakes ?? 0,
 		hintsUsed: input.hintsUsed ?? 0,
+		hintedKeys: input.hintedKeys ?? {},
 		startedAt: input.startedAt ?? Date.now(),
 		completedAt: null,
 		status: 'playing',
@@ -224,34 +227,58 @@ function undoLast(state: GameState): GameState {
 }
 
 function applyHint(state: GameState, now: number): GameState {
-	if (!state.selected || state.status === 'completed') {
+	if (state.status === 'completed') {
 		return state
 	}
-	const key = coordinateKey(state.selected)
+	// Prefer selected blank; otherwise first empty blank; else first blank.
+	let target = state.selected
+	if (!target || !isBlankCoordinate(state.puzzle, target)) {
+		target = findHintTarget(state)
+	}
+	if (!target) {
+		return state
+	}
+	const key = coordinateKey(target)
 	const correct = state.solutionByKey[key]
 	if (correct === undefined) {
 		return state
 	}
 	const previous = state.entries[key] ?? null
 	if (previous === correct) {
-		return { ...state, draft: '' }
+		return { ...state, selected: target, draft: '' }
 	}
 	const next: GameState = {
 		...state,
+		selected: target,
 		draft: '',
 		entries: { ...state.entries, [key]: correct },
 		hintsUsed: state.hintsUsed + 1,
+		hintedKeys: { ...state.hintedKeys, [key]: true },
 		history: [
 			...state.history,
 			{
-				coordinate: state.selected,
+				coordinate: target,
 				previousValue: previous,
 				nextValue: correct,
 			},
 		],
 	}
-	const advanced = advanceAfterCommit(next, state.selected)
+	const advanced = advanceAfterCommit(next, target)
 	return maybeComplete(advanced, now)
+}
+
+function isBlankCoordinate(puzzle: Puzzle, coordinate: CellCoordinate): boolean {
+	const cell = getCell(puzzle, coordinate)
+	return !!cell && cell.kind === 'number' && cell.state === 'blank'
+}
+
+function findHintTarget(state: GameState): CellCoordinate | null {
+	const blanks = listBlankCells(state.puzzle)
+	const empty = blanks.find((cell) => {
+		const value = state.entries[coordinateKey(cell.coordinate)]
+		return value === null || value === undefined
+	})
+	return empty?.coordinate ?? blanks[0]?.coordinate ?? null
 }
 
 function commitDraftIfNeeded(state: GameState): GameState {
@@ -362,6 +389,16 @@ export function getBlankDisplayValue(
 }
 
 /**
+ * Whether a blank was filled via hint (distinct visual).
+ */
+export function isBlankHinted(
+	state: GameState,
+	coordinate: CellCoordinate,
+): boolean {
+	return state.hintedKeys[coordinateKey(coordinate)] === true
+}
+
+/**
  * Whether a blank should show the error style (wrong committed value).
  */
 export function isBlankShowingError(
@@ -369,6 +406,9 @@ export function isBlankShowingError(
 	coordinate: CellCoordinate,
 ): boolean {
 	if (!state.showErrorsImmediately) {
+		return false
+	}
+	if (isBlankHinted(state, coordinate)) {
 		return false
 	}
 	const key = coordinateKey(coordinate)

@@ -4,6 +4,7 @@ import { BannerSlot, Screen } from '@/src/components'
 import {
 	CAMPAIGN_TOTAL_LEVELS,
 	getCampaignLevelStatus,
+	getNextCampaignLevel,
 	useAppProgress,
 } from '@/src/features/progress'
 import { getCampaignTierLabel } from '@/src/features/game'
@@ -18,17 +19,21 @@ const TIERS = [
 ] as const
 
 /**
- * Campaign 1–250 compact grid with lock / unlock / completed states.
+ * Campaign 1–250 compact grid with lock / unlock / completed / current states.
  */
 export function LevelsScreen() {
 	const theme = useTheme()
 	const progress = useAppProgress()
 	const { highestUnlockedLevel, completedLevels } = progress.state.campaign
+	const nextLevel = getNextCampaignLevel(
+		highestUnlockedLevel,
+		completedLevels,
+	)
 
 	return (
 		<Screen
 			title="Уровни"
-			subtitle={`${completedLevels.length} / ${CAMPAIGN_TOTAL_LEVELS}`}
+			subtitle={`${completedLevels.length} / ${CAMPAIGN_TOTAL_LEVELS} · далее ${nextLevel}`}
 			scroll
 			footer={<BannerSlot placement="levels" />}
 		>
@@ -54,12 +59,17 @@ export function LevelsScreen() {
 								completedLevels,
 							)
 							const locked = status === 'locked'
+							const isCurrent = level === nextLevel
 							return (
 								<Pressable
 									key={level}
 									disabled={locked}
 									accessibilityRole="button"
-									accessibilityLabel={`Уровень ${level}`}
+									accessibilityLabel={
+										isCurrent
+											? `Уровень ${level}, следующий`
+											: `Уровень ${level}`
+									}
 									onPress={() => {
 										router.push({
 											pathname: '/game',
@@ -74,12 +84,17 @@ export function LevelsScreen() {
 										{
 											backgroundColor:
 												status === 'completed'
-													? theme.colors.selectedCell
-													: theme.colors.surface,
+													? theme.colors.hintedCell
+													: isCurrent
+														? theme.colors.selectedCell
+														: theme.colors.surface,
 											borderColor:
 												status === 'completed'
 													? theme.colors.success
-													: theme.colors.border,
+													: isCurrent
+														? theme.colors.primary
+														: theme.colors.border,
+											borderWidth: isCurrent ? 2 : 1,
 											opacity: locked
 												? 0.35
 												: pressed
@@ -92,6 +107,7 @@ export function LevelsScreen() {
 										style={{
 											color: theme.colors.text,
 											...theme.typography.label,
+											fontWeight: isCurrent ? '700' : '600',
 										}}
 									>
 										{level}
@@ -180,7 +196,6 @@ const styles = StyleSheet.create({
 	cell: {
 		width: '18%',
 		minHeight: 40,
-		borderWidth: 1,
 		borderRadius: 8,
 		alignItems: 'center',
 		justifyContent: 'center',

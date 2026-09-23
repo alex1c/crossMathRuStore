@@ -43,7 +43,7 @@ export function DailyScreen() {
 			title="Сегодняшний кроссворд"
 			subtitle={
 				streakCurrent > 0
-					? `🔥 ${streakCurrent} дней подряд`
+					? `${todayKey} · 🔥 ${streakCurrent} дней подряд`
 					: todayKey
 			}
 			scroll

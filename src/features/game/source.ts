@@ -7,6 +7,7 @@ export type GameSourceKind =
 	| 'daily'
 	| 'endless'
 	| 'dev-fixture'
+	| 'tutorial'
 
 export type CampaignGameSource = {
 	readonly kind: 'campaign'
@@ -28,11 +29,16 @@ export type DevFixtureGameSource = {
 	readonly id: 'multi-digit'
 }
 
+export type TutorialGameSource = {
+	readonly kind: 'tutorial'
+}
+
 export type GameSource =
 	| CampaignGameSource
 	| DailyGameSource
 	| EndlessGameSource
 	| DevFixtureGameSource
+	| TutorialGameSource
 
 /** Russian display labels for campaign 1..250 tier bands (50 levels each). */
 const CAMPAIGN_TIER_LABELS = [
@@ -70,6 +76,8 @@ export function getGameSourceTitle(source: GameSource): string {
 			return 'Бесконечная игра'
 		case 'dev-fixture':
 			return 'DEV multi-digit fixture'
+		case 'tutorial':
+			return 'Обучение'
 	}
 }
 
@@ -86,5 +94,7 @@ export function getGameSourceSubtitle(source: GameSource): string {
 			return `Решено подряд: ${source.completedCount}`
 		case 'dev-fixture':
 			return 'DEV-only: 12 + 6 = 18'
+		case 'tutorial':
+			return 'Мини-кроссворд'
 	}
 }

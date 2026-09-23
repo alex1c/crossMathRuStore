@@ -6,18 +6,24 @@ import {
 	Text,
 	TextInput,
 	View,
+	Linking,
 } from 'react-native'
-import { Screen } from '@/src/components'
+import { router } from 'expo-router'
+import { BannerSlot, Screen } from '@/src/components'
 import {
 	formatReminderTime,
 	parseReminderTime,
 	useAppProgress,
 } from '@/src/features/progress'
 import { DEFAULT_REMINDER_MINUTES } from '@/src/services/persistence'
+import {
+	OTHER_OUR_APPS_LABEL,
+	OTHER_OUR_APPS_URL,
+} from '@/src/constants/otherApps'
 import { useTheme } from '@/src/theme'
 
 /**
- * Settings: show-errors toggle + Daily reminder controls.
+ * Settings: gameplay toggles, Daily reminder, tutorial replay, About links.
  */
 export function SettingsScreen() {
 	const theme = useTheme()
@@ -29,7 +35,12 @@ export function SettingsScreen() {
 	const [timeError, setTimeError] = useState<string | null>(null)
 
 	return (
-		<Screen title="Настройки" subtitle="Игра и напоминание" scroll>
+		<Screen
+			title="Настройки"
+			subtitle="Игра и напоминание"
+			scroll
+			footer={<BannerSlot placement="reminder" />}
+		>
 			<Text
 				style={[
 					styles.section,
@@ -173,6 +184,76 @@ export function SettingsScreen() {
 					</Text>
 				</Pressable>
 			) : null}
+
+			<Text
+				style={[
+					styles.section,
+					{
+						color: theme.colors.text,
+						...theme.typography.subtitle,
+						marginTop: 24,
+					},
+				]}
+			>
+				Обучение и справка
+			</Text>
+			<Pressable
+				accessibilityRole="button"
+				accessibilityLabel="Пройти обучение ещё раз"
+				onPress={() =>
+					router.push({
+						pathname: '/onboarding',
+						params: { replay: '1' },
+					})
+				}
+				style={({ pressed }) => [
+					styles.linkRow,
+					{
+						borderColor: theme.colors.border,
+						opacity: pressed ? 0.85 : 1,
+					},
+				]}
+			>
+				<Text style={{ color: theme.colors.primary, ...theme.typography.bodyStrong }}>
+					Пройти обучение ещё раз
+				</Text>
+			</Pressable>
+			<Pressable
+				accessibilityRole="button"
+				accessibilityLabel="О приложении"
+				onPress={() => router.push('/about')}
+				style={({ pressed }) => [
+					styles.linkRow,
+					{
+						borderColor: theme.colors.border,
+						opacity: pressed ? 0.85 : 1,
+						marginTop: 10,
+					},
+				]}
+			>
+				<Text style={{ color: theme.colors.text, ...theme.typography.bodyStrong }}>
+					О приложении
+				</Text>
+			</Pressable>
+			<Pressable
+				accessibilityRole="link"
+				accessibilityLabel={OTHER_OUR_APPS_LABEL}
+				onPress={() => {
+					void Linking.openURL(OTHER_OUR_APPS_URL)
+				}}
+				style={({ pressed }) => [
+					styles.linkRow,
+					{
+						borderColor: theme.colors.border,
+						opacity: pressed ? 0.85 : 1,
+						marginTop: 10,
+					},
+				]}
+			>
+				<Text style={{ color: theme.colors.primary, ...theme.typography.bodyStrong }}>
+					{OTHER_OUR_APPS_LABEL}
+				</Text>
+			</Pressable>
 		</Screen>
 	)
 }
@@ -201,5 +282,12 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		paddingVertical: 12,
 		alignItems: 'center',
+	},
+	linkRow: {
+		borderWidth: 1,
+		borderRadius: 10,
+		paddingVertical: 12,
+		paddingHorizontal: 12,
+		backgroundColor: 'transparent',
 	},
 })

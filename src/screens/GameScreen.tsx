@@ -25,6 +25,7 @@ import {
 	createSessionFromPersisted,
 	createSessionFromSource,
 	formatElapsed,
+	buildCompletionPresentation,
 	GAME_BANNER_RESERVED_HEIGHT,
 	gameReducer,
 	getFillProgress,
@@ -40,6 +41,11 @@ import {
 	useAppProgress,
 	type ActiveTimerState,
 } from '@/src/features/progress'
+import {
+	hapticEntry,
+	hapticError,
+	hapticSelection,
+} from '@/src/features/feedback'
 import { useTheme } from '@/src/theme'
 import type { PersistedActiveSession, PersistedGameSource } from '@/src/services/persistence'
 
@@ -315,12 +321,12 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		router.replace('/')
 	}, [source, progressState.endless.completedCount])
 
-	const nextLabel =
-		source.kind === 'endless'
-			? 'Следующая задача'
-			: source.kind === 'campaign' && source.level < 250
-				? 'Следующий уровень'
-				: undefined
+	const nextPresentation = buildCompletionPresentation({
+		source,
+		endlessCompletedCount: progressState.endless.completedCount,
+		dailyStreak: progress.streakCurrent,
+		campaignLevel: source.kind === 'campaign' ? source.level : undefined,
+	})
 
 	return (
 		<SafeAreaView
@@ -374,6 +380,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 							availableWidth={vertical.boardAreaWidth}
 							availableHeight={vertical.boardAreaHeight}
 							onSelectCell={(coordinate) => {
+								hapticSelection()
 								dispatch({ type: 'SELECT_CELL', coordinate })
 							}}
 						/>
@@ -382,16 +389,15 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 					{state.status === 'completed' ? (
 						<View style={{ maxHeight: vertical.completionMaxHeight }}>
 							<CompletionCard
-									title={
-										source.kind === 'endless'
-										? `Решено подряд: ${progressState.endless.completedCount}`
-										: state.title
-								}
+								title={state.title}
+								detail={nextPresentation.detail}
 								elapsedMs={elapsedMs}
 								mistakes={state.mistakes}
 								hintsUsed={state.hintsUsed}
-								onNextLevel={nextLabel ? handleNext : undefined}
-								nextLabel={nextLabel}
+								onNextLevel={
+									nextPresentation.showNext ? handleNext : undefined
+								}
+								nextLabel={nextPresentation.nextLabel ?? undefined}
 								onHome={() => {
 									router.replace('/')
 								}}
@@ -413,16 +419,31 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 								rowGap={vertical.controls.rowGap}
 								onUndo={() => dispatch({ type: 'UNDO' })}
 								onDelete={() => dispatch({ type: 'DELETE' })}
-								onHint={() => dispatch({ type: 'HINT' })}
+								onHint={() => {
+									hapticEntry()
+									dispatch({ type: 'HINT' })
+								}}
 							/>
 							<NumberPad
 								touchHeight={vertical.controls.touchHeight}
 								rowGap={vertical.controls.rowGap}
-								onDigit={(digit) =>
+								onDigit={(digit) => {
+									hapticSelection()
 									dispatch({ type: 'DIGIT', digit })
-								}
+								}}
 								onDelete={() => dispatch({ type: 'DELETE' })}
-								onConfirm={() => dispatch({ type: 'CONFIRM' })}
+								onConfirm={() => {
+									const beforeMistakes = stateRef.current.mistakes
+									dispatch({ type: 'CONFIRM' })
+									setTimeout(() => {
+										const after = stateRef.current
+										if (after.mistakes > beforeMistakes) {
+											hapticError()
+										} else {
+											hapticEntry()
+										}
+									}, 0)
+								}}
 							/>
 						</View>
 					)}

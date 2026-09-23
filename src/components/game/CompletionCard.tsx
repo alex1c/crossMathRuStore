@@ -1,9 +1,12 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useEffect, useRef } from 'react'
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '@/src/theme'
 import { formatElapsed } from '@/src/features/game'
+import { hapticSuccess } from '@/src/features/feedback'
 
 type CompletionCardProps = {
 	readonly title: string
+	readonly detail?: string
 	readonly elapsedMs: number
 	readonly mistakes: number
 	readonly hintsUsed: number
@@ -13,10 +16,11 @@ type CompletionCardProps = {
 }
 
 /**
- * Lightweight completion summary — no ads / rewards in Phase 3.
+ * Lightweight completion summary with a small scale/fade celebration.
  */
 export function CompletionCard({
 	title,
+	detail,
 	elapsedMs,
 	mistakes,
 	hintsUsed,
@@ -25,14 +29,35 @@ export function CompletionCard({
 	nextLabel = 'Следующий уровень',
 }: CompletionCardProps) {
 	const theme = useTheme()
+	const scale = useRef(new Animated.Value(0.92)).current
+	const opacity = useRef(new Animated.Value(0)).current
+
+	useEffect(() => {
+		hapticSuccess()
+		Animated.parallel([
+			Animated.timing(opacity, {
+				toValue: 1,
+				duration: 220,
+				useNativeDriver: true,
+			}),
+			Animated.spring(scale, {
+				toValue: 1,
+				friction: 7,
+				tension: 80,
+				useNativeDriver: true,
+			}),
+		]).start()
+	}, [opacity, scale])
 
 	return (
-		<View
+		<Animated.View
 			style={[
 				styles.card,
 				{
 					backgroundColor: theme.colors.surface,
 					borderColor: theme.colors.border,
+					opacity,
+					transform: [{ scale }],
 				},
 			]}
 		>
@@ -53,7 +78,7 @@ export function CompletionCard({
 					},
 				]}
 			>
-				{title} решён
+				{detail ?? `${title} решён`}
 			</Text>
 
 			<View style={styles.stats}>
@@ -109,7 +134,7 @@ export function CompletionCard({
 					На главную
 				</Text>
 			</Pressable>
-		</View>
+		</Animated.View>
 	)
 
 	function Stat({ label, value }: { label: string; value: string }) {

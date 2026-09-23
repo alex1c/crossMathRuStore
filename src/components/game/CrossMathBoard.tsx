@@ -10,6 +10,7 @@ import {
 	computeOccupiedBoardLayout,
 	findRelatedCoordinates,
 	getBlankDisplayValue,
+	isBlankHinted,
 	isBlankShowingError,
 	toLogicalCoordinate,
 	type GameState,
@@ -21,6 +22,10 @@ type CrossMathBoardProps = {
 	readonly availableWidth: number
 	readonly availableHeight: number
 	readonly onSelectCell: (coordinate: CellCoordinate) => void
+	/** Optional coach-mark blank during interactive onboarding. */
+	readonly coachCoordinate?: CellCoordinate | null
+	/** Force related-equation highlight even without selection (tutorial). */
+	readonly forceRelated?: boolean
 }
 
 /**
@@ -32,6 +37,8 @@ export function CrossMathBoard({
 	availableWidth,
 	availableHeight,
 	onSelectCell,
+	coachCoordinate = null,
+	forceRelated = false,
 }: CrossMathBoardProps) {
 	const { puzzle } = state
 	const layout = useMemo(
@@ -46,9 +53,11 @@ export function CrossMathBoard({
 	)
 
 	const cellMap = useMemo(() => buildCellMap(puzzle), [puzzle])
+	const relatedFocus =
+		state.selected ?? (forceRelated ? coachCoordinate : null)
 	const related = useMemo(
-		() => findRelatedCoordinates(puzzle, state.selected),
-		[puzzle, state.selected],
+		() => findRelatedCoordinates(puzzle, relatedFocus),
+		[puzzle, relatedFocus],
 	)
 
 	const rows: BoardCellVisual[][] = []
@@ -80,6 +89,9 @@ export function CrossMathBoard({
 				cell.kind === 'number' &&
 				cell.state === 'blank' &&
 				state.status === 'playing'
+			const coachHighlight =
+				!!coachCoordinate &&
+				coordinatesEqual(coachCoordinate, logical)
 			line.push({
 				kind: 'present',
 				cell,
@@ -90,11 +102,17 @@ export function CrossMathBoard({
 					cell.kind === 'number' &&
 					cell.state === 'blank' &&
 					isBlankShowingError(state, logical),
+				hinted:
+					cell.kind === 'number' &&
+					cell.state === 'blank' &&
+					isBlankHinted(state, logical),
+				coachHighlight,
 				interactive,
 				accessibilityLabel: buildAccessibilityLabel(
 					cell,
 					blankText,
 					selected,
+					isBlankHinted(state, logical),
 				),
 			})
 		}
@@ -154,6 +172,7 @@ function buildAccessibilityLabel(
 	cell: CrossMathCell,
 	blankText: string,
 	selected: boolean,
+	hinted: boolean,
 ): string {
 	if (cell.kind === 'operator') {
 		return `Оператор ${cellGlyph(cell, '')}`
@@ -163,6 +182,11 @@ function buildAccessibilityLabel(
 	}
 	if (cell.state === 'fixed') {
 		return `Число ${cell.value}`
+	}
+	if (hinted) {
+		return selected
+			? `Подсказка ${blankText}, выбрана`
+			: `Подсказка ${blankText}`
 	}
 	if (blankText === '') {
 		return selected ? 'Пустая клетка, выбрана' : 'Пустая клетка'

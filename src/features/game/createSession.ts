@@ -54,6 +54,9 @@ export function createSessionFromSource(
 			showErrorsImmediately: options.showErrorsImmediately,
 		})
 	}
+	if (source.kind === 'tutorial') {
+		throw new Error('tutorial sessions are created by OnboardingScreen')
+	}
 	const profiled = generateEndlessPuzzle({
 		completed: source.completedCount,
 		streak: 0,

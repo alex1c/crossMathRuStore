@@ -108,5 +108,8 @@ function getGameSourceKey(source: GameSource): string {
 	if (source.kind === 'endless') {
 		return `endless-${source.completedCount}`
 	}
+	if (source.kind === 'tutorial') {
+		return 'tutorial'
+	}
 	return `dev-${source.id}`
 }
