@@ -59,6 +59,14 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const { width: windowWidth, height: windowHeight } = useWindowDimensions()
 	const bottomPad = insets.bottom + 8
 	const progress = useAppProgress()
+	const {
+		state: progressState,
+		saveActiveSession,
+		markCampaignPlayed,
+		completeCampaignLevel,
+		completeDaily,
+		completeEndless,
+	} = progress
 
 	const initial = useMemo(() => {
 		const showErrors = progress.state.settings.showErrorsImmediately
@@ -170,9 +178,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		}
 		saveTimerRef.current = setTimeout(() => {
 			const session = buildPersistedSession(stateRef.current, timerRef.current)
-			void progress.saveActiveSession(session)
+			void saveActiveSession(session)
 		}, 250)
-	}, [buildPersistedSession, progress])
+	}, [buildPersistedSession, saveActiveSession])
 
 	useEffect(() => {
 		if (state.status === 'playing') {
@@ -182,9 +190,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 
 	useEffect(() => {
 		if (source.kind === 'campaign') {
-			void progress.markCampaignPlayed(source.level)
+			void markCampaignPlayed(source.level)
 		}
-	}, [source, progress])
+	}, [source, markCampaignPlayed])
 
 	const fill = getFillProgress(state)
 	const elapsedMs =
@@ -224,10 +232,10 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		setTimer(frozen)
 		const elapsed = getActiveElapsedMs(frozen)
 		const game = stateRef.current
-		await progress.saveActiveSession(null)
+		await saveActiveSession(null)
 		try {
 			if (game.source.kind === 'campaign') {
-				await progress.completeCampaignLevel({
+				await completeCampaignLevel({
 					level: game.source.level,
 					elapsedMs: elapsed,
 					mistakes: game.mistakes,
@@ -235,7 +243,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 					completedAt: Date.now(),
 				})
 			} else if (game.source.kind === 'daily') {
-				await progress.completeDaily({
+				await completeDaily({
 					dateKey: game.source.dateKey,
 					elapsedMs: elapsed,
 					mistakes: game.mistakes,
@@ -243,7 +251,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 					completedAt: Date.now(),
 				})
 			} else if (game.source.kind === 'endless') {
-				await progress.completeEndless({
+				await completeEndless({
 					elapsedMs: elapsed,
 					mistakes: game.mistakes,
 					hintsUsed: game.hintsUsed,
@@ -252,7 +260,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		} catch {
 			// Persistence errors must not crash the completion UI.
 		}
-	}, [progress])
+	}, [completeCampaignLevel, completeDaily, completeEndless, saveActiveSession])
 
 	const completedOnceRef = useRef(false)
 
@@ -272,7 +280,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			return
 		}
 		if (source.kind === 'endless') {
-			const nextCount = progress.state.endless.completedCount
+			const nextCount = progressState.endless.completedCount
 			router.replace({
 				pathname: '/game',
 				params: {
@@ -283,7 +291,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			return
 		}
 		router.replace('/')
-	}, [source, progress.state.endless.completedCount])
+	}, [source, progressState.endless.completedCount])
 
 	const nextLabel =
 		source.kind === 'endless'
@@ -352,9 +360,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 					{state.status === 'completed' ? (
 						<View style={{ maxHeight: vertical.completionMaxHeight }}>
 							<CompletionCard
-								title={
-									source.kind === 'endless'
-										? `Решено подряд: ${progress.state.endless.completedCount}`
+									title={
+										source.kind === 'endless'
+										? `Решено подряд: ${progressState.endless.completedCount}`
 										: state.title
 								}
 								elapsedMs={elapsedMs}
