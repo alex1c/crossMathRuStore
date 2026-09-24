@@ -12,6 +12,7 @@ export {
 	getCampaignTierLabel,
 	getGameSourceTitle,
 	getGameSourceSubtitle,
+	getGameSourceIdentity,
 } from './source'
 
 export {
@@ -21,8 +22,9 @@ export {
 	toVisualCoordinate,
 	toLogicalCoordinate,
 	DEFAULT_BOARD_SIZING,
+	getCellGlyphFontSize,
 } from './boardLayout'
-export type { BoardLayout, BoardLayoutInput, OccupiedBounds } from './boardLayout'
+export type { BoardLayout, BoardLayoutInput, OccupiedBounds, CellGlyphKind } from './boardLayout'
 
 export {
 	computeGameVerticalLayout,

@@ -43,6 +43,7 @@ export function NumberBankPad({
 						styles.chip,
 						{
 							minHeight: touchHeight,
+							minWidth: 60,
 							backgroundColor: theme.colors.surface,
 							borderColor: theme.colors.border,
 							opacity: disabled ? 0.45 : pressed ? 0.82 : 1,
@@ -51,8 +52,10 @@ export function NumberBankPad({
 				>
 					<Text
 						style={{
-							color: theme.colors.userNumber,
-							...theme.typography.bodyStrong,
+						color: theme.colors.userNumber,
+						...theme.typography.bodyStrong,
+						fontSize: 18,
+						lineHeight: 22,
 						}}
 					>
 						{item.value}
@@ -72,10 +75,10 @@ const styles = StyleSheet.create({
 	chip: {
 		borderWidth: 1,
 		borderRadius: 10,
-		paddingHorizontal: 14,
+		paddingHorizontal: 12,
 		paddingVertical: 8,
 		alignItems: 'center',
 		justifyContent: 'center',
-		minWidth: 52,
+		minWidth: 60,
 	},
 })

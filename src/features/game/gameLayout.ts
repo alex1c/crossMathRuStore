@@ -16,6 +16,8 @@ export type ControlMetrics = {
 
 export type GameVerticalLayoutInput = {
 	readonly availableWidth: number
+	/** Width reserved for wrapped controls when the board can extend edge-to-edge. */
+	readonly controlAreaWidth?: number
 	readonly availableHeight: number
 	readonly headerHeight: number
 	readonly sectionGap?: number
@@ -81,8 +83,14 @@ export function computeBankControlsHeight(
 	rowGap: number,
 	bankItemCount: number,
 	sectionGap: number = rowGap,
+	availableWidth: number = 360,
 ): number {
-	const chipsPerRow = 4
+	const chipWidth = 60
+	const chipGap = 8
+	const chipsPerRow = Math.max(
+		1,
+		Math.floor((availableWidth + chipGap) / (chipWidth + chipGap)),
+	)
 	const bankRows = Math.max(1, Math.ceil(Math.max(1, bankItemCount) / chipsPerRow))
 	const gaps = sectionGap + Math.max(0, bankRows - 1) * rowGap
 	return (ACTION_ROWS + bankRows) * touchHeight + gaps
@@ -93,6 +101,7 @@ function buildControlMetrics(
 	rowGap: number,
 	inputMode: 'keypad' | 'bank',
 	bankItemCount: number,
+	availableWidth: number,
 ): ControlMetrics {
 	const sectionGap = rowGap
 	const totalHeight =
@@ -102,6 +111,7 @@ function buildControlMetrics(
 					rowGap,
 					bankItemCount,
 					sectionGap,
+					availableWidth,
 				)
 			: computeControlsHeight(touchHeight, rowGap, sectionGap)
 	return {
@@ -128,6 +138,10 @@ export function computeGameVerticalLayout(
 	const bannerGap = bannerReservedHeight > 0 ? (input.bannerGap ?? 8) : 0
 	const headerHeight = Math.max(0, Math.ceil(input.headerHeight))
 	const boardAreaWidth = Math.max(0, Math.floor(input.availableWidth))
+	const controlAreaWidth = Math.max(
+		0,
+		Math.floor(input.controlAreaWidth ?? boardAreaWidth),
+	)
 	const availableHeight = Math.max(0, Math.floor(input.availableHeight))
 
 	const bannerBlock = bannerReservedHeight + bannerGap
@@ -135,9 +149,17 @@ export function computeGameVerticalLayout(
 	const fixedSansControls = headerHeight + gapsAroundBoard + bannerBlock
 
 	const candidates: { touch: number; gap: number }[] = [
-		{ touch: CONTROL_TOUCH.comfortable, gap: CONTROL_ROW_GAP.comfortable },
-		{ touch: CONTROL_TOUCH.compact, gap: CONTROL_ROW_GAP.compact },
-		{ touch: CONTROL_TOUCH.minimum, gap: CONTROL_ROW_GAP.minimum },
+		...(inputMode === 'bank'
+			? [
+					{ touch: 56, gap: CONTROL_ROW_GAP.comfortable },
+					{ touch: 52, gap: CONTROL_ROW_GAP.compact },
+					{ touch: CONTROL_TOUCH.comfortable, gap: CONTROL_ROW_GAP.minimum },
+				]
+			: [
+					{ touch: CONTROL_TOUCH.comfortable, gap: CONTROL_ROW_GAP.comfortable },
+					{ touch: CONTROL_TOUCH.compact, gap: CONTROL_ROW_GAP.compact },
+					{ touch: CONTROL_TOUCH.minimum, gap: CONTROL_ROW_GAP.minimum },
+			]),
 	]
 
 	const minBoard = 120
@@ -148,6 +170,7 @@ export function computeGameVerticalLayout(
 		CONTROL_ROW_GAP.minimum,
 		inputMode,
 		bankItemCount,
+		controlAreaWidth,
 	)
 	let boardAreaHeight = 0
 	let fallback: GameVerticalLayout['fallback'] = 'none'
@@ -158,6 +181,7 @@ export function computeGameVerticalLayout(
 			candidate.gap,
 			inputMode,
 			bankItemCount,
+			controlAreaWidth,
 		)
 		const remaining =
 			availableHeight - fixedSansControls - controls.totalHeight
@@ -181,6 +205,7 @@ export function computeGameVerticalLayout(
 			CONTROL_ROW_GAP.minimum,
 			inputMode,
 			bankItemCount,
+			controlAreaWidth,
 		)
 		boardAreaHeight = Math.max(
 			absoluteMinBoard,

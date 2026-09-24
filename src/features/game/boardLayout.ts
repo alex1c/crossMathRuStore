@@ -18,6 +18,10 @@ export type OccupiedBounds = {
 	readonly visualRows: number
 	/** Inclusive occupied column count used for visual sizing. */
 	readonly visualColumns: number
+	/** Logical row indices in their original order, with empty rows compacted. */
+	readonly rowCoordinates: readonly number[]
+	/** Logical column indices in their original order, with empty columns compacted. */
+	readonly columnCoordinates: readonly number[]
 }
 
 export type BoardLayoutInput = {
@@ -52,6 +56,8 @@ export function getOccupiedBounds(puzzle: PlayablePuzzle): OccupiedBounds {
 			maxColumn: 0,
 			visualRows: 1,
 			visualColumns: 1,
+			rowCoordinates: [0],
+			columnCoordinates: [0],
 		}
 	}
 
@@ -66,13 +72,19 @@ export function getOccupiedBounds(puzzle: PlayablePuzzle): OccupiedBounds {
 		maxColumn = Math.max(maxColumn, cell.coordinate.column)
 	}
 
+	const rowCoordinates = [...new Set(cells.map((cell) => cell.coordinate.row))]
+		.sort((a, b) => a - b)
+	const columnCoordinates = [...new Set(cells.map((cell) => cell.coordinate.column))]
+		.sort((a, b) => a - b)
 	return {
 		minRow,
 		maxRow,
 		minColumn,
 		maxColumn,
-		visualRows: maxRow - minRow + 1,
-		visualColumns: maxColumn - minColumn + 1,
+		visualRows: rowCoordinates.length,
+		visualColumns: columnCoordinates.length,
+		rowCoordinates,
+		columnCoordinates,
 	}
 }
 
@@ -84,8 +96,8 @@ export function toVisualCoordinate(
 	bounds: OccupiedBounds,
 ): CellCoordinate {
 	return {
-		row: logical.row - bounds.minRow,
-		column: logical.column - bounds.minColumn,
+		row: bounds.rowCoordinates.indexOf(logical.row),
+		column: bounds.columnCoordinates.indexOf(logical.column),
 	}
 }
 
@@ -97,8 +109,10 @@ export function toLogicalCoordinate(
 	bounds: OccupiedBounds,
 ): CellCoordinate {
 	return {
-		row: visual.row + bounds.minRow,
-		column: visual.column + bounds.minColumn,
+		row: bounds.rowCoordinates[visual.row] ?? bounds.minRow + visual.row,
+		column:
+			bounds.columnCoordinates[visual.column] ??
+			bounds.minColumn + visual.column,
 	}
 }
 
@@ -138,7 +152,9 @@ export function computeBoardLayout(input: BoardLayoutInput): BoardLayout {
 	const byWidth = (availableWidth - widthGaps) / columns
 	const byHeight = (availableHeight - heightGaps) / rows
 	const raw = Math.min(byWidth, byHeight, maxCellSize)
-	const cellSize = Math.max(minCellSize, Math.floor(raw))
+	// minCellSize is a preferred target, not permission to overflow and clip a
+	// dense board. Preserve the full board inside its measured area.
+	const cellSize = Math.max(1, Math.floor(raw))
 
 	return {
 		cellSize,
@@ -177,8 +193,20 @@ export function computeOccupiedBoardLayout(
 
 /** Default Phase 3.1 sizing knobs for CrossMath boards. */
 export const DEFAULT_BOARD_SIZING = {
-	gap: 2,
+	gap: 1,
 	minCellSize: 24,
 	/** Caps Easy so a tiny sparse puzzle does not become huge. */
 	maxCellSize: 56,
 } as const
+
+export type CellGlyphKind = 'number' | 'operator' | 'equals'
+
+/** Readable type scale that stays legible in dense cells without auto-shrinking. */
+export function getCellGlyphFontSize(
+	cellSize: number,
+	kind: CellGlyphKind,
+): number {
+	const factor = kind === 'operator' ? 0.54 : 0.5
+	const readableFloor = cellSize >= 22 ? 14 : 12
+	return Math.min(24, Math.max(readableFloor, Math.floor(cellSize * factor)))
+}

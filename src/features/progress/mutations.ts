@@ -177,6 +177,9 @@ export function withLastPlayedTrackLevel(
 	track: DifficultyTrack,
 	level: number,
 ): PersistedAppState {
+	if (state.tracks[track].lastPlayedLevel === level) {
+		return state
+	}
 	return {
 		...state,
 		tracks: {

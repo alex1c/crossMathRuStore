@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import type { CrossMathCell } from '@/src/core/crossmath'
 import { operatorSymbol } from '@/src/core/crossmath'
 import { useTheme, type ThemeColors } from '@/src/theme'
+import { getCellGlyphFontSize } from '@/src/features/game/boardLayout'
 
 export type BoardCellVisual =
 	| { readonly kind: 'absent' }
@@ -45,8 +46,6 @@ export const BoardCell = memo(function BoardCell({
 			<Text
 				style={styles.text}
 				numberOfLines={1}
-				adjustsFontSizeToFit
-				minimumFontScale={0.55}
 			>
 				{visual.displayText}
 			</Text>
@@ -86,13 +85,18 @@ function createStyles(
 	size: number,
 	visual: Extract<BoardCellVisual, { kind: 'present' }>,
 ) {
-	const fontSize = Math.max(11, Math.floor(size * 0.42))
 	const isOperator = visual.cell.kind === 'operator'
 	const isEquals = visual.cell.kind === 'equals'
 	const isFixed =
 		visual.cell.kind === 'number' && visual.cell.state === 'fixed'
 	const isBlank =
 		visual.cell.kind === 'number' && visual.cell.state === 'blank'
+	const glyphKind = isOperator
+		? 'operator'
+		: visual.cell.kind === 'equals'
+			? 'equals'
+			: 'number'
+	const fontSize = getCellGlyphFontSize(size, glyphKind)
 
 	let backgroundColor = 'transparent'
 	let borderColor = 'transparent'

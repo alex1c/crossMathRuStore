@@ -216,6 +216,9 @@ export function AppProgressProvider({ children }: ProviderProps) {
 
 	const markTrackPlayed = useCallback(
 		async (track: DifficultyTrack, level: number) => {
+			if (stateRef.current.tracks[track].lastPlayedLevel === level) {
+				return
+			}
 			const next = withLastPlayedTrackLevel(stateRef.current, track, level)
 			await persist(next)
 		},

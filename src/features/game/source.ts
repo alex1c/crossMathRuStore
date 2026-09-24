@@ -55,6 +55,24 @@ export type GameSource =
 	| DevFixtureGameSource
 	| TutorialGameSource
 
+/** Stable semantic identity for effects that receive route-created objects. */
+export function getGameSourceIdentity(source: GameSource): string {
+	switch (source.kind) {
+		case 'track':
+			return `track:${source.track}:${source.level}:${source.catalogVersion ?? ''}`
+		case 'daily':
+			return `daily:${source.dateKey}`
+		case 'endless':
+			return `endless:${source.completedCount}`
+		case 'multiplication':
+			return `multiplication:${source.table}:${source.sequence}`
+		case 'dev-fixture':
+			return `dev-fixture:${source.id}`
+		case 'tutorial':
+			return 'tutorial'
+	}
+}
+
 export function getGameSourceTitle(source: GameSource): string {
 	switch (source.kind) {
 		case 'track':

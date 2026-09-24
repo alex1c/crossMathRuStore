@@ -32,6 +32,7 @@ import {
 	gameReducer,
 	getFillProgress,
 	getRemainingBankItems,
+	getGameSourceIdentity,
 	type GameSource,
 	type GameState,
 } from '@/src/features/game'
@@ -66,8 +67,14 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const theme = useTheme()
 	const insets = useSafeAreaInsets()
 	const { width: windowWidth, height: windowHeight } = useWindowDimensions()
+	const boardSafeWidth = Math.max(0, windowWidth - insets.left - insets.right)
 	const bottomPad = insets.bottom + 8
 	const progress = useAppProgress()
+	const sourceIdentity = getGameSourceIdentity(source)
+	// Expo Router creates a fresh source object every route render; sourceIdentity
+	// intentionally defines the semantic dependency for gameplay effects.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const stableSource = useMemo(() => source, [sourceIdentity])
 	const {
 		state: progressState,
 		saveActiveSession,
@@ -92,13 +99,13 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			}
 		}
 		return {
-			game: createSessionFromSource(source, {
+			game: createSessionFromSource(stableSource, {
 				showErrorsImmediately: showErrors,
 			}),
 			timer: createActiveTimer(),
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount snapshot
-	}, [source, resume])
+	}, [stableSource, resume])
 
 	const [state, dispatch] = useReducer(gameReducer, initial.game)
 	const [timer, setTimer] = useState<ActiveTimerState>(initial.timer)
@@ -226,10 +233,10 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	}, [state.entries, state.mistakes, state.hintsUsed, state.selected, state.status, scheduleSave])
 
 	useEffect(() => {
-		if (source.kind === 'track') {
-			void markTrackPlayed(source.track, source.level)
+		if (stableSource.kind === 'track') {
+			void markTrackPlayed(stableSource.track, stableSource.level)
 		}
-	}, [source, markTrackPlayed])
+	}, [stableSource, markTrackPlayed])
 
 	const fill = getFillProgress(state)
 	const elapsedMs =
@@ -245,8 +252,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const vertical = useMemo(
 		() =>
 			computeGameVerticalLayout({
-				availableWidth: contentSize.width,
-				availableHeight: Math.max(200, contentSize.height),
+				availableWidth: boardSafeWidth,
+				controlAreaWidth: contentSize.width,
+				availableHeight: contentSize.height,
 				headerHeight,
 				sectionGap: 8,
 				bannerReservedHeight: GAME_BANNER_RESERVED_HEIGHT,
@@ -257,6 +265,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		[
 			contentSize.width,
 			contentSize.height,
+			boardSafeWidth,
 			headerHeight,
 			state.inputMode,
 			state.bankItems.length,
@@ -334,18 +343,18 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	}, [state.status, finalizeCompletion])
 
 	const handleNext = useCallback(() => {
-		if (source.kind === 'track' && source.level < 50) {
+		if (stableSource.kind === 'track' && stableSource.level < 50) {
 			router.replace({
 				pathname: '/game',
 				params: {
 					source: 'track',
-					track: source.track,
-					level: String(source.level + 1),
+					track: stableSource.track,
+					level: String(stableSource.level + 1),
 				},
 			})
 			return
 		}
-		if (source.kind === 'endless') {
+		if (stableSource.kind === 'endless') {
 			const nextCount = progressState.endless.completedCount
 			router.replace({
 				pathname: '/game',
@@ -356,22 +365,22 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			})
 			return
 		}
-		if (source.kind === 'multiplication') {
+		if (stableSource.kind === 'multiplication') {
 			router.replace({
 				pathname: '/game',
 				params: {
 					source: 'multiplication',
-					table: String(source.table),
-					sequence: String(source.sequence + 1),
+					table: String(stableSource.table),
+					sequence: String(stableSource.sequence + 1),
 				},
 			})
 			return
 		}
 		router.replace('/')
-	}, [source, progressState.endless.completedCount])
+	}, [stableSource, progressState.endless.completedCount])
 
 	const nextPresentation = buildCompletionPresentation({
-		source,
+		source: stableSource,
 		endlessCompletedCount: progressState.endless.completedCount,
 		dailyStreak: progress.streakCurrent,
 	})
@@ -448,6 +457,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 						style={[
 							styles.boardArea,
 							{
+								width: vertical.boardAreaWidth,
+								marginLeft: -16,
+								marginRight: -16,
 								height: vertical.boardAreaHeight,
 								marginTop: vertical.sectionGap,
 								marginBottom: vertical.sectionGap,
