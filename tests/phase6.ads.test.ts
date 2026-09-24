@@ -1,5 +1,5 @@
 /**
- * Phase 6 — ads guards, hint policy, config validation, analytics sanitize.
+ * Phase 6 / 6.1 — ads guards, hint policy, production config, analytics sanitize.
  */
 
 import {
@@ -8,12 +8,16 @@ import {
 	getInterstitialAdUnitId,
 	getRewardedHintAdUnitId,
 	isPlaceholderAdUnitId,
+	PRODUCTION_AD_UNITS,
+	PRODUCTION_BANNER_GROUPS,
 	validateProductionAdConfig,
 	YANDEX_DEMO_AD_UNITS,
 	INTERSTITIAL_MIN_COMPLETIONS,
 	INTERSTITIAL_MIN_SESSION_MS,
+	type BannerPlacement,
 } from '@/src/config/ads'
 import {
+	APPMETRICA_PRODUCTION_API_KEY,
 	getAppMetricaApiKey,
 	validateProductionAnalyticsConfig,
 } from '@/src/config/analytics'
@@ -42,6 +46,8 @@ import {
 	createActiveTimer,
 	getActiveElapsedMs,
 } from '@/src/features/progress'
+import * as fs from 'fs'
+import * as path from 'path'
 
 describe('Phase 6 ads config', () => {
 	it('uses Yandex demo units in development', () => {
@@ -53,18 +59,70 @@ describe('Phase 6 ads config', () => {
 		expect(getBannerAdUnitId('training', false)).toBe('')
 	})
 
-	it('disables production placeholders instead of shipping demo IDs', () => {
+	it('detects placeholder shapes without treating real RSYA IDs as placeholders', () => {
 		expect(isPlaceholderAdUnitId('PLACEHOLDER_RSYA_HOME_BANNER')).toBe(true)
-		expect(getBannerAdUnitId('home', true)).toBe('')
-		expect(getRewardedHintAdUnitId(true)).toBe('')
-		expect(validateProductionAdConfig(true).ok).toBe(false)
+		expect(isPlaceholderAdUnitId('demo-banner-yandex')).toBe(true)
+		expect(isPlaceholderAdUnitId('R-M-20110016-1')).toBe(false)
+	})
+
+	it('passes production ad validation with intentional banner grouping', () => {
+		const result = validateProductionAdConfig(true)
+		expect(result.ok).toBe(true)
+		expect(result.missing).toEqual([])
 		expect(validateProductionAdConfig(false).ok).toBe(true)
 	})
 
-	it('requires a real AppMetrica key for production validation', () => {
-		expect(validateProductionAnalyticsConfig(true).ok).toBe(false)
+	it('maps placements to the three production banner groups', () => {
+		expect(getBannerAdUnitId('game', true)).toBe(PRODUCTION_BANNER_GROUPS.game)
+
+		const mainPlacements: BannerPlacement[] = [
+			'home',
+			'levels',
+			'track_levels',
+			'daily',
+			'multiplication',
+		]
+		for (const placement of mainPlacements) {
+			expect(getBannerAdUnitId(placement, true)).toBe(
+				PRODUCTION_BANNER_GROUPS.main,
+			)
+		}
+
+		const secondaryPlacements: BannerPlacement[] = [
+			'stats',
+			'settings',
+			'reminder',
+			'about',
+		]
+		for (const placement of secondaryPlacements) {
+			expect(getBannerAdUnitId(placement, true)).toBe(
+				PRODUCTION_BANNER_GROUPS.secondary,
+			)
+		}
+
+		expect(getBannerAdUnitId('training', true)).toBe('')
+		expect(getRewardedHintAdUnitId(true)).toBe(
+			PRODUCTION_AD_UNITS.REWARDED_HINT,
+		)
+		expect(getInterstitialAdUnitId(true)).toBe(
+			PRODUCTION_AD_UNITS.INTERSTITIAL_COMPLETION,
+		)
+		expect(PRODUCTION_AD_UNITS.REWARDED_HINT).toBe('R-M-20110016-5')
+		expect(PRODUCTION_AD_UNITS.INTERSTITIAL_COMPLETION).toBe(
+			'R-M-20110016-4',
+		)
+	})
+
+	it('configures CrossMath AppMetrica production key', () => {
+		expect(APPMETRICA_PRODUCTION_API_KEY).toBe(
+			'2f9a4c33-9a81-4dfd-b4ff-9c8a8206353f',
+		)
+		expect(validateProductionAnalyticsConfig(true)).toEqual({
+			ok: true,
+			missing: [],
+		})
+		expect(getAppMetricaApiKey(true)).toBe(APPMETRICA_PRODUCTION_API_KEY)
 		expect(getAppMetricaApiKey(false).length).toBeGreaterThan(0)
-		expect(getAppMetricaApiKey(true)).toBe('')
 	})
 })
 
@@ -186,5 +244,24 @@ describe('Phase 6 timer + fullscreen ad pause', () => {
 		timer = resumeActiveTimer(timer, t0 + 30_000)
 		timer = pauseActiveTimer(timer, t0 + 35_000)
 		expect(getActiveElapsedMs(timer, t0 + 35_000)).toBe(15_000)
+	})
+})
+
+describe('Phase 6.1 signing wiring', () => {
+	it('points release signing at external properties without embedded passwords', () => {
+		const pluginPath = path.join(
+			process.cwd(),
+			'plugins',
+			'withReleaseSigning.js',
+		)
+		const source = fs.readFileSync(pluginPath, 'utf8')
+		expect(source).toContain(
+			'D:/secure/android-signing/crossMath/signing.properties',
+		)
+		expect(source).toContain('crossmath')
+		expect(source).toContain('.trim()')
+		expect(source).not.toMatch(/storePassword\s*[:=]\s*['"][^'"]+['"]/)
+		expect(source).not.toMatch(/keyPassword\s*[:=]\s*['"][^'"]+['"]/)
+		expect(source).not.toMatch(/\.jks/)
 	})
 })

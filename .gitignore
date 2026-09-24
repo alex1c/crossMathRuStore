@@ -62,3 +62,7 @@ coverage/
 *.aab
 release-artifacts/*.apk
 release-artifacts/*.aab
+# Keep listing assets (icon-512) — never commit keystores or password files
+signing.properties
+**/keystore.properties
+*.pepk

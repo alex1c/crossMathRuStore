@@ -1,14 +1,14 @@
 /**
  * Central AppMetrica configuration for CrossMath.
- * No production API key was found in the repository — placeholder only.
+ * Production key is the CrossMath AppMetrica application API key.
  * Do NOT copy keys from other ForestMusic apps.
  */
 
 import { isAdsProductionBuild } from './ads'
 
-/** Replace with the CrossMath AppMetrica application key before release. */
+/** CrossMath production AppMetrica application API key. */
 export const APPMETRICA_PRODUCTION_API_KEY =
-	'PLACEHOLDER_APPMETRICA_API_KEY' as const
+	'2f9a4c33-9a81-4dfd-b4ff-9c8a8206353f' as const
 
 /** Documented smoke-test key shape — never used for production traffic. */
 export const APPMETRICA_DEV_API_KEY =

@@ -1,7 +1,8 @@
 /**
  * Central CrossMath ad-unit configuration.
  *
- * Production RSYA IDs were NOT found in the repository — placeholders only.
+ * Production RSYA application: R-M-20110016
+ * Three intentional banner groups share units (not one ID per screen).
  * __DEV__ always resolves to official Yandex demo units (never production IDs).
  * Release builds refuse empty/placeholder/demo IDs via validateProductionAdConfig().
  */
@@ -30,23 +31,33 @@ export const YANDEX_DEMO_AD_UNITS = {
 } as const
 
 /**
- * Production RSYA placement IDs for package com.calculatorplatform.crossmath.
- * Replace PLACEHOLDER_* values with real CrossMath units from Yandex console.
+ * Production RSYA units for package com.calculatorplatform.crossmath.
+ * Banner IDs are intentionally grouped (GAME / MAIN / SECONDARY).
  * Do NOT copy IDs from other ForestMusic apps.
  */
 export const PRODUCTION_AD_UNITS = {
-	HOME_BANNER: 'PLACEHOLDER_RSYA_HOME_BANNER',
-	LEVELS_BANNER: 'PLACEHOLDER_RSYA_LEVELS_BANNER',
-	TRACK_LEVELS_BANNER: 'PLACEHOLDER_RSYA_TRACK_LEVELS_BANNER',
-	GAME_BANNER: 'PLACEHOLDER_RSYA_GAME_BANNER',
-	DAILY_BANNER: 'PLACEHOLDER_RSYA_DAILY_BANNER',
-	MULTIPLICATION_BANNER: 'PLACEHOLDER_RSYA_MULTIPLICATION_BANNER',
-	STATS_BANNER: 'PLACEHOLDER_RSYA_STATS_BANNER',
-	SETTINGS_BANNER: 'PLACEHOLDER_RSYA_SETTINGS_BANNER',
-	REMINDER_BANNER: 'PLACEHOLDER_RSYA_REMINDER_BANNER',
-	ABOUT_BANNER: 'PLACEHOLDER_RSYA_ABOUT_BANNER',
-	REWARDED_HINT: 'PLACEHOLDER_RSYA_REWARDED_HINT',
-	INTERSTITIAL_COMPLETION: 'PLACEHOLDER_RSYA_INTERSTITIAL_COMPLETION',
+	/** GAME banner group */
+	GAME_BANNER: 'R-M-20110016-1',
+	/** MAIN / game-discovery banner group */
+	HOME_BANNER: 'R-M-20110016-2',
+	LEVELS_BANNER: 'R-M-20110016-2',
+	TRACK_LEVELS_BANNER: 'R-M-20110016-2',
+	DAILY_BANNER: 'R-M-20110016-2',
+	MULTIPLICATION_BANNER: 'R-M-20110016-2',
+	/** SECONDARY / information banner group */
+	STATS_BANNER: 'R-M-20110016-3',
+	SETTINGS_BANNER: 'R-M-20110016-3',
+	REMINDER_BANNER: 'R-M-20110016-3',
+	ABOUT_BANNER: 'R-M-20110016-3',
+	REWARDED_HINT: 'R-M-20110016-5',
+	INTERSTITIAL_COMPLETION: 'R-M-20110016-4',
+} as const
+
+/** Documented grouping for tests and release reports. */
+export const PRODUCTION_BANNER_GROUPS = {
+	game: 'R-M-20110016-1',
+	main: 'R-M-20110016-2',
+	secondary: 'R-M-20110016-3',
 } as const
 
 const BANNER_PRODUCTION_MAP: Readonly<Record<BannerPlacement, string>> = {
@@ -133,6 +144,7 @@ export type ProductionAdsValidation = {
 
 /**
  * Release-gate helper — production must not silently use demo/placeholder IDs.
+ * Shared banner group IDs are intentional and accepted.
  * Development never fails this check.
  */
 export function validateProductionAdConfig(
