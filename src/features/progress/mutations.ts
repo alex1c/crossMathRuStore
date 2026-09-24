@@ -1,54 +1,72 @@
 /**
- * App progress mutations — pure transforms over PersistedAppState.
+ * App progress mutations — pure transforms over PersistedAppState (schema v2).
  */
 
 import type {
 	PersistedActiveSession,
 	PersistedAppState,
-	PersistedCampaignLevelResult,
 	PersistedDailyResult,
 	PersistedSettings,
+	PersistedTrackLevelResult,
 } from '@/src/services/persistence'
-import { applyCampaignCompletion } from './campaign'
+import type { DifficultyTrack } from '@/src/core/crossmath/tracks'
+import { applyTrackCompletion } from './campaign'
 
-export function withCampaignCompleted(
+export function withTrackCompleted(
 	state: PersistedAppState,
-	result: PersistedCampaignLevelResult,
+	track: DifficultyTrack,
+	result: PersistedTrackLevelResult,
 ): PersistedAppState {
-	const next = applyCampaignCompletion(
-		state.campaign.highestUnlockedLevel,
-		state.campaign.completedLevels,
+	const current = state.tracks[track]
+	const next = applyTrackCompletion(
+		current.highestUnlockedLevel,
+		current.completedLevels,
 		result.level,
 	)
-	const previous = state.campaign.results[String(result.level)]
+	const previous = current.results[String(result.level)]
 	const keepPrevious =
 		previous &&
 		(previous.elapsedMs < result.elapsedMs ||
 			(previous.elapsedMs === result.elapsedMs &&
 				previous.mistakes <= result.mistakes))
+	const isFirst = !previous
 	return {
 		...state,
-		campaign: {
-			...state.campaign,
-			highestUnlockedLevel: next.highestUnlockedLevel,
-			completedLevels: next.completedLevels,
-			lastPlayedLevel: result.level,
-			results: {
-				...state.campaign.results,
-				[String(result.level)]: keepPrevious ? previous : result,
+		tracks: {
+			...state.tracks,
+			[track]: {
+				...current,
+				highestUnlockedLevel: next.highestUnlockedLevel,
+				completedLevels: next.completedLevels,
+				lastPlayedLevel: result.level,
+				results: {
+					...current.results,
+					[String(result.level)]: keepPrevious ? previous : result,
+				},
 			},
 		},
 		activeSession:
-			state.activeSession?.source.kind === 'campaign' &&
+			state.activeSession?.source.kind === 'track' &&
+			state.activeSession.source.track === track &&
 			state.activeSession.source.level === result.level
 				? null
 				: state.activeSession,
-		stats: {
-			totalHintsUsed: state.stats.totalHintsUsed + result.hintsUsed,
-			totalMistakes: state.stats.totalMistakes + result.mistakes,
-			totalPuzzlesSolved: state.stats.totalPuzzlesSolved + 1,
-		},
+		stats: isFirst
+			? {
+					totalHintsUsed: state.stats.totalHintsUsed + result.hintsUsed,
+					totalMistakes: state.stats.totalMistakes + result.mistakes,
+					totalPuzzlesSolved: state.stats.totalPuzzlesSolved + 1,
+				}
+			: state.stats,
 	}
+}
+
+/** @deprecated Use withTrackCompleted */
+export function withCampaignCompleted(
+	state: PersistedAppState,
+	result: PersistedTrackLevelResult,
+): PersistedAppState {
+	return withTrackCompleted(state, 'easy', result)
 }
 
 export function withDailyCompleted(
@@ -106,6 +124,37 @@ export function withEndlessCompleted(
 	}
 }
 
+export function withMultiplicationCompleted(
+	state: PersistedAppState,
+	table: number | 'mixed',
+	payload: {
+		readonly mistakes: number
+		readonly hintsUsed: number
+	},
+): PersistedAppState {
+	const key = String(table)
+	const previous = state.multiplication.solvedByTable[key] ?? 0
+	return {
+		...state,
+		multiplication: {
+			solvedByTable: {
+				...state.multiplication.solvedByTable,
+				[key]: previous + 1,
+			},
+			totalSolved: state.multiplication.totalSolved + 1,
+		},
+		activeSession:
+			state.activeSession?.source.kind === 'multiplication'
+				? null
+				: state.activeSession,
+		stats: {
+			totalHintsUsed: state.stats.totalHintsUsed + payload.hintsUsed,
+			totalMistakes: state.stats.totalMistakes + payload.mistakes,
+			totalPuzzlesSolved: state.stats.totalPuzzlesSolved + 1,
+		},
+	}
+}
+
 export function withActiveSession(
 	state: PersistedAppState,
 	session: PersistedActiveSession | null,
@@ -123,12 +172,27 @@ export function withSettings(
 	}
 }
 
-export function withLastPlayedLevel(
+export function withLastPlayedTrackLevel(
 	state: PersistedAppState,
+	track: DifficultyTrack,
 	level: number,
 ): PersistedAppState {
 	return {
 		...state,
-		campaign: { ...state.campaign, lastPlayedLevel: level },
+		tracks: {
+			...state.tracks,
+			[track]: {
+				...state.tracks[track],
+				lastPlayedLevel: level,
+			},
+		},
 	}
+}
+
+/** @deprecated */
+export function withLastPlayedLevel(
+	state: PersistedAppState,
+	level: number,
+): PersistedAppState {
+	return withLastPlayedTrackLevel(state, 'easy', level)
 }

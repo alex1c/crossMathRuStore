@@ -138,39 +138,26 @@ achievements, economy, or native code. Long-expression precedence is still not
 implemented. Expert generation is deterministic and bounded but materially
 slower than Easy; the measured cost is documented by the calibration output.
 
-## Phase 5.5 experimental research surface
+## Phase 5.6 production promotion
 
-`experimental.ts` is additive and is not used by production campaign or
-`GameScreen`. It provides four immediately addressable, language-neutral
-tracks (`easy`, `medium`, `hard`, `lobachevsky`), deterministic track and Daily
-seeds, occupied-bounding-box density/crossing metrics, ASCII rendering, and a
-bounded binary-only ceiling audit. Track progression is local to levels 1..50;
-there is no cross-track unlock rule.
+Accepted Phase 5.5 / 5.5B surfaces are promoted into production modules:
 
-The prototype also contains a JSON-friendly long-expression model for three
-operands. Evaluation uses conventional precedence (`×`/`÷` before `+`/`−`),
-left associativity, integer-only division, and configured intermediate/result
-bounds. Its solver performs bounded support propagation followed by search and
-proves uniqueness independently of the generator's original solution.
+- `tracks.ts` — four independent difficulty tracks
+- `hybrid.ts` — hybrid / long-expression helpers
+- `numberBank.ts` — bank + distractors (multiplicity-preserving)
+- `catalog.ts` — Lobachevsky `lobachevsky-v1` pregenerated catalog
+- `trackGeneration.ts` — Easy/Medium/Hard runtime + Lobachevsky catalog load
 
-Number banks are pure-core artifacts. Exact banks preserve multiplicity by
-using an array of items rather than a `Set`; distractor banks derive a small
-seeded set from nearby values in the valid arithmetic range. No number-bank or
-track API is wired into production UI or persistence.
+`experimental.ts` remains as the shared implementation backend for research-
+validated APIs (hybrid generator, expression evaluator, advanced banks).
+Production screens and features import the promoted modules above, not
+`docs/research/`. Research JSON under `docs/research/` is documentation only.
 
-Initial desktop probe: the original 9-equation/9-blank binary Lobachevsky
-hypothesis failed within bounded generation. The revised binary starting point
-(8 equations, 7 blanks) succeeded with 6 crossings, four propagation waves,
-11 ambiguity observations, and about 3.7 seconds for one accepted candidate on
-the development machine. This is a real `>1s` performance flag, not a claim
-that the binary architecture has reached the final top-end design. The next
-decision should compare this binary profile against the long-expression
-prototype using the artifacts under `docs/research/`.
+## Phase 5.5 experimental research surface (historical)
 
-Phase 5.5 deliberately leaves reminder defaults, Home banner placement, four
-button production UI, persistence migration, and multiplication-table UI
-unchanged. The multiplication-table profile remains available as a regression
-surface through the existing production API.
+`experimental.ts` originally shipped as an additive research surface that was
+not used by production campaign UI. Phase 5.6 wires accepted pieces through the
+promoted modules listed above.
 
 ## Phase 5.5B advanced comparison
 

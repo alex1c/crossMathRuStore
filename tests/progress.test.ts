@@ -8,11 +8,13 @@ import {
 import {
 	applyCampaignCompletion,
 	getCampaignLevelStatus,
-	withCampaignCompleted,
+	withTrackCompleted,
 	withDailyCompleted,
 	withEndlessCompleted,
 	withActiveSession,
+	TRACK_LEVEL_COUNT,
 } from '@/src/features/progress'
+import { DIFFICULTY_TRACKS } from '@/src/core/crossmath/tracks'
 import { createSessionFromSource, createGameState, gameReducer } from '@/src/features/game'
 import { generateCampaignPuzzle } from '@/src/core/crossmath'
 
@@ -31,15 +33,24 @@ function memoryStorage(initial: Record<string, string> = {}): KeyValueStorage {
 	}
 }
 
-describe('campaign unlock', () => {
-	it('starts with level 1 unlocked and level 2 locked', () => {
+describe('fresh defaults (schema v2)', () => {
+	it('disables daily reminder until the user opts in', () => {
+		expect(createDefaultPersistedState().settings.dailyReminderEnabled).toBe(false)
+	})
+})
+
+describe('four-track unlock', () => {
+	it('starts each track with level 1 unlocked and level 2 locked', () => {
 		const state = createDefaultPersistedState()
-		expect(
-			getCampaignLevelStatus(1, state.campaign.highestUnlockedLevel, []),
-		).toBe('unlocked')
-		expect(
-			getCampaignLevelStatus(2, state.campaign.highestUnlockedLevel, []),
-		).toBe('locked')
+		for (const track of DIFFICULTY_TRACKS) {
+			const progress = state.tracks[track]
+			expect(
+				getCampaignLevelStatus(1, progress.highestUnlockedLevel, progress.completedLevels),
+			).toBe('unlocked')
+			expect(
+				getCampaignLevelStatus(2, progress.highestUnlockedLevel, progress.completedLevels),
+			).toBe('locked')
+		}
 	})
 
 	it('completing level 1 unlocks level 2 and allows replay', () => {
@@ -54,16 +65,31 @@ describe('campaign unlock', () => {
 		)
 	})
 
-	it('handles level 250 boundary', () => {
-		const next = applyCampaignCompletion(250, [249], 250)
-		expect(next.highestUnlockedLevel).toBe(250)
-		expect(next.completedLevels).toContain(250)
+	it('handles track level 50 boundary', () => {
+		const next = applyCampaignCompletion(TRACK_LEVEL_COUNT, [TRACK_LEVEL_COUNT - 1], TRACK_LEVEL_COUNT)
+		expect(next.highestUnlockedLevel).toBe(TRACK_LEVEL_COUNT)
+		expect(next.completedLevels).toContain(TRACK_LEVEL_COUNT)
 	})
 
-	it('persists campaign completion across reload', async () => {
+	it('completing hard level 1 unlocks hard 2 without touching easy', () => {
+		let state = createDefaultPersistedState()
+		state = withTrackCompleted(state, 'hard', {
+			level: 1,
+			elapsedMs: 900,
+			mistakes: 0,
+			hintsUsed: 0,
+			completedAt: 50,
+		})
+		expect(state.tracks.hard.completedLevels).toEqual([1])
+		expect(state.tracks.hard.highestUnlockedLevel).toBe(2)
+		expect(state.tracks.easy.completedLevels).toEqual([])
+		expect(state.tracks.easy.highestUnlockedLevel).toBe(1)
+	})
+
+	it('persists easy-track completion across reload', async () => {
 		const storage = memoryStorage()
 		let state = createDefaultPersistedState()
-		state = withCampaignCompleted(state, {
+		state = withTrackCompleted(state, 'easy', {
 			level: 1,
 			elapsedMs: 1200,
 			mistakes: 0,
@@ -72,8 +98,43 @@ describe('campaign unlock', () => {
 		})
 		await savePersistedAppState(state, storage)
 		const loaded = await loadPersistedAppState(storage)
-		expect(loaded.campaign.completedLevels).toEqual([1])
-		expect(loaded.campaign.highestUnlockedLevel).toBe(2)
+		expect(loaded.tracks.easy.completedLevels).toEqual([1])
+		expect(loaded.tracks.easy.highestUnlockedLevel).toBe(2)
+	})
+})
+
+describe('schema v1 → v2 migration', () => {
+	it('maps legacy campaign to easy track and preserves daily + reminder ON', () => {
+		const parsed = parsePersistedAppState({
+			schemaVersion: 1,
+			campaign: {
+				highestUnlockedLevel: 4,
+				completedLevels: [1, 2, 3],
+				results: {},
+				lastPlayedLevel: 3,
+			},
+			daily: {
+				completions: {
+					'2026-09-22': {
+						dateKey: '2026-09-22',
+						elapsedMs: 500,
+						mistakes: 0,
+						hintsUsed: 0,
+						completedAt: 1,
+					},
+				},
+			},
+			settings: {
+				showErrorsImmediately: true,
+				dailyReminderEnabled: true,
+				dailyReminderMinutes: 1140,
+			},
+		})
+		expect(parsed.tracks.easy.completedLevels).toEqual([1, 2, 3])
+		expect(parsed.tracks.easy.highestUnlockedLevel).toBe(4)
+		expect(parsed.tracks.hard.completedLevels).toEqual([])
+		expect(parsed.daily.completions['2026-09-22']?.elapsedMs).toBe(500)
+		expect(parsed.settings.dailyReminderEnabled).toBe(true)
 	})
 })
 
@@ -88,7 +149,7 @@ describe('active session persistence', () => {
 		const key = `${blank!.coordinate.row},${blank!.coordinate.column}`
 		let state = createDefaultPersistedState()
 		state = withActiveSession(state, {
-			source: { kind: 'campaign', level: 1 },
+			source: { kind: 'track', track: 'easy', level: 1 },
 			puzzle: profiled.generated.puzzle,
 			solution: profiled.generated.solution,
 			entries: { [key]: 7 },
@@ -98,7 +159,7 @@ describe('active session persistence', () => {
 			accumulatedActiveMs: 4500,
 			status: 'playing',
 			title: 'Уровень 1',
-			subtitle: 'Новичок',
+			subtitle: 'Просто',
 			updatedAt: 1,
 		})
 		await savePersistedAppState(state, storage)
@@ -112,23 +173,23 @@ describe('active session persistence', () => {
 	it('falls back safely on corrupt JSON', async () => {
 		const storage = memoryStorage({ 'crossmath.app.v1': '{not-json' })
 		const loaded = await loadPersistedAppState(storage)
-		expect(loaded.campaign.highestUnlockedLevel).toBe(1)
+		expect(loaded.tracks.easy.highestUnlockedLevel).toBe(1)
 		expect(loaded.activeSession).toBeNull()
 	})
 
 	it('parsePersistedAppState ignores broken active sessions', () => {
 		const parsed = parsePersistedAppState({
-			schemaVersion: 1,
-			activeSession: { source: { kind: 'campaign' } },
+			schemaVersion: 2,
+			activeSession: { source: { kind: 'campaign', level: 1 } },
 		})
 		expect(parsed.activeSession).toBeNull()
 	})
 })
 
 describe('session factory', () => {
-	it('creates campaign / daily / endless sessions', () => {
-		const campaign = createSessionFromSource({ kind: 'campaign', level: 1 })
-		expect(campaign.source.kind).toBe('campaign')
+	it('creates track / daily / endless sessions', () => {
+		const track = createSessionFromSource({ kind: 'track', track: 'easy', level: 1 })
+		expect(track.source.kind).toBe('track')
 		const daily = createSessionFromSource({
 			kind: 'daily',
 			dateKey: '2026-09-23',
@@ -142,7 +203,7 @@ describe('session factory', () => {
 	})
 
 	it('fixed cells cannot be selected for editing', () => {
-		const state = createSessionFromSource({ kind: 'campaign', level: 1 })
+		const state = createSessionFromSource({ kind: 'track', track: 'easy', level: 1 })
 		const fixed = state.puzzle.grid.cells.find(
 			(cell) => cell.kind === 'number' && cell.state === 'fixed',
 		)
@@ -211,7 +272,7 @@ describe('createGameState hydration', () => {
 		const state = createGameState({
 			puzzle: profiled.generated.puzzle,
 			solution: profiled.generated.solution,
-			source: { kind: 'campaign', level: 1 },
+			source: { kind: 'track', track: 'easy', level: 1 },
 			title: 't',
 			subtitle: 's',
 			entries: { [key]: 5 },

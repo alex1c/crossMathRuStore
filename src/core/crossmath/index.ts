@@ -67,6 +67,44 @@ export {
 } from './profiles'
 export { validatePuzzle } from './validator'
 export {
+	loadTrackPuzzle,
+	TRACK_GENERATOR_VERSION,
+} from './trackGeneration'
+export type { TrackPuzzlePayload } from './trackGeneration'
+export {
+	DIFFICULTY_TRACKS,
+	TRACK_LEVEL_COUNT,
+	CAMPAIGN_TOTAL_LEVELS,
+	TRACK_LABELS,
+	TRACK_DESCRIPTIONS,
+	getTrackInputMode,
+	getTrackLabel,
+	isDifficultyTrack,
+	assertTrackLevel,
+} from './tracks'
+export type { DifficultyTrack, TrackInputMode } from './tracks'
+export {
+	createTrackNumberBank,
+	remainingBankItems,
+} from './numberBank'
+export {
+	findHybridRelatedCoordinates,
+	isLongExpressionEquation,
+	countHybridBlanks,
+	measureHybridOccupiedDensity,
+} from './hybrid'
+export {
+	getLobachevskyCatalog,
+	getLobachevskyCatalogVersion,
+	loadLobachevskyLevel,
+	createLobachevskyBank,
+	assertLobachevskyCatalogShape,
+	validateLobachevskyCatalogUniqueness,
+	LOBACHEVSKY_CATALOG_VERSION,
+} from './catalog'
+
+// Phase 5.5 research surface (kept for research tests / history).
+export {
 	auditBinaryCeiling,
 	analyzeNumberBank,
 	analyzeAdvancedNumberBank,

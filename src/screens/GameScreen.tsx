@@ -3,6 +3,7 @@ import {
 	AppState,
 	type AppStateStatus,
 	LayoutChangeEvent,
+	Pressable,
 	StyleSheet,
 	Text,
 	View,
@@ -18,6 +19,7 @@ import {
 	CrossMathBoard,
 	GameBannerSlot,
 	GameControls,
+	NumberBankPad,
 	NumberPad,
 } from '@/src/components/game'
 import {
@@ -29,6 +31,7 @@ import {
 	GAME_BANNER_RESERVED_HEIGHT,
 	gameReducer,
 	getFillProgress,
+	getRemainingBankItems,
 	type GameSource,
 	type GameState,
 } from '@/src/features/game'
@@ -57,7 +60,7 @@ export type GameScreenProps = {
 const HEADER_FALLBACK = 58
 
 /**
- * Reusable playable CrossMath session with progress persistence + banner slot.
+ * Reusable playable CrossMath session with keypad/bank modes + banner slot.
  */
 export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const theme = useTheme()
@@ -68,10 +71,12 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const {
 		state: progressState,
 		saveActiveSession,
-		markCampaignPlayed,
-		completeCampaignLevel,
+		markTrackPlayed,
+		completeTrackLevel,
 		completeDaily,
 		completeEndless,
+		completeMultiplication,
+		updateSettings,
 	} = progress
 
 	const initial = useMemo(() => {
@@ -92,7 +97,6 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			}),
 			timer: createActiveTimer(),
 		}
-		// Mounted only after progress.ready; remount via route key on source change.
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount snapshot
 	}, [source, resume])
 
@@ -104,11 +108,13 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		height: Math.max(320, windowHeight - 120),
 	})
 	const [headerHeight, setHeaderHeight] = useState(HEADER_FALLBACK)
+	const [bankTipDismissed, setBankTipDismissed] = useState(
+		progress.state.settings.bankTipSeen,
+	)
 	const stateRef = useRef(state)
 	const timerRef = useRef(timer)
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState)
 	const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-	const campaignLevel = source.kind === 'campaign' ? source.level : null
 
 	useEffect(() => {
 		stateRef.current = state
@@ -132,9 +138,10 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 				return null
 			}
 			if (
-				game.source.kind !== 'campaign' &&
+				game.source.kind !== 'track' &&
 				game.source.kind !== 'daily' &&
-				game.source.kind !== 'endless'
+				game.source.kind !== 'endless' &&
+				game.source.kind !== 'multiplication'
 			) {
 				return null
 			}
@@ -155,11 +162,15 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 				selected: game.selected,
 				mistakes: game.mistakes,
 				hintsUsed: game.hintsUsed,
+				hintedKeys: game.hintedKeys,
 				accumulatedActiveMs: getActiveElapsedMs(activeTimer),
 				status: 'playing',
 				title: game.title,
 				subtitle: game.subtitle,
 				updatedAt: Date.now(),
+				inputMode: game.inputMode,
+				bankItems: game.bankItems,
+				bankSeed: game.bankSeed,
 			}
 		},
 		[],
@@ -200,8 +211,6 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			if (nextTimer === previousTimer) {
 				return
 			}
-			// Update the ref before persisting. AppState changes can race React's
-			// render/effect commit, especially during Android backgrounding.
 			timerRef.current = nextTimer
 			setTimer(nextTimer)
 			persistTimerSnapshot(nextTimer)
@@ -217,16 +226,21 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	}, [state.entries, state.mistakes, state.hintsUsed, state.selected, state.status, scheduleSave])
 
 	useEffect(() => {
-		if (campaignLevel !== null) {
-			void markCampaignPlayed(campaignLevel)
+		if (source.kind === 'track') {
+			void markTrackPlayed(source.track, source.level)
 		}
-	}, [campaignLevel, markCampaignPlayed])
+	}, [source, markTrackPlayed])
 
 	const fill = getFillProgress(state)
 	const elapsedMs =
 		state.status === 'completed'
 			? getActiveElapsedMs(pauseActiveTimer(timer, now), now)
 			: getActiveElapsedMs(timer, now)
+
+	const remainingBank = useMemo(
+		() => getRemainingBankItems(state),
+		[state],
+	)
 
 	const vertical = useMemo(
 		() =>
@@ -237,8 +251,17 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 				sectionGap: 8,
 				bannerReservedHeight: GAME_BANNER_RESERVED_HEIGHT,
 				bannerGap: 8,
+				inputMode: state.inputMode,
+				bankItemCount: Math.max(state.bankItems.length, remainingBank.length, 8),
 			}),
-		[contentSize.width, contentSize.height, headerHeight],
+		[
+			contentSize.width,
+			contentSize.height,
+			headerHeight,
+			state.inputMode,
+			state.bankItems.length,
+			remainingBank.length,
+		],
 	)
 
 	const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
@@ -262,8 +285,8 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		const game = stateRef.current
 		await saveActiveSession(null)
 		try {
-			if (game.source.kind === 'campaign') {
-				await completeCampaignLevel({
+			if (game.source.kind === 'track') {
+				await completeTrackLevel(game.source.track, {
 					level: game.source.level,
 					elapsedMs: elapsed,
 					mistakes: game.mistakes,
@@ -284,11 +307,22 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 					mistakes: game.mistakes,
 					hintsUsed: game.hintsUsed,
 				})
+			} else if (game.source.kind === 'multiplication') {
+				await completeMultiplication(game.source.table, {
+					mistakes: game.mistakes,
+					hintsUsed: game.hintsUsed,
+				})
 			}
 		} catch {
 			// Persistence errors must not crash the completion UI.
 		}
-	}, [completeCampaignLevel, completeDaily, completeEndless, saveActiveSession])
+	}, [
+		completeTrackLevel,
+		completeDaily,
+		completeEndless,
+		completeMultiplication,
+		saveActiveSession,
+	])
 
 	const completedOnceRef = useRef(false)
 
@@ -300,10 +334,14 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	}, [state.status, finalizeCompletion])
 
 	const handleNext = useCallback(() => {
-		if (source.kind === 'campaign' && source.level < 250) {
+		if (source.kind === 'track' && source.level < 50) {
 			router.replace({
 				pathname: '/game',
-				params: { source: 'campaign', level: String(source.level + 1) },
+				params: {
+					source: 'track',
+					track: source.track,
+					level: String(source.level + 1),
+				},
 			})
 			return
 		}
@@ -318,6 +356,17 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 			})
 			return
 		}
+		if (source.kind === 'multiplication') {
+			router.replace({
+				pathname: '/game',
+				params: {
+					source: 'multiplication',
+					table: String(source.table),
+					sequence: String(source.sequence + 1),
+				},
+			})
+			return
+		}
 		router.replace('/')
 	}, [source, progressState.endless.completedCount])
 
@@ -325,8 +374,12 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		source,
 		endlessCompletedCount: progressState.endless.completedCount,
 		dailyStreak: progress.streakCurrent,
-		campaignLevel: source.kind === 'campaign' ? source.level : undefined,
 	})
+
+	const showBankTip =
+		state.inputMode === 'bank' &&
+		!bankTipDismissed &&
+		state.status === 'playing'
 
 	return (
 		<SafeAreaView
@@ -363,6 +416,32 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 							{'  ·  '}
 							{formatElapsed(elapsedMs)}
 						</Text>
+						{showBankTip ? (
+							<Pressable
+								accessibilityRole="button"
+								onPress={() => {
+									setBankTipDismissed(true)
+									void updateSettings({ bankTipSeen: true })
+								}}
+								style={[
+									styles.tip,
+									{
+										backgroundColor: theme.colors.selectedCell,
+										borderColor: theme.colors.border,
+									},
+								]}
+							>
+								<Text
+									style={{
+										color: theme.colors.text,
+										...theme.typography.caption,
+									}}
+								>
+									Выберите пустую клетку, затем подходящее число.
+									Не все числа обязательно понадобятся.
+								</Text>
+							</Pressable>
+						) : null}
 					</View>
 
 					<View
@@ -424,27 +503,48 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 									dispatch({ type: 'HINT' })
 								}}
 							/>
-							<NumberPad
-								touchHeight={vertical.controls.touchHeight}
-								rowGap={vertical.controls.rowGap}
-								onDigit={(digit) => {
-									hapticSelection()
-									dispatch({ type: 'DIGIT', digit })
-								}}
-								onDelete={() => dispatch({ type: 'DELETE' })}
-								onConfirm={() => {
-									const beforeMistakes = stateRef.current.mistakes
-									dispatch({ type: 'CONFIRM' })
-									setTimeout(() => {
-										const after = stateRef.current
-										if (after.mistakes > beforeMistakes) {
-											hapticError()
-										} else {
-											hapticEntry()
-										}
-									}, 0)
-								}}
-							/>
+							{state.inputMode === 'bank' ? (
+								<NumberBankPad
+									remainingItems={remainingBank}
+									touchHeight={vertical.controls.touchHeight}
+									rowGap={vertical.controls.rowGap}
+									onSelect={(item) => {
+										hapticSelection()
+										const beforeMistakes = stateRef.current.mistakes
+										dispatch({ type: 'PLACE_BANK', value: item.value })
+										setTimeout(() => {
+											const after = stateRef.current
+											if (after.mistakes > beforeMistakes) {
+												hapticError()
+											} else {
+												hapticEntry()
+											}
+										}, 0)
+									}}
+								/>
+							) : (
+								<NumberPad
+									touchHeight={vertical.controls.touchHeight}
+									rowGap={vertical.controls.rowGap}
+									onDigit={(digit) => {
+										hapticSelection()
+										dispatch({ type: 'DIGIT', digit })
+									}}
+									onDelete={() => dispatch({ type: 'DELETE' })}
+									onConfirm={() => {
+										const beforeMistakes = stateRef.current.mistakes
+										dispatch({ type: 'CONFIRM' })
+										setTimeout(() => {
+											const after = stateRef.current
+											if (after.mistakes > beforeMistakes) {
+												hapticError()
+											} else {
+												hapticEntry()
+											}
+										}, 0)
+									}}
+								/>
+							)}
 						</View>
 					)}
 
@@ -472,5 +572,11 @@ const styles = StyleSheet.create({
 	},
 	controls: {
 		justifyContent: 'flex-start',
+	},
+	tip: {
+		marginTop: 6,
+		padding: 8,
+		borderRadius: 8,
+		borderWidth: StyleSheet.hairlineWidth,
 	},
 })

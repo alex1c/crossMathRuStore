@@ -3,7 +3,6 @@ import type {
 	CrossMathCell,
 	Equation,
 	EquationCellCoordinates,
-	Puzzle,
 } from './types'
 
 export function coordinateKey(coordinate: CellCoordinate): string {
@@ -28,7 +27,10 @@ export function equationEqualsCoordinate(equation: Equation): CellCoordinate {
 	return equation.cells[3]
 }
 
-export function getCell(puzzle: Puzzle, coordinate: CellCoordinate): CrossMathCell | undefined {
+export function getCell(
+	puzzle: { readonly grid: { readonly cells: readonly CrossMathCell[] } },
+	coordinate: CellCoordinate,
+): CrossMathCell | undefined {
 	return puzzle.grid.cells.find(
 		(cell) => coordinatesEqual(cell.coordinate, coordinate),
 	)

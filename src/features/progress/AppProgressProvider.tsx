@@ -14,18 +14,20 @@ import {
 	savePersistedAppState,
 	type PersistedActiveSession,
 	type PersistedAppState,
-	type PersistedCampaignLevelResult,
 	type PersistedDailyResult,
 	type PersistedSettings,
+	type PersistedTrackLevelResult,
 } from '@/src/services/persistence'
+import type { DifficultyTrack } from '@/src/core/crossmath/tracks'
 import { formatLocalDateKey } from './dateKey'
 import {
 	withActiveSession,
-	withCampaignCompleted,
 	withDailyCompleted,
 	withEndlessCompleted,
-	withLastPlayedLevel,
+	withLastPlayedTrackLevel,
+	withMultiplicationCompleted,
 	withSettings,
+	withTrackCompleted,
 } from './mutations'
 import { deriveAppStats, type AppStats } from './stats'
 import { computeDailyStreak } from './streak'
@@ -44,8 +46,9 @@ type AppProgressContextValue = {
 	readonly streakCurrent: number
 	readonly streakBest: number
 	readonly reminderPermission: ReminderPermission
-	readonly completeCampaignLevel: (
-		result: PersistedCampaignLevelResult,
+	readonly completeTrackLevel: (
+		track: DifficultyTrack,
+		result: PersistedTrackLevelResult,
 	) => Promise<void>
 	readonly completeDaily: (result: PersistedDailyResult) => Promise<void>
 	readonly completeEndless: (payload: {
@@ -53,11 +56,18 @@ type AppProgressContextValue = {
 		mistakes: number
 		hintsUsed: number
 	}) => Promise<void>
+	readonly completeMultiplication: (
+		table: number | 'mixed',
+		payload: { mistakes: number; hintsUsed: number },
+	) => Promise<void>
 	readonly saveActiveSession: (
 		session: PersistedActiveSession | null,
 	) => Promise<void>
 	readonly updateSettings: (patch: Partial<PersistedSettings>) => Promise<void>
-	readonly markCampaignPlayed: (level: number) => Promise<void>
+	readonly markTrackPlayed: (
+		track: DifficultyTrack,
+		level: number,
+	) => Promise<void>
 	readonly refreshReminder: () => Promise<void>
 	readonly requestNotificationPermission: () => Promise<ReminderPermission>
 }
@@ -127,6 +137,8 @@ export function AppProgressProvider({ children }: ProviderProps) {
 			setReminderPermission(permission)
 			const key = formatLocalDateKey()
 			setTodayKey(key)
+			// Do not request permission on bootstrap. Only schedule if already
+			// enabled AND permission already granted.
 			await applyDailyReminderPlan({
 				enabled: loaded.settings.dailyReminderEnabled,
 				minutesFromMidnight: loaded.settings.dailyReminderMinutes,
@@ -140,9 +152,9 @@ export function AppProgressProvider({ children }: ProviderProps) {
 		}
 	}, [])
 
-	const completeCampaignLevel = useCallback(
-		async (result: PersistedCampaignLevelResult) => {
-			const next = withCampaignCompleted(stateRef.current, result)
+	const completeTrackLevel = useCallback(
+		async (track: DifficultyTrack, result: PersistedTrackLevelResult) => {
+			const next = withTrackCompleted(stateRef.current, track, result)
 			await persist(next)
 			await refreshReminder()
 		},
@@ -170,6 +182,21 @@ export function AppProgressProvider({ children }: ProviderProps) {
 		[persist],
 	)
 
+	const completeMultiplication = useCallback(
+		async (
+			table: number | 'mixed',
+			payload: { mistakes: number; hintsUsed: number },
+		) => {
+			const next = withMultiplicationCompleted(
+				stateRef.current,
+				table,
+				payload,
+			)
+			await persist(next)
+		},
+		[persist],
+	)
+
 	const saveActiveSession = useCallback(
 		async (session: PersistedActiveSession | null) => {
 			const next = withActiveSession(stateRef.current, session)
@@ -187,9 +214,9 @@ export function AppProgressProvider({ children }: ProviderProps) {
 		[persist, refreshReminder],
 	)
 
-	const markCampaignPlayed = useCallback(
-		async (level: number) => {
-			const next = withLastPlayedLevel(stateRef.current, level)
+	const markTrackPlayed = useCallback(
+		async (track: DifficultyTrack, level: number) => {
+			const next = withLastPlayedTrackLevel(stateRef.current, track, level)
 			await persist(next)
 		},
 		[persist],
@@ -227,12 +254,13 @@ export function AppProgressProvider({ children }: ProviderProps) {
 			streakCurrent,
 			streakBest,
 			reminderPermission,
-			completeCampaignLevel,
+			completeTrackLevel,
 			completeDaily,
 			completeEndless,
+			completeMultiplication,
 			saveActiveSession,
 			updateSettings,
-			markCampaignPlayed,
+			markTrackPlayed,
 			refreshReminder,
 			requestNotificationPermission,
 		}),
@@ -244,12 +272,13 @@ export function AppProgressProvider({ children }: ProviderProps) {
 			streakCurrent,
 			streakBest,
 			reminderPermission,
-			completeCampaignLevel,
+			completeTrackLevel,
 			completeDaily,
 			completeEndless,
+			completeMultiplication,
 			saveActiveSession,
 			updateSettings,
-			markCampaignPlayed,
+			markTrackPlayed,
 			refreshReminder,
 			requestNotificationPermission,
 		],

@@ -1,8 +1,9 @@
 export type {
 	GameSourceKind,
-	CampaignGameSource,
+	TrackGameSource,
 	DailyGameSource,
 	EndlessGameSource,
+	MultiplicationGameSource,
 	DevFixtureGameSource,
 	TutorialGameSource,
 	GameSource,
@@ -26,6 +27,7 @@ export type { BoardLayout, BoardLayoutInput, OccupiedBounds } from './boardLayou
 export {
 	computeGameVerticalLayout,
 	computeControlsHeight,
+	computeBankControlsHeight,
 	CONTROL_TOUCH,
 	CONTROL_ROW_GAP,
 	GAME_BANNER_RESERVED_HEIGHT,
@@ -47,6 +49,7 @@ export {
 	appendDraftDigit,
 	formatElapsed,
 } from './helpers'
+export type { PlayablePuzzle } from './helpers'
 
 export {
 	createGameState,
@@ -55,11 +58,13 @@ export {
 	isBlankShowingError,
 	isBlankHinted,
 	getFillProgress,
+	getRemainingBankItems,
 } from './gameReducer'
 export type {
 	GameState,
 	GameAction,
 	GameStatus,
+	GameInputMode,
 	UndoEntry,
 	CreateGameStateInput,
 } from './gameReducer'
@@ -73,3 +78,4 @@ export { buildCompletionPresentation } from './completion'
 export type { CompletionPresentation } from './completion'
 
 export { MULTI_DIGIT_DEV_FIXTURE } from './devFixture'
+export { BANK_DUP_DEV_FIXTURE } from './bankFixture'

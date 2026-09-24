@@ -1,6 +1,5 @@
 import type {
 	CellCoordinate,
-	Puzzle,
 	PuzzleSolution,
 } from '@/src/core/crossmath'
 import {
@@ -8,6 +7,8 @@ import {
 	coordinatesEqual,
 	getCell,
 } from '@/src/core/crossmath'
+import type { NumberBankItem } from '@/src/core/crossmath/numberBank'
+import { remainingBankItems } from '@/src/core/crossmath/numberBank'
 import type { GameSource } from './source'
 import {
 	appendDraftDigit,
@@ -17,9 +18,11 @@ import {
 	isSolutionCorrect,
 	listBlankCells,
 	nextBlankCoordinate,
+	type PlayablePuzzle,
 } from './helpers'
 
 export type GameStatus = 'playing' | 'completed'
+export type GameInputMode = 'keypad' | 'bank'
 
 export type UndoEntry = {
 	readonly coordinate: CellCoordinate
@@ -28,11 +31,11 @@ export type UndoEntry = {
 }
 
 export type GameState = {
-	readonly puzzle: Puzzle
+	readonly puzzle: PlayablePuzzle
 	readonly solutionByKey: Readonly<Record<string, number>>
 	readonly entries: Readonly<Record<string, number | null>>
 	readonly selected: CellCoordinate | null
-	/** In-progress multi-digit buffer for the selected blank. */
+	/** In-progress multi-digit buffer for the selected blank (keypad mode). */
 	readonly draft: string
 	readonly history: readonly UndoEntry[]
 	readonly mistakes: number
@@ -42,26 +45,28 @@ export type GameState = {
 	readonly startedAt: number
 	readonly completedAt: number | null
 	readonly status: GameStatus
-	/**
-	 * Settings: "Показывать ошибки сразу".
-	 */
 	readonly showErrorsImmediately: boolean
 	readonly source: GameSource
 	readonly title: string
 	readonly subtitle: string
+	readonly inputMode: GameInputMode
+	/** Initial deterministic bank order (bank mode). */
+	readonly bankItems: readonly NumberBankItem[]
+	readonly bankSeed: string | null
 }
 
 export type GameAction =
 	| { readonly type: 'SELECT_CELL'; readonly coordinate: CellCoordinate }
 	| { readonly type: 'DIGIT'; readonly digit: number }
 	| { readonly type: 'CONFIRM' }
+	| { readonly type: 'PLACE_BANK'; readonly value: number }
 	| { readonly type: 'DELETE' }
 	| { readonly type: 'UNDO' }
 	| { readonly type: 'HINT'; readonly now?: number }
 	| { readonly type: 'TICK_COMPLETE_CHECK'; readonly now?: number }
 
 export type CreateGameStateInput = {
-	readonly puzzle: Puzzle
+	readonly puzzle: PlayablePuzzle
 	readonly solution: PuzzleSolution
 	readonly source: GameSource
 	readonly title: string
@@ -73,6 +78,9 @@ export type CreateGameStateInput = {
 	readonly mistakes?: number
 	readonly hintsUsed?: number
 	readonly hintedKeys?: Readonly<Record<string, true>>
+	readonly inputMode?: GameInputMode
+	readonly bankItems?: readonly NumberBankItem[]
+	readonly bankSeed?: string | null
 }
 
 /**
@@ -106,6 +114,9 @@ export function createGameState(input: CreateGameStateInput): GameState {
 		source: input.source,
 		title: input.title,
 		subtitle: input.subtitle,
+		inputMode: input.inputMode ?? 'keypad',
+		bankItems: input.bankItems ?? [],
+		bankSeed: input.bankSeed ?? null,
 	}
 }
 
@@ -124,6 +135,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 			return applyDigit(state, action.digit)
 		case 'CONFIRM':
 			return confirmDraft(state)
+		case 'PLACE_BANK':
+			return placeBankValue(state, action.value)
 		case 'DELETE':
 			return deleteSelection(state)
 		case 'UNDO':
@@ -138,7 +151,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 function selectCell(state: GameState, coordinate: CellCoordinate): GameState {
-	const cell = getCell(state.puzzle, coordinate)
+	const cell = getCell(state.puzzle as never, coordinate)
 	if (!cell || cell.kind !== 'number' || cell.state !== 'blank') {
 		const committed = commitDraftIfNeeded(state)
 		return { ...committed, selected: null, draft: '' }
@@ -155,6 +168,9 @@ function selectCell(state: GameState, coordinate: CellCoordinate): GameState {
 }
 
 function applyDigit(state: GameState, digit: number): GameState {
+	if (state.inputMode !== 'keypad') {
+		return state
+	}
 	if (!state.selected || state.status === 'completed') {
 		return state
 	}
@@ -169,7 +185,35 @@ function applyDigit(state: GameState, digit: number): GameState {
 	return { ...state, draft: nextDraft }
 }
 
+function placeBankValue(state: GameState, value: number): GameState {
+	if (state.inputMode !== 'bank' || !state.selected || state.status === 'completed') {
+		return state
+	}
+	const remaining = remainingBankItems(state.bankItems, state.entries)
+	const available = remaining.some((item) => item.value === value)
+	if (!available) {
+		// Allow replacing the currently selected cell with the same value family:
+		// temporarily treat the selected value as returned to the bank.
+		const key = coordinateKey(state.selected)
+		const current = state.entries[key] ?? null
+		const probeEntries =
+			current === null
+				? state.entries
+				: { ...state.entries, [key]: null }
+		const probeRemaining = remainingBankItems(state.bankItems, probeEntries)
+		if (!probeRemaining.some((item) => item.value === value)) {
+			return state
+		}
+	}
+	const afterCommit = commitValue(state, state.selected, value)
+	const advanced = advanceAfterCommit(afterCommit, state.selected)
+	return maybeComplete(advanced, Date.now())
+}
+
 function confirmDraft(state: GameState): GameState {
+	if (state.inputMode !== 'keypad') {
+		return state
+	}
 	if (!state.selected || state.draft === '') {
 		return state
 	}
@@ -267,8 +311,11 @@ function applyHint(state: GameState, now: number): GameState {
 	return maybeComplete(advanced, now)
 }
 
-function isBlankCoordinate(puzzle: Puzzle, coordinate: CellCoordinate): boolean {
-	const cell = getCell(puzzle, coordinate)
+function isBlankCoordinate(
+	puzzle: PlayablePuzzle,
+	coordinate: CellCoordinate,
+): boolean {
+	const cell = getCell(puzzle as never, coordinate)
 	return !!cell && cell.kind === 'number' && cell.state === 'blank'
 }
 
@@ -425,6 +472,15 @@ export function isBlankShowingError(
 		return false
 	}
 	return state.solutionByKey[key] !== value
+}
+
+/**
+ * Remaining bank chips for UI (derived from initial bank + entries).
+ */
+export function getRemainingBankItems(
+	state: GameState,
+): readonly NumberBankItem[] {
+	return remainingBankItems(state.bankItems, state.entries)
 }
 
 /**

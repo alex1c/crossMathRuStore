@@ -1,28 +1,50 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { BannerSlot, Screen } from '@/src/components'
 import { useAppProgress } from '@/src/features/progress'
+import {
+	DIFFICULTY_TRACKS,
+	TRACK_LABELS,
+	TRACK_LEVEL_COUNT,
+} from '@/src/core/crossmath/tracks'
 import { useTheme } from '@/src/theme'
 
 /**
- * Basic derived stats from persisted progress.
+ * Derived stats — four-track campaign, daily, endless, multiplication.
  */
 export function StatsScreen() {
 	const theme = useTheme()
 	const { stats } = useAppProgress()
 
-	const rows = [
+	const rows: { label: string; value: string }[] = [
 		{
-			label: 'Кампания',
+			label: 'Кампания (всего)',
 			value: `${stats.campaignSolved} / ${stats.campaignTotal}`,
 		},
-		{ label: 'Кроссворды дня', value: String(stats.dailySolved) },
-		{ label: 'Серия дней', value: String(stats.dailyStreakCurrent) },
-		{ label: 'Лучшая серия', value: String(stats.dailyStreakBest) },
+		...DIFFICULTY_TRACKS.map((track) => ({
+			label: TRACK_LABELS[track],
+			value: `${stats.trackSolved[track]} / ${TRACK_LEVEL_COUNT}`,
+		})),
+	]
+
+	if (stats.multiplicationSolved > 0) {
+		rows.push({
+			label: 'Таблица умножения',
+			value: String(stats.multiplicationSolved),
+		})
+	}
+
+	rows.push(
+		{
+			label: 'Кроссворды дня',
+			value: String(stats.dailySolvedCount),
+		},
+		{ label: 'Серия дней', value: String(stats.streakCurrent) },
+		{ label: 'Лучшая серия', value: String(stats.streakBest) },
 		{ label: 'Бесконечная игра', value: String(stats.endlessSolved) },
 		{ label: 'Всего решено', value: String(stats.totalPuzzlesSolved) },
-		{ label: 'Подсказки', value: String(stats.hintsUsed) },
-		{ label: 'Ошибки', value: String(stats.mistakes) },
-	]
+		{ label: 'Подсказки', value: String(stats.totalHintsUsed) },
+		{ label: 'Ошибки', value: String(stats.totalMistakes) },
+	)
 
 	return (
 		<Screen

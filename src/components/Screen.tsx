@@ -23,7 +23,8 @@ type ScreenProps = {
 
 /**
  * Shared screen shell with real safe-area insets (no fixed paddingBottom hacks).
- * Important CTAs must live inside this shell, not flush to the gesture zone.
+ * Scroll + footer: ScrollView flexes above a pinned footer so the banner hugs
+ * the bottom safe area instead of floating mid-screen on short content.
  */
 export function Screen({
 	title,
@@ -44,27 +45,34 @@ export function Screen({
 			</View>
 		) : null
 
-	const body = scroll ? (
-		<ScrollView
-			style={styles.flex}
-			contentContainerStyle={styles.scrollContent}
-			keyboardShouldPersistTaps="handled"
-		>
-			{header}
-			{children}
-		</ScrollView>
-	) : (
-		<View style={styles.body}>
-			{header}
-			<View style={styles.flex}>{children}</View>
-		</View>
-	)
-
 	return (
 		<SafeAreaView style={styles.safe} edges={edges}>
 			<View style={styles.container}>
-				{body}
-				{footer ? <View style={styles.footer}>{footer}</View> : null}
+				{scroll ? (
+					<>
+						<ScrollView
+							style={styles.flex}
+							contentContainerStyle={styles.scrollContent}
+							keyboardShouldPersistTaps="handled"
+						>
+							{header}
+							{children}
+						</ScrollView>
+						{footer ? (
+							<View style={styles.footer}>{footer}</View>
+						) : null}
+					</>
+				) : (
+					<>
+						<View style={styles.body}>
+							{header}
+							<View style={styles.flex}>{children}</View>
+						</View>
+						{footer ? (
+							<View style={styles.footer}>{footer}</View>
+						) : null}
+					</>
+				)}
 			</View>
 		</SafeAreaView>
 	)
@@ -105,6 +113,7 @@ function createStyles(theme: ReturnType<typeof useTheme>) {
 			marginTop: theme.spacing.xs,
 		},
 		footer: {
+			flexShrink: 0,
 			marginTop: theme.spacing.sm,
 		},
 	})

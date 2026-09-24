@@ -13,7 +13,6 @@ import {
 	generatePuzzleForProfile,
 	getDifficultyProfile,
 	coordinateKey,
-	type Puzzle,
 	type PuzzleSolution,
 } from '@/src/core/crossmath'
 
@@ -22,7 +21,7 @@ function loadLevel(level: number) {
 	const state = createGameState({
 		puzzle: profiled.generated.puzzle,
 		solution: profiled.generated.solution,
-		source: { kind: 'campaign', level },
+		source: { kind: 'track', track: 'easy', level },
 		title: `Уровень ${level}`,
 		subtitle: 'test',
 		startedAt: 1_000_000,
@@ -30,7 +29,7 @@ function loadLevel(level: number) {
 	return { profiled, state }
 }
 
-function firstBlank(puzzle: Puzzle) {
+function firstBlank(puzzle: { readonly grid: { readonly cells: readonly { kind: string; state?: string; coordinate: { row: number; column: number } }[] } }) {
 	const blank = puzzle.grid.cells.find(
 		(cell) => cell.kind === 'number' && cell.state === 'blank',
 	)
@@ -146,7 +145,7 @@ describe('gameplay reducer', () => {
 		const state = createGameState({
 			puzzle: profiled.generated.puzzle,
 			solution: profiled.generated.solution,
-			source: { kind: 'campaign', level: 0 },
+			source: { kind: 'track', track: 'easy', level: 1 },
 			title: 'Tutorial fixture',
 			subtitle: 'test',
 			startedAt: 1_000_000,
@@ -232,3 +231,4 @@ describe('board layout sizing', () => {
 		expect(dense.cellSize).toBeLessThanOrEqual(easy.cellSize)
 	})
 })
+

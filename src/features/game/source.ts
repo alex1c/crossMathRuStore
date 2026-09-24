@@ -1,17 +1,25 @@
 /**
- * Campaign / mode labels and game-session source types for the reusable game screen.
+ * Campaign / mode labels and game-session source types.
  */
 
+import {
+	getTrackLabel,
+	type DifficultyTrack,
+} from '@/src/core/crossmath/tracks'
+
 export type GameSourceKind =
-	| 'campaign'
+	| 'track'
 	| 'daily'
 	| 'endless'
+	| 'multiplication'
 	| 'dev-fixture'
 	| 'tutorial'
 
-export type CampaignGameSource = {
-	readonly kind: 'campaign'
+export type TrackGameSource = {
+	readonly kind: 'track'
+	readonly track: DifficultyTrack
 	readonly level: number
+	readonly catalogVersion?: string | null
 }
 
 export type DailyGameSource = {
@@ -24,9 +32,15 @@ export type EndlessGameSource = {
 	readonly completedCount: number
 }
 
+export type MultiplicationGameSource = {
+	readonly kind: 'multiplication'
+	readonly table: number | 'mixed'
+	readonly sequence: number
+}
+
 export type DevFixtureGameSource = {
 	readonly kind: 'dev-fixture'
-	readonly id: 'multi-digit'
+	readonly id: 'multi-digit' | 'bank-dup'
 }
 
 export type TutorialGameSource = {
@@ -34,67 +48,52 @@ export type TutorialGameSource = {
 }
 
 export type GameSource =
-	| CampaignGameSource
+	| TrackGameSource
 	| DailyGameSource
 	| EndlessGameSource
+	| MultiplicationGameSource
 	| DevFixtureGameSource
 	| TutorialGameSource
 
-/** Russian display labels for campaign 1..250 tier bands (50 levels each). */
-const CAMPAIGN_TIER_LABELS = [
-	'Новичок',
-	'Любитель',
-	'Знаток',
-	'Мастер',
-	'Эксперт',
-] as const
-
-/**
- * Human-readable campaign tier for the game header.
- */
-export function getCampaignTierLabel(level: number): string {
-	if (!Number.isInteger(level) || level < 1 || level > 250) {
-		return 'Кампания'
-	}
-	const tierIndex = Math.min(
-		CAMPAIGN_TIER_LABELS.length - 1,
-		Math.floor((level - 1) / 50),
-	)
-	return CAMPAIGN_TIER_LABELS[tierIndex]
-}
-
-/**
- * Title shown in the game header for the active source.
- */
 export function getGameSourceTitle(source: GameSource): string {
 	switch (source.kind) {
-		case 'campaign':
-			return `Уровень ${source.level}`
+		case 'track':
+			return `${getTrackLabel(source.track)} · уровень ${source.level}`
 		case 'daily':
 			return 'Кроссворд дня'
 		case 'endless':
 			return 'Бесконечная игра'
+		case 'multiplication':
+			return source.table === 'mixed'
+				? 'Таблица умножения · смешанная'
+				: `Таблица ×${source.table}`
 		case 'dev-fixture':
-			return 'DEV multi-digit fixture'
+			return source.id === 'bank-dup'
+				? 'DEV bank fixture'
+				: 'DEV multi-digit fixture'
 		case 'tutorial':
 			return 'Обучение'
 	}
 }
 
-/**
- * Subtitle for the active source.
- */
 export function getGameSourceSubtitle(source: GameSource): string {
 	switch (source.kind) {
-		case 'campaign':
-			return getCampaignTierLabel(source.level)
+		case 'track':
+			return getTrackLabel(source.track)
 		case 'daily':
 			return source.dateKey
 		case 'endless':
 			return `Решено подряд: ${source.completedCount}`
+		case 'multiplication':
+			return source.table === 'mixed' ? 'Смешанная' : `×${source.table}`
 		case 'dev-fixture':
-			return 'DEV-only: 12 + 6 = 18'
+			return 'DEV-only'
 		case 'tutorial':
 			return 'Мини-кроссворд'
 	}
+}
+
+/** @deprecated old tier labels — do not use in production track UI */
+export function getCampaignTierLabel(_level: number): string {
+	return 'Кампания'
 }

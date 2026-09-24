@@ -71,22 +71,25 @@ describe('onboarding persistence', () => {
 	})
 
 	it('replay does not reset campaign progress', () => {
+		const defaults = createDefaultPersistedState()
 		const state = withSettings(
 			{
-				...createDefaultPersistedState(),
-				campaign: {
-					highestUnlockedLevel: 12,
-					completedLevels: [1, 2, 3],
-					results: {},
-					lastPlayedLevel: 3,
+				...defaults,
+				tracks: {
+					...defaults.tracks,
+					easy: {
+						highestUnlockedLevel: 12,
+						completedLevels: [1, 2, 3],
+						results: {},
+						lastPlayedLevel: 3,
+					},
 				},
 			},
 			{ onboardingCompleted: true },
 		)
-		// Replay only navigates; settings already completed and campaign untouched.
 		expect(state.settings.onboardingCompleted).toBe(true)
-		expect(state.campaign.completedLevels).toEqual([1, 2, 3])
-		expect(state.campaign.highestUnlockedLevel).toBe(12)
+		expect(state.tracks.easy.completedLevels).toEqual([1, 2, 3])
+		expect(state.tracks.easy.highestUnlockedLevel).toBe(12)
 	})
 
 	it('legacy payloads without onboardingCompleted default to false safely', () => {
@@ -131,7 +134,7 @@ describe('completion presentation', () => {
 	it('builds campaign / daily / endless copy', () => {
 		expect(
 			buildCompletionPresentation({
-				source: { kind: 'campaign', level: 37 },
+				source: { kind: 'track', track: 'easy', level: 37 },
 			}).detail,
 		).toContain('37')
 		expect(

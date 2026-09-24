@@ -1,38 +1,30 @@
 /**
  * Pure vertical GameScreen allocation — header / board / controls / banner.
- * Guarantees keypad + reserved banner stay above the bottom inset.
+ * Guarantees keypad/bank + reserved banner stay above the bottom inset.
  */
 
 export type ControlMetrics = {
-	/** Height of action-row and keypad buttons. */
+	/** Height of action-row and keypad/bank chips. */
 	readonly touchHeight: number
 	/** Vertical gap between control rows. */
 	readonly rowGap: number
-	/** Gap between action row and number pad. */
+	/** Gap between action row and number pad / bank. */
 	readonly sectionGap: number
-	/** Total height of action row + 4 keypad rows + gaps. */
+	/** Total height of action row + input rows + gaps. */
 	readonly totalHeight: number
 }
 
 export type GameVerticalLayoutInput = {
-	/** Inner content width (already excluding horizontal page padding). */
 	readonly availableWidth: number
-	/**
-	 * Inner content height available for header + board + controls + banner.
-	 * Caller must already subtract bottom safe-area padding.
-	 */
 	readonly availableHeight: number
-	/** Measured or estimated header/status block height. */
 	readonly headerHeight: number
-	/** Vertical gaps between header/board and board/controls. */
 	readonly sectionGap?: number
-	/**
-	 * Reserved sticky banner height above the bottom inset.
-	 * Must be part of the allocation — never appended after fitting.
-	 */
 	readonly bannerReservedHeight?: number
-	/** Gap between controls and banner. */
 	readonly bannerGap?: number
+	/** keypad = 4 pad rows; bank = wrapped chip rows. */
+	readonly inputMode?: 'keypad' | 'bank'
+	/** Approximate bank chip count for row estimation. */
+	readonly bankItemCount?: number
 }
 
 export type GameVerticalLayout = {
@@ -51,7 +43,6 @@ export type GameVerticalLayout = {
 
 const ACTION_ROWS = 1
 const PAD_ROWS = 4
-const CONTROL_ROWS = ACTION_ROWS + PAD_ROWS
 
 /** Comfortable defaults; shrink toward min under height pressure. */
 export const CONTROL_TOUCH = {
@@ -77,31 +68,59 @@ export function computeControlsHeight(
 	rowGap: number,
 	sectionGap: number = rowGap,
 ): number {
+	const controlRows = ACTION_ROWS + PAD_ROWS
 	const gaps = sectionGap + Math.max(0, PAD_ROWS - 1) * rowGap
-	return CONTROL_ROWS * touchHeight + gaps
+	return controlRows * touchHeight + gaps
+}
+
+/**
+ * Height of action row + wrapped bank chip rows.
+ */
+export function computeBankControlsHeight(
+	touchHeight: number,
+	rowGap: number,
+	bankItemCount: number,
+	sectionGap: number = rowGap,
+): number {
+	const chipsPerRow = 4
+	const bankRows = Math.max(1, Math.ceil(Math.max(1, bankItemCount) / chipsPerRow))
+	const gaps = sectionGap + Math.max(0, bankRows - 1) * rowGap
+	return (ACTION_ROWS + bankRows) * touchHeight + gaps
 }
 
 function buildControlMetrics(
 	touchHeight: number,
 	rowGap: number,
+	inputMode: 'keypad' | 'bank',
+	bankItemCount: number,
 ): ControlMetrics {
 	const sectionGap = rowGap
+	const totalHeight =
+		inputMode === 'bank'
+			? computeBankControlsHeight(
+					touchHeight,
+					rowGap,
+					bankItemCount,
+					sectionGap,
+				)
+			: computeControlsHeight(touchHeight, rowGap, sectionGap)
 	return {
 		touchHeight,
 		rowGap,
 		sectionGap,
-		totalHeight: computeControlsHeight(touchHeight, rowGap, sectionGap),
+		totalHeight,
 	}
 }
 
 /**
- * Allocate GameScreen vertical space so keypad + banner never leave the viewport.
- * Priority: safe area (caller) → banner slot → compact controls → shrink board.
+ * Allocate GameScreen vertical space so controls + banner never leave the viewport.
  */
 export function computeGameVerticalLayout(
 	input: GameVerticalLayoutInput,
 ): GameVerticalLayout {
 	const sectionGap = input.sectionGap ?? 8
+	const inputMode = input.inputMode ?? 'keypad'
+	const bankItemCount = input.bankItemCount ?? 12
 	const bannerReservedHeight = Math.max(
 		0,
 		Math.floor(input.bannerReservedHeight ?? GAME_BANNER_RESERVED_HEIGHT),
@@ -113,8 +132,7 @@ export function computeGameVerticalLayout(
 
 	const bannerBlock = bannerReservedHeight + bannerGap
 	const gapsAroundBoard = sectionGap * 2
-	const fixedSansControls =
-		headerHeight + gapsAroundBoard + bannerBlock
+	const fixedSansControls = headerHeight + gapsAroundBoard + bannerBlock
 
 	const candidates: { touch: number; gap: number }[] = [
 		{ touch: CONTROL_TOUCH.comfortable, gap: CONTROL_ROW_GAP.comfortable },
@@ -128,12 +146,19 @@ export function computeGameVerticalLayout(
 	let chosen = buildControlMetrics(
 		CONTROL_TOUCH.minimum,
 		CONTROL_ROW_GAP.minimum,
+		inputMode,
+		bankItemCount,
 	)
 	let boardAreaHeight = 0
 	let fallback: GameVerticalLayout['fallback'] = 'none'
 
 	for (const candidate of candidates) {
-		const controls = buildControlMetrics(candidate.touch, candidate.gap)
+		const controls = buildControlMetrics(
+			candidate.touch,
+			candidate.gap,
+			inputMode,
+			bankItemCount,
+		)
 		const remaining =
 			availableHeight - fixedSansControls - controls.totalHeight
 		if (remaining >= minBoard) {
@@ -154,6 +179,8 @@ export function computeGameVerticalLayout(
 		chosen = buildControlMetrics(
 			CONTROL_TOUCH.minimum,
 			CONTROL_ROW_GAP.minimum,
+			inputMode,
+			bankItemCount,
 		)
 		boardAreaHeight = Math.max(
 			absoluteMinBoard,

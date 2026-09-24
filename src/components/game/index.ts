@@ -1,6 +1,7 @@
 export { CrossMathBoard } from './CrossMathBoard'
 export { BoardCell } from './BoardCell'
 export { NumberPad } from './NumberPad'
+export { NumberBankPad } from './NumberBankPad'
 export { GameControls } from './GameControls'
 export { CompletionCard } from './CompletionCard'
 export { GameBannerSlot } from './GameBannerSlot'

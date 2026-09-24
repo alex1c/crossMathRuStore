@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import type { CellCoordinate, CrossMathCell, Puzzle } from '@/src/core/crossmath'
+import type { CellCoordinate, CrossMathCell } from '@/src/core/crossmath'
 import {
 	coordinateKey,
 	coordinatesEqual,
@@ -14,6 +14,7 @@ import {
 	isBlankShowingError,
 	toLogicalCoordinate,
 	type GameState,
+	type PlayablePuzzle,
 } from '@/src/features/game'
 import { BoardCell, cellGlyph, type BoardCellVisual } from './BoardCell'
 
@@ -160,7 +161,7 @@ export function CrossMathBoard({
 	)
 }
 
-function buildCellMap(puzzle: Puzzle): Map<string, CrossMathCell> {
+function buildCellMap(puzzle: PlayablePuzzle): Map<string, CrossMathCell> {
 	const map = new Map<string, CrossMathCell>()
 	for (const cell of puzzle.grid.cells) {
 		map.set(coordinateKey(cell.coordinate), cell)

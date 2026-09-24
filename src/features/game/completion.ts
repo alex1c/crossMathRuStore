@@ -1,8 +1,9 @@
 /**
- * Pure helpers for completion-card presentation and campaign “next” CTA.
+ * Pure helpers for completion-card presentation.
  */
 
 import type { GameSource } from './source'
+import { getTrackLabel } from '@/src/core/crossmath/tracks'
 
 export type CompletionPresentation = {
 	readonly headline: string
@@ -11,14 +12,10 @@ export type CompletionPresentation = {
 	readonly showNext: boolean
 }
 
-/**
- * Build completion copy for campaign / daily / endless / tutorial.
- */
 export function buildCompletionPresentation(input: {
 	readonly source: GameSource
 	readonly endlessCompletedCount?: number
 	readonly dailyStreak?: number
-	readonly campaignLevel?: number
 }): CompletionPresentation {
 	if (input.source.kind === 'tutorial') {
 		return {
@@ -49,6 +46,18 @@ export function buildCompletionPresentation(input: {
 			showNext: false,
 		}
 	}
+	if (input.source.kind === 'multiplication') {
+		const label =
+			input.source.table === 'mixed'
+				? 'Смешанная'
+				: `Таблица ×${input.source.table}`
+		return {
+			headline: 'Готово!',
+			detail: label,
+			nextLabel: 'Ещё задача',
+			showNext: true,
+		}
+	}
 	if (input.source.kind === 'dev-fixture') {
 		return {
 			headline: 'Готово!',
@@ -57,12 +66,19 @@ export function buildCompletionPresentation(input: {
 			showNext: false,
 		}
 	}
-	const level = input.campaignLevel ?? input.source.level
-	const hasNext = level < 250
+	if (input.source.kind === 'track') {
+		const hasNext = input.source.level < 50
+		return {
+			headline: 'Готово!',
+			detail: `${getTrackLabel(input.source.track)}\nУровень ${input.source.level}`,
+			nextLabel: hasNext ? 'Следующий уровень' : null,
+			showNext: hasNext,
+		}
+	}
 	return {
 		headline: 'Готово!',
-		detail: `Уровень ${level} решён`,
-		nextLabel: hasNext ? 'Следующий уровень' : null,
-		showNext: hasNext,
+		detail: 'Решено',
+		nextLabel: null,
+		showNext: false,
 	}
 }

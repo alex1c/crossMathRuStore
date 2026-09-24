@@ -1,19 +1,22 @@
 import type {
 	CellCoordinate,
-	Equation,
 	NumberCell,
 	Puzzle,
 	PuzzleSolution,
 } from '@/src/core/crossmath'
+import type { HybridPuzzle } from '@/src/core/crossmath/hybrid'
 import {
 	coordinateKey,
 	coordinatesEqual,
 } from '@/src/core/crossmath'
 
+/** Binary or hybrid puzzle sharing the same grid cell model. */
+export type PlayablePuzzle = Puzzle | HybridPuzzle
+
 /**
  * Collect blank number cells in stable row/column order.
  */
-export function listBlankCells(puzzle: Puzzle): readonly NumberCell[] {
+export function listBlankCells(puzzle: PlayablePuzzle): readonly NumberCell[] {
 	return puzzle.grid.cells
 		.filter(
 			(cell): cell is NumberCell =>
@@ -44,7 +47,7 @@ export function buildSolutionMap(
  * Initial user entries: every blank starts empty (null).
  */
 export function createInitialEntries(
-	puzzle: Puzzle,
+	puzzle: PlayablePuzzle,
 ): Record<string, number | null> {
 	const entries: Record<string, number | null> = {}
 	for (const cell of listBlankCells(puzzle)) {
@@ -54,10 +57,10 @@ export function createInitialEntries(
 }
 
 /**
- * Soft highlight set: all cells belonging to equations that touch `coordinate`.
+ * Soft highlight set: equations (binary or long) that touch `coordinate`.
  */
 export function findRelatedCoordinates(
-	puzzle: Puzzle,
+	puzzle: PlayablePuzzle,
 	coordinate: CellCoordinate | null,
 ): ReadonlySet<string> {
 	const related = new Set<string>()
@@ -65,7 +68,7 @@ export function findRelatedCoordinates(
 		return related
 	}
 	for (const equation of puzzle.equations) {
-		if (equationContains(equation, coordinate)) {
+		if (equation.cells.some((cell) => coordinatesEqual(cell, coordinate))) {
 			for (const cell of equation.cells) {
 				related.add(coordinateKey(cell))
 			}
@@ -74,18 +77,11 @@ export function findRelatedCoordinates(
 	return related
 }
 
-function equationContains(
-	equation: Equation,
-	coordinate: CellCoordinate,
-): boolean {
-	return equation.cells.some((cell) => coordinatesEqual(cell, coordinate))
-}
-
 /**
  * Next blank after `current` in reading order (wraps). Returns null if none.
  */
 export function nextBlankCoordinate(
-	puzzle: Puzzle,
+	puzzle: PlayablePuzzle,
 	current: CellCoordinate,
 ): CellCoordinate | null {
 	const blanks = listBlankCells(puzzle)
@@ -142,7 +138,6 @@ export function appendDraftDigit(
 		return null
 	}
 	const next = `${draft}${digit}`
-	// Leading zeros are only useful as a literal 0 when max allows it.
 	if (next.length > 1 && next.startsWith('0')) {
 		return null
 	}

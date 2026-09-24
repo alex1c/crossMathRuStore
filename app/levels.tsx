@@ -1,5 +1,5 @@
-import { LevelsScreen } from '@/src/screens/LevelsScreen'
+import { TrackSelectionScreen } from '@/src/screens/TrackSelectionScreen'
 
 export default function LevelsRoute() {
-	return <LevelsScreen />
+	return <TrackSelectionScreen />
 }

@@ -54,6 +54,14 @@ function RootNavigator() {
 				/>
 				<Stack.Screen name="levels" options={{ title: 'Уровни' }} />
 				<Stack.Screen
+					name="track-levels"
+					options={{ title: 'Трек' }}
+				/>
+				<Stack.Screen
+					name="multiplication"
+					options={{ title: 'Таблица умножения' }}
+				/>
+				<Stack.Screen
 					name="game"
 					options={{ title: 'Игра', headerShown: true }}
 				/>

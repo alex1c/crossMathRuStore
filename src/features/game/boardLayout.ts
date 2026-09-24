@@ -6,7 +6,8 @@
  * not the full logical canvas, while gameplay keeps logical coordinates.
  */
 
-import type { CellCoordinate, Puzzle } from '@/src/core/crossmath'
+import type { CellCoordinate } from '@/src/core/crossmath'
+import type { PlayablePuzzle } from './helpers'
 
 export type OccupiedBounds = {
 	readonly minRow: number
@@ -41,7 +42,7 @@ export type BoardLayout = {
  * Bounding box of coordinates that actually contain puzzle cells.
  * Empty / absent outer coordinates are excluded from visual sizing.
  */
-export function getOccupiedBounds(puzzle: Puzzle): OccupiedBounds {
+export function getOccupiedBounds(puzzle: PlayablePuzzle): OccupiedBounds {
 	const cells = puzzle.grid.cells
 	if (cells.length === 0) {
 		return {
@@ -152,7 +153,7 @@ export function computeBoardLayout(input: BoardLayoutInput): BoardLayout {
  * Convenience: occupied bounds + layout against available board area.
  */
 export function computeOccupiedBoardLayout(
-	puzzle: Puzzle,
+	puzzle: PlayablePuzzle,
 	availableWidth: number,
 	availableHeight: number,
 	sizing: {

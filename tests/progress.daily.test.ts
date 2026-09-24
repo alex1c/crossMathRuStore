@@ -100,7 +100,7 @@ describe('daily entry session selection', () => {
 		).toBe(false)
 		expect(
 			hasActiveDailySessionForDate(
-				{ source: { kind: 'campaign', level: 1 } },
+				{ source: { kind: 'track', track: 'easy', level: 1 } },
 				'2026-09-23',
 			),
 		).toBe(false)
@@ -189,10 +189,13 @@ describe('derived stats', () => {
 		let state = createDefaultPersistedState()
 		state = {
 			...state,
-			campaign: {
-				...state.campaign,
-				completedLevels: [1, 2],
-				highestUnlockedLevel: 3,
+			tracks: {
+				...state.tracks,
+				easy: {
+					...state.tracks.easy,
+					completedLevels: [1, 2],
+					highestUnlockedLevel: 3,
+				},
 			},
 			daily: {
 				completions: {
@@ -221,11 +224,11 @@ describe('derived stats', () => {
 		}
 		const stats = deriveAppStats(state, '2026-09-23')
 		expect(stats.campaignSolved).toBe(2)
-		expect(stats.dailySolved).toBe(2)
-		expect(stats.dailyStreakCurrent).toBe(2)
+		expect(stats.dailySolvedCount).toBe(2)
+		expect(stats.streakCurrent).toBe(2)
 		expect(stats.endlessSolved).toBe(4)
 		expect(stats.totalPuzzlesSolved).toBe(6)
-		expect(stats.hintsUsed).toBe(3)
-		expect(stats.mistakes).toBe(5)
+		expect(stats.totalHintsUsed).toBe(3)
+		expect(stats.totalMistakes).toBe(5)
 	})
 })

@@ -1,10 +1,8 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { router } from 'expo-router'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
-import {
-	getNextCampaignLevel,
-	useAppProgress,
-} from '@/src/features/progress'
+import { useAppProgress } from '@/src/features/progress'
+import { CAMPAIGN_TOTAL_LEVELS } from '@/src/core/crossmath/tracks'
 import { getGameSourceTitle } from '@/src/features/game'
 import { useTheme } from '@/src/theme'
 import { useEffect } from 'react'
@@ -44,11 +42,7 @@ export function HomeScreen() {
 	const { state, todayKey, streakCurrent } = progress
 	const active = state.activeSession
 	const todayDone = Boolean(state.daily.completions[todayKey])
-	const campaignSolved = state.campaign.completedLevels.length
-	const nextLevel = getNextCampaignLevel(
-		state.campaign.highestUnlockedLevel,
-		state.campaign.completedLevels,
-	)
+	const { campaignSolved } = progress.stats
 
 	return (
 		<Screen
@@ -81,8 +75,13 @@ export function HomeScreen() {
 			/>
 
 			<HomeMenuButton
-				label={`Уровни\n${campaignSolved} / 250 · далее ${nextLevel}`}
+				label={`Уровни\n${campaignSolved} / ${CAMPAIGN_TOTAL_LEVELS}`}
 				onPress={() => router.push('/levels')}
+			/>
+
+			<HomeMenuButton
+				label="Таблица умножения"
+				onPress={() => router.push('/multiplication')}
 			/>
 
 			<HomeMenuButton

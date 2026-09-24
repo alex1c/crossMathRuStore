@@ -3,18 +3,25 @@ export {
 	PERSISTENCE_STORAGE_KEY,
 	DEFAULT_REMINDER_MINUTES,
 	createDefaultPersistedState,
+	createDefaultTracks,
+	createDefaultTrackProgress,
+	migrateLegacyCampaignToTracks,
+	TRACK_LEVEL_COUNT,
 } from './schema'
 export type {
 	PersistedAppState,
-	PersistedCampaign,
-	PersistedCampaignLevelResult,
+	PersistedTracks,
+	PersistedTrackProgress,
+	PersistedTrackLevelResult,
 	PersistedDaily,
 	PersistedDailyResult,
 	PersistedEndless,
+	PersistedMultiplicationProgress,
 	PersistedSettings,
 	PersistedActiveSession,
 	PersistedGameSource,
 	PersistedStatsCounters,
+	LegacyPersistedCampaign,
 } from './schema'
 export { parsePersistedAppState } from './validate'
 export {
