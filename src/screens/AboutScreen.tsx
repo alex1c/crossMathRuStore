@@ -6,6 +6,10 @@ import {
 	OTHER_OUR_APPS_LABEL,
 	OTHER_OUR_APPS_URL,
 } from '@/src/constants/otherApps'
+import {
+	PRIVACY_POLICY_LABEL,
+	PRIVACY_POLICY_URL,
+} from '@/src/constants/privacyPolicy'
 import { useTheme } from '@/src/theme'
 
 /**
@@ -72,6 +76,32 @@ export function AboutScreen() {
 					}}
 				>
 					Пройти обучение ещё раз
+				</Text>
+			</Pressable>
+
+			<Pressable
+				accessibilityRole="link"
+				accessibilityLabel={PRIVACY_POLICY_LABEL}
+				onPress={() => {
+					void Linking.openURL(PRIVACY_POLICY_URL)
+				}}
+				style={({ pressed }) => [
+					styles.row,
+					{
+						borderColor: theme.colors.border,
+						backgroundColor: theme.colors.surface,
+						opacity: pressed ? 0.85 : 1,
+						marginTop: 10,
+					},
+				]}
+			>
+				<Text
+					style={{
+						color: theme.colors.primary,
+						...theme.typography.bodyStrong,
+					}}
+				>
+					{PRIVACY_POLICY_LABEL}
 				</Text>
 			</Pressable>
 
