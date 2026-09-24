@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { router } from 'expo-router'
+import { router, type Href } from 'expo-router'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
 import { useAppProgress } from '@/src/features/progress'
 import { CAMPAIGN_TOTAL_LEVELS } from '@/src/core/crossmath/tracks'
@@ -81,7 +81,7 @@ export function HomeScreen() {
 
 			<HomeMenuButton
 				label="Таблица умножения"
-				onPress={() => router.push('/multiplication')}
+				onPress={() => router.push('/multiplication' as Href)}
 			/>
 
 			<HomeMenuButton

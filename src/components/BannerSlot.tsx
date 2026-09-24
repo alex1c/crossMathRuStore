@@ -36,6 +36,7 @@ export function BannerSlot({ placement }: BannerSlotProps) {
 
 	return (
 		<View
+			pointerEvents="none"
 			accessibilityElementsHidden
 			importantForAccessibility="no-hide-descendants"
 			style={[

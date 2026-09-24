@@ -4,46 +4,46 @@
 
 import * as Haptics from 'expo-haptics'
 
+/** Haptics are optional feedback: ignore unavailable APIs and native failures. */
+function runHaptic(action: () => Promise<void>): void {
+	try {
+		void Promise.resolve(action()).catch(() => {
+			// Native haptic unavailable or rejected; gameplay continues silently.
+		})
+	} catch {
+		// Some platforms throw before returning a Promise.
+	}
+}
+
 /**
  * Soft tap feedback for keypad / selection.
  */
 export function hapticSelection(): void {
-	try {
-		void Haptics.selectionAsync()
-	} catch {
-		// Native haptic unavailable — ignore.
-	}
+	runHaptic(() => Haptics.selectionAsync())
 }
 
 /**
  * Confirmed entry / light impact.
  */
 export function hapticEntry(): void {
-	try {
-		void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-	} catch {
-		// Native haptic unavailable — ignore.
-	}
+	runHaptic(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light))
 }
 
 /**
  * Soft error feedback (wrong entry when show-errors is on).
  */
 export function hapticError(): void {
-	try {
-		void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-	} catch {
-		// Native haptic unavailable — ignore.
-	}
+	runHaptic(() =>
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
+	)
 }
 
 /**
  * Puzzle completion celebration.
  */
 export function hapticSuccess(): void {
-	try {
-		void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-	} catch {
-		// Native haptic unavailable — ignore.
-	}
+	runHaptic(() =>
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+	)
 }
+

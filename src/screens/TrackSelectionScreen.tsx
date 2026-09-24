@@ -40,7 +40,7 @@ export function TrackSelectionScreen() {
 						solved={solved}
 						onPress={() => {
 							router.push({
-								pathname: '/track-levels',
+							pathname: '/track-levels' as never,
 								params: { track },
 							})
 						}}

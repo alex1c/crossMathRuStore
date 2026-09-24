@@ -1,5 +1,5 @@
 import { ActivityIndicator, View } from 'react-native'
-import { Redirect, useLocalSearchParams } from 'expo-router'
+import { Redirect, useLocalSearchParams, type Href } from 'expo-router'
 import { GameScreen } from '@/src/screens/GameScreen'
 import { useAppProgress, formatLocalDateKey } from '@/src/features/progress'
 import type { GameSource } from '@/src/features/game'
@@ -110,7 +110,7 @@ export default function GameRoute() {
 			!Number.isInteger(sequence) ||
 			sequence < 0
 		) {
-			return <Redirect href="/multiplication" />
+			return <Redirect href={'/multiplication' as Href} />
 		}
 		const source: GameSource = {
 			kind: 'multiplication',
