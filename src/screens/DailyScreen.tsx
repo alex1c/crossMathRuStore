@@ -47,7 +47,7 @@ export function DailyScreen() {
 					: todayKey
 			}
 			scroll
-			footer={<BannerSlot placement="home" />}
+			footer={<BannerSlot placement="daily" />}
 		>
 			<HomeMenuButton
 				label={todayDone ? 'Сегодня решено ✓' : 'Играть сегодня'}

@@ -39,7 +39,7 @@ export function SettingsScreen() {
 			title="Настройки"
 			subtitle="Игра и напоминание"
 			scroll
-			footer={<BannerSlot placement="reminder" />}
+			footer={<BannerSlot placement="settings" />}
 		>
 			<Text
 				style={[

@@ -50,6 +50,17 @@ import {
 	hapticError,
 	hapticSelection,
 } from '@/src/features/feedback'
+import {
+	maybeShowCompletionInterstitial,
+	noteMeaningfulPuzzleCompletion,
+	preloadRewardedHint,
+	shouldRequestRewardedForHint,
+	showRewardedHint,
+} from '@/src/services/ads'
+import {
+	elapsedBucket,
+	trackAnalyticsEvent,
+} from '@/src/services/analytics'
 import { useTheme } from '@/src/theme'
 import type { PersistedActiveSession, PersistedGameSource } from '@/src/services/persistence'
 
@@ -118,6 +129,9 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 	const [bankTipDismissed, setBankTipDismissed] = useState(
 		progress.state.settings.bankTipSeen,
 	)
+	/** Bounded rewarded no-fill fallback: at most one emergency free hint per puzzle. */
+	const emergencyHintUsedRef = useRef(false)
+	const hintInFlightRef = useRef(false)
 	const stateRef = useRef(state)
 	const timerRef = useRef(timer)
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState)
@@ -238,6 +252,122 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		}
 	}, [stableSource, markTrackPlayed])
 
+	useEffect(() => {
+		void preloadRewardedHint()
+		const inputMode =
+			initial.game.inputMode === 'bank' ? 'bank' : 'keypad'
+		if (stableSource.kind === 'multiplication') {
+			trackAnalyticsEvent('multiplication_puzzle_started', {
+				table:
+					stableSource.table === 'mixed'
+						? 'mixed'
+						: String(stableSource.table),
+				input_mode: inputMode,
+			})
+			return
+		}
+		if (stableSource.kind === 'endless') {
+			trackAnalyticsEvent('endless_started', {
+				completed_count: stableSource.completedCount,
+				input_mode: inputMode,
+			})
+			return
+		}
+		if (stableSource.kind === 'daily') {
+			trackAnalyticsEvent('daily_opened', { input_mode: inputMode })
+		}
+		trackAnalyticsEvent('puzzle_started', {
+			source: stableSource.kind,
+			track:
+				stableSource.kind === 'track' ? stableSource.track : undefined,
+			local_level:
+				stableSource.kind === 'track' ? stableSource.level : undefined,
+			input_mode: inputMode,
+		})
+		// Mount-only analytics for this puzzle identity.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [sourceIdentity])
+
+	const setFullscreenAdActive = useCallback((active: boolean) => {
+		if (stateRef.current.status === 'completed') {
+			return
+		}
+		const previousTimer = timerRef.current
+		const nextTimer = active
+			? pauseActiveTimer(previousTimer)
+			: resumeActiveTimer(previousTimer)
+		if (nextTimer === previousTimer) {
+			return
+		}
+		timerRef.current = nextTimer
+		setTimer(nextTimer)
+		persistTimerSnapshot(nextTimer)
+	}, [persistTimerSnapshot])
+
+	const grantHint = useCallback(
+		(kind: 'free' | 'rewarded') => {
+			dispatch({ type: 'HINT' })
+			trackAnalyticsEvent('hint_granted', {
+				source: stateRef.current.source.kind,
+				track:
+					stateRef.current.source.kind === 'track'
+						? stateRef.current.source.track
+						: undefined,
+				kind,
+			})
+			if (kind === 'rewarded') {
+				trackAnalyticsEvent('rewarded_earned', {
+					source: stateRef.current.source.kind,
+				})
+			}
+		},
+		[],
+	)
+
+	const handleHint = useCallback(async () => {
+		if (hintInFlightRef.current || stateRef.current.status !== 'playing') {
+			return
+		}
+		hapticEntry()
+		const game = stateRef.current
+		trackAnalyticsEvent('hint_requested', {
+			source: game.source.kind,
+			track: game.source.kind === 'track' ? game.source.track : undefined,
+		})
+
+		if (!shouldRequestRewardedForHint(game.hintsUsed)) {
+			grantHint('free')
+			return
+		}
+
+		hintInFlightRef.current = true
+		try {
+			const result = await showRewardedHint({
+				onFullscreenChange: setFullscreenAdActive,
+			})
+			trackAnalyticsEvent('rewarded_ad_result', {
+				source: game.source.kind,
+				result,
+			})
+			if (result === 'earned') {
+				grantHint('rewarded')
+				return
+			}
+			// Bounded fallback when ads are unavailable — never on close-without-reward.
+			if (
+				(result === 'unavailable' ||
+					result === 'load_error' ||
+					result === 'show_error') &&
+				!emergencyHintUsedRef.current
+			) {
+				emergencyHintUsedRef.current = true
+				grantHint('free')
+			}
+		} finally {
+			hintInFlightRef.current = false
+		}
+	}, [grantHint, setFullscreenAdActive])
+
 	const fill = getFillProgress(state)
 	const elapsedMs =
 		state.status === 'completed'
@@ -325,12 +455,61 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 		} catch {
 			// Persistence errors must not crash the completion UI.
 		}
+
+		// Completion is persisted before any interstitial attempt.
+		noteMeaningfulPuzzleCompletion()
+		const inputMode = game.inputMode === 'bank' ? 'bank' : 'keypad'
+		const shared = {
+			source: game.source.kind,
+			mistakes: game.mistakes,
+			hints: game.hintsUsed,
+			elapsed_bucket: elapsedBucket(elapsed),
+			input_mode: inputMode,
+		}
+		if (game.source.kind === 'daily') {
+			trackAnalyticsEvent('daily_completed', shared)
+		} else if (game.source.kind === 'endless') {
+			trackAnalyticsEvent('endless_puzzle_completed', {
+				...shared,
+				completed_count:
+					game.source.kind === 'endless'
+						? game.source.completedCount + 1
+						: undefined,
+			})
+		} else if (game.source.kind === 'multiplication') {
+			trackAnalyticsEvent('multiplication_puzzle_completed', {
+				...shared,
+				table:
+					game.source.table === 'mixed'
+						? 'mixed'
+						: String(game.source.table),
+			})
+		} else {
+			trackAnalyticsEvent('puzzle_completed', {
+				...shared,
+				track:
+					game.source.kind === 'track' ? game.source.track : undefined,
+				local_level:
+					game.source.kind === 'track' ? game.source.level : undefined,
+			})
+		}
+
+		const shown = await maybeShowCompletionInterstitial({
+			sourceKind: game.source.kind,
+			onFullscreenChange: setFullscreenAdActive,
+		})
+		if (shown) {
+			trackAnalyticsEvent('interstitial_shown', {
+				source: game.source.kind,
+			})
+		}
 	}, [
 		completeTrackLevel,
 		completeDaily,
 		completeEndless,
 		completeMultiplication,
 		saveActiveSession,
+		setFullscreenAdActive,
 	])
 
 	const completedOnceRef = useRef(false)
@@ -511,8 +690,7 @@ export function GameScreen({ source, resume = false }: GameScreenProps) {
 								onUndo={() => dispatch({ type: 'UNDO' })}
 								onDelete={() => dispatch({ type: 'DELETE' })}
 								onHint={() => {
-									hapticEntry()
-									dispatch({ type: 'HINT' })
+									void handleHint()
 								}}
 							/>
 							{state.inputMode === 'bank' ? (

@@ -12,6 +12,7 @@ import {
 	TRACK_LABELS,
 	type DifficultyTrack,
 } from '@/src/core/crossmath/tracks'
+import { trackAnalyticsEvent } from '@/src/services/analytics'
 import { useTheme } from '@/src/theme'
 
 /**
@@ -39,8 +40,9 @@ export function TrackSelectionScreen() {
 						track={track}
 						solved={solved}
 						onPress={() => {
+							trackAnalyticsEvent('track_opened', { track })
 							router.push({
-							pathname: '/track-levels' as never,
+								pathname: '/track-levels' as never,
 								params: { track },
 							})
 						}}

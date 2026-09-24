@@ -59,7 +59,7 @@ export const CONTROL_ROW_GAP = {
 	minimum: 4,
 } as const
 
-/** Realistic sticky mobile banner reservation (no Ad SDK yet). */
+/** Realistic sticky mobile banner reservation (matches ads config). */
 export const GAME_BANNER_RESERVED_HEIGHT = 50
 
 /**

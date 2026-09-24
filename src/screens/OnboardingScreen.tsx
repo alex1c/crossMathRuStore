@@ -2,7 +2,7 @@
  * Interactive first-launch / replayable tutorial screen.
  */
 
-import { useCallback, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import {
 	LayoutChangeEvent,
 	Pressable,
@@ -36,6 +36,7 @@ import {
 } from '@/src/features/onboarding'
 import { useAppProgress } from '@/src/features/progress'
 import { hapticEntry, hapticSelection } from '@/src/features/feedback'
+import { trackAnalyticsEvent } from '@/src/services/analytics'
 import { useTheme } from '@/src/theme'
 
 const HEADER_FALLBACK = 96
@@ -89,15 +90,22 @@ export function OnboardingScreen() {
 		[contentSize.width, contentSize.height, headerHeight],
 	)
 
-	const finish = useCallback(async () => {
+	useEffect(() => {
+		trackAnalyticsEvent('onboarding_started')
+	}, [])
+
+	const finish = useCallback(async (outcome: 'completed' | 'skipped') => {
 		if (!isReplay) {
 			await progress.updateSettings({ onboardingCompleted: true })
 		}
+		trackAnalyticsEvent(
+			outcome === 'skipped' ? 'onboarding_skipped' : 'onboarding_completed',
+		)
 		router.replace('/')
 	}, [isReplay, progress])
 
 	const handleSkip = useCallback(() => {
-		void finish()
+		void finish('skipped')
 	}, [finish])
 
 	const handleSelect = useCallback(
@@ -222,7 +230,7 @@ export function OnboardingScreen() {
 									setStep(advanceFromCrossing(step))
 									return
 								}
-								void finish()
+								void finish('completed')
 							}}
 							style={({ pressed }) => [
 								styles.cta,

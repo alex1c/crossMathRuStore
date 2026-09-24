@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { ThemeProvider, useTheme } from '@/src/theme'
 import { AppProgressProvider } from '@/src/features/progress'
+import { bootstrapAds } from '@/src/services/ads'
+import { bootstrapAnalytics } from '@/src/services/analytics'
 
 export {
 	ErrorBoundary,
@@ -13,9 +16,14 @@ export const unstable_settings = {
 }
 
 /**
- * Root layout: SafeArea + theme + persisted progress provider.
+ * Root layout: SafeArea + theme + progress + one-shot ads/analytics bootstrap.
  */
 export default function RootLayout() {
+	useEffect(() => {
+		bootstrapAnalytics()
+		void bootstrapAds()
+	}, [])
+
 	return (
 		<SafeAreaProvider>
 			<ThemeProvider>

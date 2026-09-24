@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text } from 'react-native'
 import { router } from 'expo-router'
 import { BannerSlot, HomeMenuButton, Screen } from '@/src/components'
 import { useAppProgress } from '@/src/features/progress'
+import { trackAnalyticsEvent } from '@/src/services/analytics'
 import { useTheme } from '@/src/theme'
 
 const TABLES = [2, 3, 4, 5, 6, 7, 8, 9] as const
@@ -17,6 +18,9 @@ export function MultiplicationScreen() {
 	const startTable = (table: number | 'mixed') => {
 		const key = String(table)
 		const sequence = (state.multiplication.solvedByTable[key] ?? 0) + 1
+		trackAnalyticsEvent('multiplication_opened', {
+			table: table === 'mixed' ? 'mixed' : String(table),
+		})
 		router.push({
 			pathname: '/game',
 			params: {
@@ -36,7 +40,7 @@ export function MultiplicationScreen() {
 					: 'Выберите таблицу'
 			}
 			scroll
-			footer={<BannerSlot placement="home" />}
+			footer={<BannerSlot placement="multiplication" />}
 		>
 			{TABLES.map((table) => (
 				<HomeMenuButton

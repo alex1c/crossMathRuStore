@@ -1,74 +1,72 @@
 /**
- * Architectural reserved region for a future non-game banner.
- * Keeps layout ready for ads without shipping any Ad SDK or test IDs.
+ * Bottom banner slot for non-game screens.
+ * Reserved geometry is always 50px; real RSYA host loads when enabled.
+ * Training/onboarding never loads a real ad.
  */
 
 import { StyleSheet, Text, View } from 'react-native'
+import { ADS_BANNER_RESERVED_HEIGHT, type BannerPlacement } from '@/src/config/ads'
+import { ProductionBanner } from '@/src/components/ads/ProductionBanner'
 import { useTheme } from '@/src/theme'
 
-/** Physical reserved height for list / info screens (matches game banner). */
-export const BANNER_SLOT_RESERVED_HEIGHT = 50
-
-export type BannerPlacement =
-	| 'home'
-	| 'levels'
-	| 'stats'
-	| 'settings'
-	| 'about'
-	| 'training'
-	| 'reminder'
-	| 'game'
+export { ADS_BANNER_RESERVED_HEIGHT as BANNER_SLOT_RESERVED_HEIGHT }
+export type { BannerPlacement }
 
 type BannerSlotProps = {
-	/**
-	 * Placement id for future ad wiring.
-	 * No Ad SDK is integrated in Phase 5.
-	 */
-	placement: BannerPlacement
+	readonly placement: BannerPlacement
 }
 
 /**
- * Bottom-attached banner geometry contract for non-game screens.
- * Production: neutral empty slot. DEV: subtle outline/label only.
+ * Bottom-attached banner geometry contract.
+ * Real ads load for suitable placements; training stays empty reserved space.
  */
 export function BannerSlot({ placement }: BannerSlotProps) {
 	const theme = useTheme()
+	const enabled = placement !== 'training'
 
 	return (
 		<View
-			pointerEvents="none"
-			accessibilityElementsHidden
-			importantForAccessibility="no-hide-descendants"
-			style={[
-				styles.slot,
-				{
-					height: BANNER_SLOT_RESERVED_HEIGHT,
-					borderColor: __DEV__ ? theme.colors.border : 'transparent',
-				},
-			]}
+			style={styles.wrap}
 			testID={`banner-slot-${placement}`}
 		>
-			{__DEV__ ? (
-				<Text
-					style={{
-						color: theme.colors.textSecondary,
-						fontSize: 10,
-						opacity: 0.45,
-					}}
+			<ProductionBanner
+				placement={placement}
+				height={ADS_BANNER_RESERVED_HEIGHT}
+				enabled={enabled}
+			/>
+			{__DEV__ && !enabled ? (
+				<View
+					pointerEvents="none"
+					style={[
+						styles.devOverlay,
+						{ borderColor: theme.colors.border },
+					]}
 				>
-					banner
-				</Text>
+					<Text
+						style={{
+							color: theme.colors.textSecondary,
+							fontSize: 10,
+							opacity: 0.45,
+						}}
+					>
+						banner (no ad)
+					</Text>
+				</View>
 			) : null}
 		</View>
 	)
 }
 
 const styles = StyleSheet.create({
-	slot: {
+	wrap: {
 		width: '100%',
+		height: ADS_BANNER_RESERVED_HEIGHT,
+		position: 'relative',
+	},
+	devOverlay: {
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderTopWidth: __DEV__ ? StyleSheet.hairlineWidth : 0,
-		overflow: 'hidden',
+		borderTopWidth: StyleSheet.hairlineWidth,
 	},
 })

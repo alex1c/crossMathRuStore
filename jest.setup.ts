@@ -35,3 +35,25 @@ jest.mock('expo-haptics', () => ({
 		Warning: 'warning',
 	},
 }))
+
+jest.mock('yandex-mobile-ads', () => ({
+	MobileAds: { initialize: jest.fn(async () => undefined) },
+	BannerAdSize: {
+		stickySize: jest.fn(async () => ({ width: 320, height: 50 })),
+	},
+	BannerView: 'BannerView',
+	RewardedAdLoader: {
+		create: jest.fn(async () => ({ loadAd: jest.fn() })),
+	},
+	InterstitialAdLoader: {
+		create: jest.fn(async () => ({ loadAd: jest.fn() })),
+	},
+}))
+
+jest.mock('@appmetrica/react-native-analytics', () => ({
+	__esModule: true,
+	default: {
+		activate: jest.fn(),
+		reportEvent: jest.fn(),
+	},
+}))

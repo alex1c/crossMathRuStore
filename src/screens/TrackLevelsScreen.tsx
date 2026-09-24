@@ -35,7 +35,7 @@ export function TrackLevelsScreen({ track }: TrackLevelsScreenProps) {
 			title={getTrackLabel(track)}
 			subtitle={`${solved} / ${TRACK_LEVEL_COUNT} · далее ${nextLevel}`}
 			scroll
-			footer={<BannerSlot placement="levels" />}
+			footer={<BannerSlot placement="track_levels" />}
 		>
 			<View style={styles.grid}>
 				{Array.from({ length: TRACK_LEVEL_COUNT }, (_, index) => index + 1).map(
