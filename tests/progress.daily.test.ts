@@ -16,6 +16,16 @@ import {
 	canEnableReminder,
 	getReminderSettingsView,
 } from '@/src/features/reminder/settingsView'
+import {
+	createDailyReminderResponseGate,
+	isDevReminderTestEnabled,
+	resolveReminderDestination,
+} from '@/src/features/reminder/notificationRouting'
+import {
+	DAILY_REMINDER_DATA,
+	DAILY_REMINDER_NOTIFICATION_ID,
+	DEV_REMINDER_TEST_NOTIFICATION_ID,
+} from '@/src/features/reminder/notificationConstants'
 import { getEndlessGenerationProfile } from '@/src/core/crossmath'
 
 describe('active timer', () => {
@@ -120,6 +130,47 @@ describe('local date key', () => {
 })
 
 describe('daily reminder reconciliation', () => {
+	it('routes production and development reminder payloads to Daily', () => {
+		expect(DAILY_REMINDER_DATA).toEqual({ destination: 'daily' })
+		expect(DAILY_REMINDER_NOTIFICATION_ID).not.toBe(
+			DEV_REMINDER_TEST_NOTIFICATION_ID,
+		)
+		expect(resolveReminderDestination(DAILY_REMINDER_DATA)).toBe('daily')
+		expect(resolveReminderDestination({ destination: 'home' })).toBeNull()
+		expect(resolveReminderDestination(null)).toBeNull()
+		expect(resolveReminderDestination('daily')).toBeNull()
+	})
+
+	it('ignores malformed, non-tap, and duplicate notification responses', () => {
+		const response = {
+			actionIdentifier: 'tap',
+			notification: {
+				date: 1234,
+				request: {
+					identifier: DAILY_REMINDER_NOTIFICATION_ID,
+					content: { data: DAILY_REMINDER_DATA },
+				},
+			},
+		}
+		const gate = createDailyReminderResponseGate('tap')
+		expect(gate(response)).toBe('crossmath-daily-reminder:1234')
+		expect(gate(response)).toBeNull()
+		expect(
+			createDailyReminderResponseGate('tap')({
+				...response,
+				notification: {
+					...response.notification,
+					request: {
+					...response.notification.request,
+					content: { data: { destination: 'unknown' } },
+					},
+				},
+			}),
+		).toBeNull()
+		expect(isDevReminderTestEnabled(false)).toBe(false)
+		expect(isDevReminderTestEnabled(true)).toBe(true)
+	})
+
 	it('keeps fresh and permission-denied reminders visually OFF without time controls', () => {
 		const fresh = createDefaultPersistedState()
 		expect(

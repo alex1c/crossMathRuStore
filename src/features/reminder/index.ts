@@ -13,4 +13,6 @@ export {
 	getReminderPermissionStatus,
 	requestReminderPermission,
 	applyDailyReminderPlan,
+	scheduleDevReminderTest,
+	DEV_REMINDER_TEST_NOTIFICATION_ID,
 } from './scheduler'

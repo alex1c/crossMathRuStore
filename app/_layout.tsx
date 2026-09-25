@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
-import { Stack } from 'expo-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { router, Stack, useRootNavigationState } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import * as Notifications from 'expo-notifications'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { ThemeProvider, useTheme } from '@/src/theme'
-import { AppProgressProvider } from '@/src/features/progress'
+import { AppProgressProvider, useAppProgress } from '@/src/features/progress'
+import { createDailyReminderResponseGate } from '@/src/features/reminder/notificationRouting'
 import { bootstrapAds } from '@/src/services/ads'
 import { bootstrapAnalytics } from '@/src/services/analytics'
 
@@ -40,6 +42,7 @@ function RootNavigator() {
 
 	return (
 		<>
+			<ReminderNotificationRouter />
 			<StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
 			<Stack
 				screenOptions={{
@@ -92,4 +95,59 @@ function RootNavigator() {
 			</Stack>
 		</>
 	)
+}
+
+/** Routes reminder taps only after both navigation and saved progress are ready. */
+function ReminderNotificationRouter() {
+	const progress = useAppProgress()
+	const navigationState = useRootNavigationState()
+	const [pendingRouteVersion, setPendingRouteVersion] = useState(0)
+	const pendingDailyRoute = useRef(false)
+	const responseGate = useRef(
+		createDailyReminderResponseGate(Notifications.DEFAULT_ACTION_IDENTIFIER),
+	)
+
+	const handleResponse = useCallback((response: Notifications.NotificationResponse) => {
+		if (!responseGate.current(response)) {
+			return
+		}
+		pendingDailyRoute.current = true
+		setPendingRouteVersion((version) => version + 1)
+		try {
+			Notifications.clearLastNotificationResponse()
+		} catch {
+			// The response is still guarded in memory if this platform lacks clearing.
+		}
+	}, [])
+
+	useEffect(() => {
+		let active = true
+		const subscription = Notifications.addNotificationResponseReceivedListener(
+			handleResponse,
+		)
+		try {
+			const lastResponse = Notifications.getLastNotificationResponse()
+			if (lastResponse) {
+				void Promise.resolve().then(() => {
+					if (active) handleResponse(lastResponse)
+				})
+			}
+		} catch {
+			// Cold-start response retrieval may be unavailable on some platforms.
+		}
+		return () => {
+			active = false
+			subscription.remove()
+		}
+	}, [handleResponse])
+
+	useEffect(() => {
+		if (!pendingDailyRoute.current || !progress.ready || !navigationState?.key) {
+			return
+		}
+		pendingDailyRoute.current = false
+		router.push('/daily')
+	}, [pendingRouteVersion, progress.ready, navigationState?.key])
+
+	return null
 }

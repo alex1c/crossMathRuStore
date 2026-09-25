@@ -11,8 +11,14 @@ import {
 	type ReminderPlan,
 } from './reconcile'
 import { parseLocalDateKey } from '@/src/features/progress/dateKey'
+import {
+	DAILY_REMINDER_DATA,
+	DAILY_REMINDER_NOTIFICATION_ID,
+	DEV_REMINDER_TEST_NOTIFICATION_ID,
+} from './notificationConstants'
+import { DAILY_REMINDER_TITLE } from './reconcile'
 
-export const DAILY_REMINDER_NOTIFICATION_ID = 'crossmath-daily-reminder'
+export { DAILY_REMINDER_NOTIFICATION_ID, DEV_REMINDER_TEST_NOTIFICATION_ID } from './notificationConstants'
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
@@ -92,6 +98,7 @@ async function scheduleDailyReminder(plan: Extract<ReminderPlan, { action: 'sche
 		content: {
 			title: plan.title,
 			body: plan.body,
+			data: DAILY_REMINDER_DATA,
 			sound: false,
 		},
 		trigger: {
@@ -100,6 +107,38 @@ async function scheduleDailyReminder(plan: Extract<ReminderPlan, { action: 'sche
 			channelId: Platform.OS === 'android' ? 'daily-reminder' : undefined,
 		},
 	})
+}
+
+/** Schedule a separate short-delay notification for development QA only. */
+export async function scheduleDevReminderTest(): Promise<
+	'scheduled' | 'permission-required' | 'unavailable'
+> {
+	if (!__DEV__) {
+		return 'unavailable'
+	}
+	try {
+		if ((await getReminderPermissionStatus()) !== 'granted') {
+			return 'permission-required'
+		}
+		await ensureAndroidChannel()
+		await Notifications.scheduleNotificationAsync({
+			identifier: DEV_REMINDER_TEST_NOTIFICATION_ID,
+			content: {
+				title: DAILY_REMINDER_TITLE,
+				body: 'Тест: кроссворд дня ждёт 🧩',
+				data: DAILY_REMINDER_DATA,
+				sound: false,
+			},
+			trigger: {
+				type: Notifications.SchedulableTriggerInputTypes.DATE,
+				date: new Date(Date.now() + 12_000),
+				channelId: Platform.OS === 'android' ? 'daily-reminder' : undefined,
+			},
+		})
+		return 'scheduled'
+	} catch {
+		return 'unavailable'
+	}
 }
 
 async function ensureAndroidChannel(): Promise<void> {

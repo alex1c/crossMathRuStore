@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
 	AppState,
+	Alert,
 	Pressable,
 	StyleSheet,
 	Switch,
@@ -20,6 +21,8 @@ import {
 	canEnableReminder,
 	getReminderSettingsView,
 } from '@/src/features/reminder/settingsView'
+import { isDevReminderTestEnabled } from '@/src/features/reminder/notificationRouting'
+import { scheduleDevReminderTest } from '@/src/features/reminder'
 import {
 	OTHER_OUR_APPS_LABEL,
 	OTHER_OUR_APPS_URL,
@@ -40,11 +43,37 @@ export function SettingsScreen() {
 	const [timeError, setTimeError] = useState<string | null>(null)
 	const [permissionBusy, setPermissionBusy] = useState(false)
 	const [showPermissionHelp, setShowPermissionHelp] = useState(false)
+	const [devTestBusy, setDevTestBusy] = useState(false)
 	const permissionRequestInFlight = useRef(false)
 	const reminderView = getReminderSettingsView(
 		settings.dailyReminderEnabled,
 		progress.reminderPermission,
 	)
+	const runDevReminderTest = async () => {
+		if (devTestBusy) return
+		setDevTestBusy(true)
+		try {
+			let result = await scheduleDevReminderTest()
+			if (result === 'permission-required') {
+				const permission = await progress.requestNotificationPermission()
+				result = permission === 'granted'
+					? await scheduleDevReminderTest()
+					: 'permission-required'
+			}
+			if (result === 'scheduled') {
+				Alert.alert('Тест напоминания', 'Уведомление появится примерно через 12 секунд.')
+			} else if (result === 'permission-required') {
+				Alert.alert(
+					'Уведомления отключены',
+					'Разрешите уведомления в настройках Android и повторите тест.',
+				)
+			} else {
+				Alert.alert('Тест напоминания', 'Не удалось запланировать уведомление.')
+			}
+		} finally {
+			setDevTestBusy(false)
+		}
+	}
 	useEffect(() => {
 		const subscription = AppState.addEventListener('change', (nextState) => {
 			if (nextState === 'active') {
@@ -206,6 +235,22 @@ export function SettingsScreen() {
 						</Pressable>
 					) : null}
 				</View>
+			) : null}
+			{isDevReminderTestEnabled(__DEV__) ? (
+				<Pressable
+					accessibilityRole="button"
+					disabled={devTestBusy}
+					onPress={() => void runDevReminderTest()}
+					style={({ pressed }) => [
+						styles.permissionButton,
+						{
+							borderColor: theme.colors.border,
+							opacity: pressed || devTestBusy ? 0.65 : 1,
+						},
+					]}
+				>
+					<Text style={{ color: theme.colors.primary }}>Тест напоминания</Text>
+				</Pressable>
 			) : null}
 
 			<Text
