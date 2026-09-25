@@ -6,6 +6,7 @@ import { initializeYandexAds } from './yandexAdapter'
 import { preloadRewardedHint } from './rewarded'
 import { preloadInterstitial } from './interstitial'
 import { resetAdSessionRuntime } from './adSession'
+import { isScreenshotQaModeEnabled } from '@/src/config/ads'
 
 export { initializeYandexAds, getYandexAdsModule } from './yandexAdapter'
 export {
@@ -51,6 +52,9 @@ export async function bootstrapAds(): Promise<void> {
 	}
 	bootstrapped = true
 	resetAdSessionRuntime()
+	if (isScreenshotQaModeEnabled()) {
+		return
+	}
 	try {
 		await initializeYandexAds()
 		void preloadRewardedHint()

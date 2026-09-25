@@ -89,6 +89,18 @@ export function isAdsProductionBuild(): boolean {
 	return !__DEV__
 }
 
+/**
+ * Local screenshot capture switch. Set EXPO_PUBLIC_SCREENSHOT_QA_MODE=1 before
+ * starting Metro; set it to 0 (or remove it) to restore normal DEV ads.
+ * The production-build guard makes this switch inert in release bundles.
+ */
+export function isScreenshotQaModeEnabled(
+	production = isAdsProductionBuild(),
+	requested = process.env.EXPO_PUBLIC_SCREENSHOT_QA_MODE === '1',
+): boolean {
+	return !production && requested
+}
+
 export function isPlaceholderAdUnitId(id: string): boolean {
 	if (!id || id.trim().length === 0) {
 		return true
@@ -106,8 +118,9 @@ export function isPlaceholderAdUnitId(id: string): boolean {
 export function getBannerAdUnitId(
 	placement: BannerPlacement,
 	production = isAdsProductionBuild(),
+	screenshotQaMode = isScreenshotQaModeEnabled(production),
 ): string {
-	if (placement === 'training') {
+	if (placement === 'training' || (!production && screenshotQaMode)) {
 		return ''
 	}
 	if (!production) {

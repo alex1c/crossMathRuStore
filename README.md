@@ -78,6 +78,19 @@ npm run lint
 npm test
 ```
 
+### Local RuStore screenshot capture
+
+On PowerShell, enable the DEV-only empty banner reservation before starting
+Metro:
+
+```powershell
+$env:EXPO_PUBLIC_SCREENSHOT_QA_MODE = '1'
+npm start -- --clear
+```
+
+Set the variable to `'0'` or remove it, then restart Metro to restore normal
+Yandex demo banners. Release builds ignore this flag.
+
 Android pre-flight (safe checks only):
 
 ```powershell

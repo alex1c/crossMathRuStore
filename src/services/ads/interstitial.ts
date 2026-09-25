@@ -2,7 +2,10 @@
  * Completion interstitial — preload + guarded show. Never blocks Next/Home.
  */
 
-import { getInterstitialAdUnitId } from '@/src/config/ads'
+import {
+	getInterstitialAdUnitId,
+	isScreenshotQaModeEnabled,
+} from '@/src/config/ads'
 import {
 	canAttemptCompletionInterstitial,
 	noteInterstitialAdShown,
@@ -26,6 +29,9 @@ export function isInterstitialReady(): boolean {
 }
 
 export async function preloadInterstitial(): Promise<void> {
+	if (isScreenshotQaModeEnabled()) {
+		return
+	}
 	const adUnitId = getInterstitialAdUnitId()
 	if (!adUnitId || loading || ready) {
 		return
@@ -56,6 +62,9 @@ export async function maybeShowCompletionInterstitial(options: {
 	readonly sourceKind: string
 	readonly onFullscreenChange?: (active: boolean) => void
 }): Promise<boolean> {
+	if (isScreenshotQaModeEnabled()) {
+		return false
+	}
 	// Daily completion: conservative — skip interstitial to avoid ritual → ad feel.
 	const blocked =
 		options.sourceKind === 'daily' ||

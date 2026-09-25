@@ -37,7 +37,7 @@ export function ProductionBanner({
 	const [bannerSize, setBannerSize] = useState<SizedBanner | null>(null)
 	const [failedUnitId, setFailedUnitId] = useState<string | null>(null)
 	const adUnitId = enabled ? getBannerAdUnitId(placement) : ''
-	const yandex = getYandexAdsModule()
+	const yandex = adUnitId ? getYandexAdsModule() : null
 	const BannerView = yandex?.BannerView
 	const failed = failedUnitId === adUnitId && adUnitId.length > 0
 	const resolvedSize =
