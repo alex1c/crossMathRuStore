@@ -12,6 +12,10 @@ import {
 import { hasActiveDailySessionForDate } from '@/src/features/daily'
 import { createDefaultPersistedState } from '@/src/services/persistence'
 import { reconcileDailyReminder } from '@/src/features/reminder'
+import {
+	canEnableReminder,
+	getReminderSettingsView,
+} from '@/src/features/reminder/settingsView'
 import { getEndlessGenerationProfile } from '@/src/core/crossmath'
 
 describe('active timer', () => {
@@ -116,6 +120,35 @@ describe('local date key', () => {
 })
 
 describe('daily reminder reconciliation', () => {
+	it('keeps fresh and permission-denied reminders visually OFF without time controls', () => {
+		const fresh = createDefaultPersistedState()
+		expect(
+			getReminderSettingsView(
+				fresh.settings.dailyReminderEnabled,
+				'undetermined',
+			),
+		).toEqual({
+			enabled: false,
+			showTimeControls: false,
+			showPermissionHelp: false,
+		})
+		expect(getReminderSettingsView(true, 'denied')).toEqual({
+			enabled: false,
+			showTimeControls: false,
+			showPermissionHelp: true,
+		})
+	})
+
+	it('shows an existing enabled reminder as ON only while permission is granted', () => {
+		expect(canEnableReminder('granted')).toBe(true)
+		expect(canEnableReminder('denied')).toBe(false)
+		expect(getReminderSettingsView(true, 'granted')).toEqual({
+			enabled: true,
+			showTimeControls: true,
+			showPermissionHelp: false,
+		})
+	})
+
 	it('cancels when disabled or today completed', () => {
 		expect(
 			reconcileDailyReminder({
@@ -149,6 +182,17 @@ describe('daily reminder reconciliation', () => {
 			action: 'schedule',
 			minutesFromMidnight: 1140,
 		})
+	})
+
+	it('uses the updated local reminder time during reconciliation', () => {
+		const plan = reconcileDailyReminder({
+			enabled: true,
+			minutesFromMidnight: 20 * 60 + 15,
+			todayKey: '2026-09-23',
+			todayCompleted: false,
+			permission: 'granted',
+		})
+		expect(plan).toMatchObject({ action: 'schedule', minutesFromMidnight: 1215 })
 	})
 
 	it('does nothing harmful when permission denied', () => {

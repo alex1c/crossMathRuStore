@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
+	AppState,
 	Pressable,
 	StyleSheet,
 	Switch,
@@ -15,7 +16,10 @@ import {
 	parseReminderTime,
 	useAppProgress,
 } from '@/src/features/progress'
-import { DEFAULT_REMINDER_MINUTES } from '@/src/services/persistence'
+import {
+	canEnableReminder,
+	getReminderSettingsView,
+} from '@/src/features/reminder/settingsView'
 import {
 	OTHER_OUR_APPS_LABEL,
 	OTHER_OUR_APPS_URL,
@@ -28,11 +32,27 @@ import { useTheme } from '@/src/theme'
 export function SettingsScreen() {
 	const theme = useTheme()
 	const progress = useAppProgress()
+	const { refreshReminder } = progress
 	const { settings } = progress.state
 	const [timeText, setTimeText] = useState(
 		formatReminderTime(settings.dailyReminderMinutes),
 	)
 	const [timeError, setTimeError] = useState<string | null>(null)
+	const [permissionBusy, setPermissionBusy] = useState(false)
+	const [showPermissionHelp, setShowPermissionHelp] = useState(false)
+	const permissionRequestInFlight = useRef(false)
+	const reminderView = getReminderSettingsView(
+		settings.dailyReminderEnabled,
+		progress.reminderPermission,
+	)
+	useEffect(() => {
+		const subscription = AppState.addEventListener('change', (nextState) => {
+			if (nextState === 'active') {
+				void refreshReminder()
+			}
+		})
+		return () => subscription.remove()
+	}, [refreshReminder])
 
 	return (
 		<Screen
@@ -89,100 +109,103 @@ export function SettingsScreen() {
 						...theme.typography.body,
 					}}
 				>
-					Кроссворд дня
+					Напоминать о кроссворде дня
 				</Text>
 				<Switch
-					value={settings.dailyReminderEnabled}
+					value={reminderView.enabled}
+					disabled={permissionBusy}
 					onValueChange={(value) => {
+						if (!value) {
+							void progress.updateSettings({ dailyReminderEnabled: false })
+							return
+						}
+						if (permissionRequestInFlight.current) return
+						permissionRequestInFlight.current = true
+						setPermissionBusy(true)
 						void (async () => {
-							if (value) {
-								await progress.requestNotificationPermission()
+							try {
+								const permission = await progress.requestNotificationPermission()
+								if (canEnableReminder(permission)) {
+									await progress.updateSettings({ dailyReminderEnabled: true })
+									setShowPermissionHelp(false)
+								} else {
+									setShowPermissionHelp(true)
+								}
+							} finally {
+								permissionRequestInFlight.current = false
+								setPermissionBusy(false)
 							}
-							await progress.updateSettings({
-								dailyReminderEnabled: value,
-							})
 						})()
 					}}
 				/>
 			</View>
-
-			<Text
-				style={{
-					marginTop: 12,
-					color: theme.colors.textSecondary,
-					...theme.typography.caption,
-				}}
-			>
-				Время (по умолчанию{' '}
-				{formatReminderTime(DEFAULT_REMINDER_MINUTES)})
+			<Text style={{ color: theme.colors.textSecondary, ...theme.typography.caption }}>
+				Если сегодняшний кроссворд ещё не решён
 			</Text>
-			<TextInput
-				value={timeText}
-				onChangeText={(text) => {
-					setTimeText(text)
-					setTimeError(null)
-				}}
-				onBlur={() => {
-					const parsed = parseReminderTime(timeText)
-					if (parsed === null) {
-						setTimeError('Формат ЧЧ:ММ')
-						setTimeText(
-							formatReminderTime(settings.dailyReminderMinutes),
-						)
-						return
-					}
-					void progress.updateSettings({
-						dailyReminderMinutes: parsed,
-					})
-					setTimeText(formatReminderTime(parsed))
-				}}
-				keyboardType="numbers-and-punctuation"
-				placeholder="19:00"
-				style={[
-					styles.input,
-					{
-						borderColor: theme.colors.border,
-						color: theme.colors.text,
-						backgroundColor: theme.colors.surface,
-					},
-				]}
-			/>
-			{timeError ? (
-				<Text style={{ color: theme.colors.error }}>{timeError}</Text>
-			) : null}
-
-			<Text
-				style={{
-					marginTop: 10,
-					color: theme.colors.textSecondary,
-					...theme.typography.caption,
-				}}
-			>
-				Разрешение:{' '}
-				{progress.reminderPermission === 'granted'
-					? 'разрешено'
-					: progress.reminderPermission === 'denied'
-						? 'запрещено'
-						: 'не запрошено'}
-			</Text>
-
-			{progress.reminderPermission !== 'granted' ? (
-				<Pressable
-					onPress={() => {
-						void progress.requestNotificationPermission()
-					}}
-					style={({ pressed }) => [
-						styles.permissionButton,
-						{
-							borderColor: theme.colors.border,
-							opacity: pressed ? 0.85 : 1,
-						},
-					]}
-				>
-					<Text style={{ color: theme.colors.primary }}>
-						Запросить разрешение
+			{reminderView.showTimeControls ? (
+				<>
+					<Text
+						style={{
+							marginTop: 12,
+							color: theme.colors.textSecondary,
+							...theme.typography.caption,
+						}}
+					>
+						Время напоминания
 					</Text>
-				</Pressable>
+					<TextInput
+						value={timeText}
+						onChangeText={(text) => {
+							setTimeText(text)
+							setTimeError(null)
+						}}
+						onBlur={() => {
+							const parsed = parseReminderTime(timeText)
+							if (parsed === null) {
+								setTimeError('Формат ЧЧ:ММ')
+								setTimeText(
+									formatReminderTime(settings.dailyReminderMinutes),
+								)
+								return
+							}
+							void progress.updateSettings({
+								dailyReminderMinutes: parsed,
+							})
+							setTimeText(formatReminderTime(parsed))
+						}}
+						keyboardType="numbers-and-punctuation"
+						placeholder="19:00"
+						style={[
+							styles.input,
+							{
+								borderColor: theme.colors.border,
+								color: theme.colors.text,
+								backgroundColor: theme.colors.surface,
+							},
+						]}
+					/>
+					{timeError ? (
+						<Text style={{ color: theme.colors.error }}>{timeError}</Text>
+					) : null}
+				</>
+			) : null}
+			{reminderView.showPermissionHelp || showPermissionHelp ? (
+				<View style={{ marginTop: 10 }}>
+					<Text style={{ color: theme.colors.textSecondary, ...theme.typography.caption }}>
+						Уведомления отключены в настройках Android.
+					</Text>
+					<Pressable onPress={() => void Linking.openSettings()} style={styles.permissionButton}>
+						<Text style={{ color: theme.colors.primary }}>Открыть настройки</Text>
+					</Pressable>
+					{reminderView.showPermissionHelp ? (
+						<Pressable
+							onPress={() => void progress.updateSettings({ dailyReminderEnabled: false })}
+							style={styles.permissionButton}
+						>
+							<Text style={{ color: theme.colors.primary }}>Выключить напоминание</Text>
+						</Pressable>
+					) : null}
+				</View>
 			) : null}
 
 			<Text
